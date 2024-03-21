@@ -21,7 +21,9 @@ impl Chain {
     }
 
     fn run(self, input: String) -> String {
-        self.links.into_iter().fold(input, |acc, link| link.run(acc))
+        self.links
+            .into_iter()
+            .fold(input, |acc, link| link.run(acc))
     }
 }
 
