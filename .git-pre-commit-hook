@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Stop on first error
+set -e
+
+# Run Cargo clippy
+echo "Running cargo clippy..."
+cargo clippy -- -D warnings
+
+# Check formatting
+echo "Checking cargo fmt..."
+cargo fmt -- --check
+
+# Run tests
+echo "Running cargo test..."
+cargo test
+
+# If all commands succeed, allow the commit to proceed
+exit 0
