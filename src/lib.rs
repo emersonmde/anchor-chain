@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use std::ops::BitOr;
 
 #[async_trait]
 pub trait Link {
-    async fn run(&self, input: &str) -> String;
+    async fn run(&self, input: &str) -> Result<String>;
 }
 
 pub struct Chain {
@@ -23,12 +23,13 @@ impl Chain {
         self
     }
 
-    pub async fn run(self, input: String) -> String {
+    pub async fn run(self, input: String) -> Result<String> {
         let mut result = input;
         for link in self.links {
-            result = link.run(&result).await;
+            result = link.run(&result).await?;
         }
-        result
+
+        Ok(result)
     }
 }
 
@@ -45,21 +46,6 @@ impl<L: Link + 'static> BitOr<L> for Chain {
         self.add_link(link)
     }
 }
-
-// pub enum LanguageModel {
-//     Gpt3_5Turbo { api_key: String },
-//     BedrockClaude2_1 { aws_profile: String },
-// }
-//
-// impl LanguageModel {
-//     pub fn new_gpt3_5_turbo(api_key: String) -> Self {
-//         LanguageModel::Gpt3_5Turbo { api_key }
-//     }
-//
-//     pub fn new_bedrock_claude2_1(aws_profile: String) -> Self {
-//         LanguageModel::BedrockClaude2_1 { aws_profile }
-//     }
-// }
 
 pub struct Gpt3_5Turbo {
     system_prompt: String,
@@ -88,42 +74,35 @@ impl Gpt3_5Turbo {
 
 #[async_trait]
 impl Link for Gpt3_5Turbo {
-    async fn run(&self, input: &str) -> String {
+    async fn run(&self, input: &str) -> Result<String> {
         let system_prompt = async_openai::types::ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
-            .build()
-            .expect("Failed to build system prompt")
+            .build()?
             .into();
 
         let input = async_openai::types::ChatCompletionRequestUserMessageArgs::default()
             .content(input)
-            .build()
-            .expect("Failed to build user input")
+            .build()?
             .into();
 
         let request = async_openai::types::CreateChatCompletionRequestArgs::default()
             .max_tokens(512u16)
             .model("gpt-3.5-turbo")
             .messages([system_prompt, input])
-            .build()
-            .expect("Failed to build request");
+            .build()?;
 
-        println!("{}", serde_json::to_string(&request).unwrap());
+        let response = self.client.chat().create(request).await?;
+        if response.choices.is_empty() {
+            return Err(anyhow!("No choices in response"));
+        }
 
-        let response = self
-            .client
-            .chat()
-            .create(request)
-            .await
-            .expect("Failed to create chat completion request");
-
-        println!("\nResponse:\n");
-        // TODO: Fix unwrap (currently returnning empty string consistently)
-        response.choices[0]
+        let content = response.choices[0]
             .message
             .clone()
             .content
-            .unwrap_or("".to_string())
+            .context("No content in response")?;
+
+        Ok(content)
     }
 }
 
@@ -141,23 +120,9 @@ impl Prompt {
 
 #[async_trait]
 impl Link for Prompt {
-    async fn run(&self, input: &str) -> String {
+    async fn run(&self, input: &str) -> Result<String> {
         // TODO: Take hashmap for parameterized input
         println!("Prompt {} {}", self.text, input);
-        format!("Prompt {} {}", self.text, input)
+        Ok(format!("Prompt {} {}", self.text, input))
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     #[test]
-//     fn test() {
-//         let chain = Chain::new()
-//             | Prompt::new("Hello".to_string())
-//             | LanguageModel::new_gpt3_5_turbo("api_key".to_string());
-//
-//         chain.run("Test".to_string());
-//     }
-// }
