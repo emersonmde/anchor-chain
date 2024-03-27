@@ -122,7 +122,8 @@ impl Prompt {
 impl Link for Prompt {
     async fn run(&self, input: &str) -> Result<String> {
         // TODO: Take hashmap for parameterized input
-        println!("Prompt {} {}", self.text, input);
-        Ok(format!("Prompt {} {}", self.text, input))
+        let result = self.text.replace("{input}", input);
+        println!("Prompt: {}", result);
+        Ok(result)
     }
 }

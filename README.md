@@ -1,5 +1,9 @@
 ## Anchor Chain
 
+WIP
+
+A framework for working with LLMs inspired by LangChain.
+
 ```text
               |>   |>   |>
               )_)  )_)  )_)
