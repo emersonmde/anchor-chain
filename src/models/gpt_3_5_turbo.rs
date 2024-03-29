@@ -13,22 +13,22 @@ pub struct Gpt3_5Turbo {
 }
 
 impl Gpt3_5Turbo {
-    pub async fn new(system_prompt: String) -> Result<Self> {
+    pub async fn new(system_prompt: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
-        Ok(Gpt3_5Turbo {
+        Gpt3_5Turbo {
             system_prompt,
             client,
-        })
+        }
     }
 
-    pub async fn new_with_key(system_prompt: String, api_key: String) -> Result<Self> {
+    pub async fn new_with_key(system_prompt: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
-        Ok(Gpt3_5Turbo {
+        Gpt3_5Turbo {
             system_prompt,
             client,
-        })
+        }
     }
 }
 

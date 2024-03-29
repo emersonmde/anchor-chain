@@ -25,7 +25,7 @@ dependencies = [
  "async-openai",
  "async-trait",
  "aws-config",
- "aws-sdk-bedrock",
+ "aws-sdk-bedrockruntime",
  "serde",
  "serde_json",
  "tokio",
@@ -155,14 +155,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "aws-sdk-bedrock"
+name = "aws-sdk-bedrockruntime"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be29d9fac285ed62f46aec50f2fbd0b0687968004899f7139b5f0e6ccfc03a2a"
+checksum = "8e8a67cc7ba849f95c3908a68ffceef51f2eb0b0463d57bd6e5015d41309d6a0"
 dependencies = [
  "aws-credential-types",
  "aws-runtime",
  "aws-smithy-async",
+ "aws-smithy-eventstream",
  "aws-smithy-http",
  "aws-smithy-json",
  "aws-smithy-runtime",
@@ -170,7 +171,6 @@ dependencies = [
  "aws-smithy-types",
  "aws-types",
  "bytes",
- "fastrand",
  "http 0.2.12",
  "once_cell",
  "regex-lite",
@@ -279,11 +279,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-smithy-eventstream"
+version = "0.60.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6363078f927f612b970edf9d1903ef5cef9a64d1e8423525ebb1f0a1633c858"
+dependencies = [
+ "aws-smithy-types",
+ "bytes",
+ "crc32fast",
+]
+
+[[package]]
 name = "aws-smithy-http"
 version = "0.60.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f10fa66956f01540051b0aa7ad54574640f748f9839e843442d99b970d3aff9"
 dependencies = [
+ "aws-smithy-eventstream",
  "aws-smithy-runtime-api",
  "aws-smithy-types",
  "bytes",
@@ -523,6 +535,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "53fe5e26ff1b7aef8bca9c6080520cfb8d9333c7568e1829cef191a9723e5504"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "crc32fast"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3855a8a784b474f333699ef2bbca9db2c4a1f6d9088a90a2d25b1eb53111eaa"
+dependencies = [
+ "cfg-if",
 ]
 
 [[package]]
