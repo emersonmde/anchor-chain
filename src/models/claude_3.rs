@@ -18,29 +18,6 @@ struct AnthropicMessage {
     content: Vec<AnthropicMessageContent>,
 }
 
-/*
-* Structure that serializes to the following JSON:
-```json
-{
-    "anthropic_version": "bedrock-2023-05-31",
-    "max_tokens": int,
-    "system": string,
-    "messages": [
-        {
-            "role": string,
-            "content": [
-                { "type": "image", "source": { "type": "base64", "media_type": "image/jpeg", "data": "content image bytes" } },
-                { "type": "text", "text": "content text" }
-      ]
-        }
-    ],
-    "temperature": float,
-    "top_p": float,
-    "top_k": int,
-    "stop_sequences": [string]
-}
-```
-*/
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct AnthropicMessagesRequest {
     anthropic_version: String,
