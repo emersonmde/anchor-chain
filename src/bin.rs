@@ -2,7 +2,7 @@ extern crate anchor_chain;
 
 use anyhow::Result;
 
-use anchor_chain::{Chain, Gpt3_5Turbo, Prompt};
+use anchor_chain::{models::gpt_3_5_turbo::Gpt3_5Turbo, prompt::Prompt, Chain};
 
 #[tokio::main]
 async fn main() -> Result<()> {
