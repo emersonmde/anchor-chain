@@ -1,10 +1,9 @@
 use async_openai::types::{
     ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
-    ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+    ChatCompletionRequestUserMessageArgs,
 };
 
 pub enum MessageType {
-    System,
     User,
     Assistant,
 }
@@ -43,11 +42,6 @@ where
     fn from(message: Message<T>) -> ChatCompletionRequestMessage {
         let content = message.text.into();
         match message.message_type {
-            MessageType::System => ChatCompletionRequestSystemMessageArgs::default()
-                .content(content)
-                .build()
-                .unwrap()
-                .into(),
             MessageType::User => ChatCompletionRequestUserMessageArgs::default()
                 .content(content)
                 .build()
