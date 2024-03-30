@@ -3,81 +3,114 @@ use async_openai::types::{
     ChatCompletionRequestUserMessageArgs,
 };
 
-pub enum MessageType {
-    User,
-    Assistant,
+use crate::models::claude_3::{ClaudeMessage, ClaudeMessageContent};
+
+pub enum ChatMessage {
+    User(UserChatMessage),
+    Assistant(AssisnantChatMessage),
 }
 
-/// A message to be sent to an LLM
-pub struct Message<T>
-where
-    T: Into<String>,
-{
-    text: T,
-    message_type: MessageType,
+enum ChatMessageContent {
+    Text(String),
+    Image(String),
 }
 
-impl<T> Message<T>
-where
-    T: Into<String>,
-{
-    pub fn new(text: T, message_type: MessageType) -> Self {
-        Message { text, message_type }
-    }
+pub struct UserChatMessage {
+    content: ChatMessageContent,
 }
 
-impl<T> From<Message<T>> for String
-where
-    T: Into<String>,
-{
-    fn from(message: Message<T>) -> String {
-        message.text.into()
-    }
+pub struct AssisnantChatMessage {
+    content: ChatMessageContent,
 }
 
-impl<T> From<Message<T>> for ChatCompletionRequestMessage
-where
-    T: Into<String>,
-{
-    fn from(message: Message<T>) -> ChatCompletionRequestMessage {
-        let content = message.text.into();
-        match message.message_type {
-            MessageType::User => ChatCompletionRequestUserMessageArgs::default()
-                .content(content)
-                .build()
-                .unwrap()
-                .into(),
-            MessageType::Assistant => ChatCompletionRequestAssistantMessageArgs::default()
-                .content(content)
-                .build()
-                .unwrap()
-                .into(),
+struct ChatMessageVec {
+    messages: Vec<ChatMessage>,
+}
+
+impl From<ChatMessage> for ChatCompletionRequestMessage {
+    fn from(message: ChatMessage) -> ChatCompletionRequestMessage {
+        match message {
+            ChatMessage::User(user_message) => user_message.into(),
+            ChatMessage::Assistant(assistant_message) => assistant_message.into(),
         }
     }
 }
 
-/// A vector of messages to be sent to an LLM
-pub struct MessageVec<T>
-where
-    T: Into<String>,
-{
-    messages: Vec<Message<T>>,
-}
-
-impl<T> From<Vec<Message<T>>> for MessageVec<T>
-where
-    T: Into<String>,
-{
-    fn from(messages: Vec<Message<T>>) -> Self {
-        MessageVec { messages }
+impl From<ChatMessage> for ClaudeMessage {
+    fn from(message: ChatMessage) -> ClaudeMessage {
+        match message {
+            ChatMessage::User(user_message) => user_message.into(),
+            ChatMessage::Assistant(assistant_message) => assistant_message.into(),
+        }
     }
 }
 
-impl<T> From<MessageVec<T>> for Vec<ChatCompletionRequestMessage>
-where
-    T: Into<String>,
-{
-    fn from(messages: MessageVec<T>) -> Vec<ChatCompletionRequestMessage> {
+impl From<UserChatMessage> for ChatCompletionRequestMessage {
+    fn from(message: UserChatMessage) -> ChatCompletionRequestMessage {
+        match message.content {
+            ChatMessageContent::Text(text) => ChatCompletionRequestUserMessageArgs::default()
+                .content(text)
+                .build()
+                .unwrap()
+                .into(),
+            ChatMessageContent::Image(_image) => todo!("Image support"),
+        }
+    }
+}
+
+impl From<UserChatMessage> for ClaudeMessage {
+    fn from(message: UserChatMessage) -> ClaudeMessage {
+        match message.content {
+            ChatMessageContent::Text(text) => ClaudeMessage {
+                role: Some("user".to_string()),
+                content: vec![ClaudeMessageContent {
+                    content_type: "text".to_string(),
+                    text: Some(text),
+                    source: None,
+                }],
+            },
+            ChatMessageContent::Image(_image) => todo!("Image support"),
+        }
+    }
+}
+
+impl From<AssisnantChatMessage> for ChatCompletionRequestMessage {
+    fn from(message: AssisnantChatMessage) -> ChatCompletionRequestMessage {
+        match message.content {
+            ChatMessageContent::Text(text) => ChatCompletionRequestAssistantMessageArgs::default()
+                .content(text)
+                .build()
+                .unwrap()
+                .into(),
+            ChatMessageContent::Image(_image) => todo!("Image support"),
+        }
+    }
+}
+
+impl From<AssisnantChatMessage> for ClaudeMessage {
+    fn from(message: AssisnantChatMessage) -> ClaudeMessage {
+        match message.content {
+            ChatMessageContent::Text(text) => ClaudeMessage {
+                role: Some("assistant".to_string()),
+                content: vec![ClaudeMessageContent {
+                    content_type: "text".to_string(),
+                    text: Some(text),
+                    source: None,
+                }],
+            },
+            ChatMessageContent::Image(_image) => todo!("Image support"),
+        }
+    }
+}
+
+impl From<Vec<ChatMessage>> for ChatMessageVec {
+    fn from(messages: Vec<ChatMessage>) -> ChatMessageVec {
+        ChatMessageVec { messages }
+    }
+}
+
+impl From<ChatMessageVec> for Vec<ChatCompletionRequestMessage> {
+    fn from(messages: ChatMessageVec) -> Vec<ChatCompletionRequestMessage> {
         messages.messages.into_iter().map(|m| m.into()).collect()
     }
 }

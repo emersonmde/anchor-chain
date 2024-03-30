@@ -6,23 +6,37 @@ use serde::{Deserialize, Serialize};
 use crate::Link;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct AnthropicMessageContent {
+pub struct ClaudeImageSource {
+    // Data type, only "base64" is supported
     #[serde(rename = "type")]
-    content_type: String,
-    text: String,
+    source_type: String,
+    // Image type, e.g. "image/jpeg"
+    media_type: String,
+    // Base64-encoded image data
+    data: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct AnthropicMessage {
-    role: Option<String>,
-    content: Vec<AnthropicMessageContent>,
+pub struct ClaudeMessageContent {
+    #[serde(rename = "type")]
+    pub content_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<ClaudeImageSource>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct AnthropicMessagesRequest {
+pub struct ClaudeMessage {
+    pub role: Option<String>,
+    pub content: Vec<ClaudeMessageContent>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ClaudeMessagesRequest {
     anthropic_version: String,
     max_tokens: i32,
-    messages: Vec<AnthropicMessage>,
+    messages: Vec<ClaudeMessage>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     system: Option<String>,
@@ -41,8 +55,8 @@ struct AnthropicMessagesRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct AnthropicMessagesResponse {
-    content: Vec<AnthropicMessageContent>,
+struct ClaudeMessagesResponse {
+    content: Vec<ClaudeMessageContent>,
 }
 
 pub struct Claude3Bedrock {
@@ -64,14 +78,15 @@ impl Claude3Bedrock {
 #[async_trait]
 impl Link for Claude3Bedrock {
     async fn run(&self, input: &str) -> Result<String> {
-        let request = AnthropicMessagesRequest {
+        let request = ClaudeMessagesRequest {
             anthropic_version: "bedrock-2023-05-31".to_string(),
             max_tokens: 512,
-            messages: vec![AnthropicMessage {
+            messages: vec![ClaudeMessage {
                 role: Some("user".to_string()),
-                content: vec![AnthropicMessageContent {
+                content: vec![ClaudeMessageContent {
                     content_type: "text".to_string(),
-                    text: input.to_string(),
+                    text: Some(input.to_string()),
+                    source: None,
                 }],
             }],
             system: Some(self.system_prompt.clone()),
@@ -92,13 +107,15 @@ impl Link for Claude3Bedrock {
             .await;
 
         let response_blob = response?.body;
-        let response: AnthropicMessagesResponse =
-            serde_json::from_slice(&response_blob.into_inner())?;
+        let response: ClaudeMessagesResponse = serde_json::from_slice(&response_blob.into_inner())?;
 
         if response.content.is_empty() {
             return Err(anyhow!("No content in response"));
         }
 
-        Ok(response.content[0].text.clone())
+        Ok(response.content[0]
+            .text
+            .clone()
+            .expect("No text in response"))
     }
 }
