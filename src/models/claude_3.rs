@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
 
-use crate::link::Node;
+use crate::node::Node;
 
 /// Represents a source of an image to be processed by Claude 3, encapsulating the necessary
 /// details for image handling.

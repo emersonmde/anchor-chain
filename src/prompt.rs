@@ -3,7 +3,7 @@
 //! This module provides the `Prompt` struct, a processor for handling
 //! and displaying text prompts.
 
-use crate::link::Node;
+use crate::node::Node;
 use anyhow::Result;
 use async_trait::async_trait;
 

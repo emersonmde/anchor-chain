@@ -4,7 +4,7 @@
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
-use crate::link::{Link, Node};
+use crate::node::{Link, Node};
 use anyhow::Result;
 use std::marker::PhantomData;
 
