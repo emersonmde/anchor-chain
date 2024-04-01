@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
 
-use crate::Link;
+use crate::link::Processor;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClaudeImageSource {
@@ -76,8 +76,11 @@ impl Claude3Bedrock {
 }
 
 #[async_trait]
-impl Link for Claude3Bedrock {
-    async fn run(&self, input: &str) -> Result<String> {
+impl Processor for Claude3Bedrock {
+    type Input = String;
+    type Output = String;
+
+    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let request = ClaudeMessagesRequest {
             anthropic_version: "bedrock-2023-05-31".to_string(),
             max_tokens: 512,

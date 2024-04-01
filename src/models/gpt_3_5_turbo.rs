@@ -5,7 +5,7 @@ use async_openai::types::{
 };
 use async_trait::async_trait;
 
-use crate::Link;
+use crate::link::Processor;
 
 pub struct Gpt3_5Turbo {
     system_prompt: String,
@@ -33,8 +33,11 @@ impl Gpt3_5Turbo {
 }
 
 #[async_trait]
-impl Link for Gpt3_5Turbo {
-    async fn run(&self, input: &str) -> Result<String> {
+impl Processor for Gpt3_5Turbo {
+    type Input = String;
+    type Output = String;
+
+    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
             .build()?

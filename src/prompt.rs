@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::Link;
+use crate::link::Processor;
 use anyhow::Result;
 
 pub struct Prompt {
@@ -16,11 +16,11 @@ impl Prompt {
 }
 
 #[async_trait]
-impl Link for Prompt {
-    async fn run(&self, input: &str) -> Result<String> {
-        // TODO: Take hashmap for parameterized input
-        let result = self.text.replace("{input}", input);
-        println!("Prompt: {}", result);
-        Ok(result)
+impl Processor for Prompt {
+    type Input = String;
+    type Output = String;
+    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+        println!("{}", self.text);
+        Ok(input)
     }
 }
