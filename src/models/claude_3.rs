@@ -1,7 +1,7 @@
 //! Module for interfacing with Claude 3 via AWS Bedrock.
 //!
 //! Provides the functionality to construct and send requests to Claude 3 models hosted
-//! on AWS Bedrock, facilitating easy integration of AI-driven processing within asynchronous
+//! on AWS Bedrock, facilitating integration of LLM processing within
 //! processing chains. This module is designed to handle text and image inputs, offering a
 //! flexible interface for various types of content.
 
@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
 
-use crate::link::Processor;
+use crate::link::Node;
 
 /// Represents a source of an image to be processed by Claude 3, encapsulating the necessary
 /// details for image handling.
@@ -87,7 +87,7 @@ struct ClaudeMessagesResponse {
     content: Vec<ClaudeMessageContent>,
 }
 
-/// A processor for integrating Claude 3 LLM processing within an asynchronous chain.
+/// A processor for integrating Claude 3 LLM processing within a chain.
 ///
 /// `Claude3Bedrock` allows for sending requests to Claude 3 models, handling both text and image inputs.
 /// It encapsulates the necessary details for AWS Bedrock interaction and provides an asynchronous
@@ -114,7 +114,7 @@ impl Claude3Bedrock {
 }
 
 #[async_trait]
-impl Processor for Claude3Bedrock {
+impl Node for Claude3Bedrock {
     type Input = String;
     type Output = String;
 

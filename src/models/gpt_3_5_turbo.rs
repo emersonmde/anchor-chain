@@ -11,7 +11,7 @@ use async_openai::types::{
 };
 use async_trait::async_trait;
 
-use crate::link::Processor;
+use crate::link::Node;
 
 /// Represents a processor for sending and processing requests to GPT-3.5 Turbo.
 ///
@@ -53,7 +53,7 @@ impl Gpt3_5Turbo {
 }
 
 #[async_trait]
-impl Processor for Gpt3_5Turbo {
+impl Node for Gpt3_5Turbo {
     type Input = String;
     type Output = String;
 
