@@ -1,5 +1,5 @@
 [package]
-name = "anchor_chain"
+name = "anchor-chain"
 version = "0.1.0"
 edition = "2021"
 
