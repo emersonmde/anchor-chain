@@ -40,13 +40,14 @@ The framework is structured around several key components, each serving a distin
 While `anchor_chain` is still under development, here's a brief glimpse into how a processing chain might be constructed and executed:
 
 ```rust
+use anchor_chain::{
+    chain::ChainBuilder,
+    models::Gpt3_5Turbo,
+    prompt::Prompt,
+};
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    use anchor_chain::{
-        chain::ChainBuilder,
-        models::Gpt3_5Turbo,
-        prompt::Prompt,
-    };
 
     let prompt_processor = Prompt::new("{input}");
     let chain = ChainBuilder::new(prompt_processor)
