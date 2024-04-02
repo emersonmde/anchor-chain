@@ -9,9 +9,9 @@ where
     O: Send + Sync,
     F: Fn(Vec<O>) -> Result<O>,
 {
-    /// The node to process the input.
+    /// The nodes that will process the input in parallel.
     pub nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
-    /// The function to process the output of the node.
+    /// The function to process the output of the nodes.
     pub function: F,
 }
 

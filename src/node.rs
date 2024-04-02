@@ -30,11 +30,13 @@ pub trait Node {
     async fn process(&self, input: Self::Input) -> Result<Self::Output>;
 }
 
+/// A no-op node that passes input through unchanged.
 pub struct PassthroughNode<T> {
     _marker: PhantomData<T>,
 }
 
 impl<T> PassthroughNode<T> {
+    /// Creates a new `PassthroughNode`.
     pub fn new() -> Self {
         Self {
             _marker: PhantomData,
@@ -43,6 +45,7 @@ impl<T> PassthroughNode<T> {
 }
 
 impl<T> Default for PassthroughNode<T> {
+    /// Creates a default `PassthroughNode`.
     fn default() -> Self {
         Self::new()
     }
@@ -56,6 +59,12 @@ where
     type Input = T;
     type Output = T;
 
+    /// Passes the input through unchanged.
+    ///
+    /// # Parameters
+    /// - `input`: The input value to be passed through.
+    /// # Returns
+    /// The input value unchanged.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         Ok(input)
     }
