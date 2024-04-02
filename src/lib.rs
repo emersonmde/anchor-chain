@@ -68,4 +68,5 @@ pub mod link;
 pub mod message;
 pub mod models;
 pub mod node;
+pub mod parallel_node;
 pub mod prompt;
