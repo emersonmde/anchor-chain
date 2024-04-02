@@ -123,6 +123,7 @@ impl Node for Claude3Bedrock {
     /// Constructs a request to the Claude 3 model with the provided input, sends it via
     /// AWS Bedrock, and extracts the text content from the response.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+        dbg!("Claude3Bedrock processing input");
         let request = ClaudeMessagesRequest {
             anthropic_version: "bedrock-2023-05-31".to_string(),
             max_tokens: 512,
@@ -158,6 +159,7 @@ impl Node for Claude3Bedrock {
             return Err(anyhow!("No content in response"));
         }
 
+        dbg!("Claude3Bedrock processing complete");
         Ok(response.content[0]
             .text
             .clone()

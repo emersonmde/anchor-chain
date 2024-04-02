@@ -15,6 +15,7 @@ use std::marker::PhantomData;
 /// allowing for a flexible and composable approach to complex asynchronous processing tasks.
 pub struct Chain<I, O, L> {
     link: L,
+    trace: bool,
     _input: PhantomData<I>,
     _output: PhantomData<O>,
 }
@@ -27,9 +28,10 @@ where
     ///
     /// # Parameters
     /// - `link`: The starting link of the chain.
-    pub fn new(link: L) -> Self {
+    pub fn new(link: L, trace: bool) -> Self {
         Chain {
             link,
+            trace,
             _input: PhantomData,
             _output: PhantomData,
         }
@@ -54,6 +56,7 @@ where
 /// of complex processing logic.
 pub struct ChainBuilder<I, L> {
     link: L,
+    trace: bool,
     _input: PhantomData<I>,
 }
 
@@ -69,6 +72,7 @@ where
     pub fn new(link: L) -> Self {
         ChainBuilder {
             link,
+            trace: false,
             _input: PhantomData,
         }
     }
@@ -92,8 +96,13 @@ where
                 node: self.link,
                 next,
             },
+            trace: self.trace,
             _input: PhantomData,
         }
+    }
+
+    pub fn with_trace(self, trace: bool) -> Self {
+        ChainBuilder { trace, ..self }
     }
 
     /// Finalizes the construction of the chain, returning a `Chain` instance
@@ -107,6 +116,7 @@ where
     {
         Chain {
             link: self.link,
+            trace: self.trace,
             _input: PhantomData,
             _output: PhantomData,
         }

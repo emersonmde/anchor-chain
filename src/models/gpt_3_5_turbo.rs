@@ -69,6 +69,7 @@ impl Node for Gpt3_5Turbo {
     /// A `Result` containing the model's response content, or an error if the request fails
     /// or the response lacks expected content.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+        dbg!("Starting GPT-3.5 Turbo processing");
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
             .build()?
@@ -96,6 +97,7 @@ impl Node for Gpt3_5Turbo {
             .content
             .context("No content in response")?;
 
+        dbg!("GPT-3.5 Turbo processing complete");
         Ok(content)
     }
 }

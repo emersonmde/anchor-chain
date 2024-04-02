@@ -14,6 +14,20 @@ pub struct Link<C, N> {
     pub next: N,
 }
 
+impl<C, N> Link<C, N> {
+    /// Creates a new `Link` connecting the specified nodes.
+    ///
+    /// # Parameters
+    /// - `node`: The first node in the chain.
+    /// - `next`: The next node or link in the chain.
+    ///
+    /// # Returns
+    /// A new `Link` instance connecting the two nodes.
+    pub fn new(node: C, next: N) -> Self {
+        Link { node, next }
+    }
+}
+
 #[async_trait]
 impl<C, N> Node for Link<C, N>
 where
