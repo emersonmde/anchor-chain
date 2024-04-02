@@ -9,7 +9,7 @@ use anchor_chain::{
     chain::ChainBuilder,
     link::Link,
     models::{claude_3::Claude3Bedrock, gpt_3_5_turbo::Gpt3_5Turbo},
-    node::End,
+    node::PassthroughNode,
     parallel_node::{self, ParallelNode},
     prompt::Prompt,
 };
@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
 
     let chain = ChainBuilder::new(Prompt::new("{input}"))
         .link(parallel_node)
-        .link(End)
+        .link(PassthroughNode::new())
         .with_trace(true)
         .build();
     chain

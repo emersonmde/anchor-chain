@@ -3,6 +3,8 @@
 //! This module defines a `Node` trait for asynchronous operations and
 //! constructs (`Link` and `End`) to create chains of these operations.
 
+use std::marker::PhantomData;
+
 use anyhow::Result;
 use async_trait::async_trait;
 
@@ -28,21 +30,32 @@ pub trait Node {
     async fn process(&self, input: Self::Input) -> Result<Self::Output>;
 }
 
-/// Represents the end of a processing chain.
-///
-/// The `End` struct signifies the termination point of a processing chain. It effectively
-/// acts as a no-op node, returning its input as output.
-pub struct End;
+pub struct PassthroughNode<T> {
+    _marker: PhantomData<T>,
+}
+
+impl<T> PassthroughNode<T> {
+    pub fn new() -> Self {
+        Self {
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<T> Default for PassthroughNode<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[async_trait]
-impl Node for End {
-    type Input = String;
-    type Output = String;
+impl<T> Node for PassthroughNode<T>
+where
+    T: Send + Sync,
+{
+    type Input = T;
+    type Output = T;
 
-    /// Processes the given input by simply returning it unchanged.
-    ///
-    /// This method serves as a placeholder at the end of a processing chain,
-    /// effectively performing no operation on the input.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         Ok(input)
     }
