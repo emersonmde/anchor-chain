@@ -101,6 +101,8 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating GPT-3.5 Turbo model interactions.
 //!
 //! Facilitates the construction and execution of requests to the GPT-3.5 Turbo model,
@@ -172,6 +174,7 @@
     /// A `Result` containing the model's response content, or an error if the request fails
     /// or the response lacks expected content.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="macro">dbg!</span>(<span class="string">"Starting GPT-3.5 Turbo processing"</span>);
         <span class="kw">let </span>system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(<span class="self">self</span>.system_prompt.clone())
             .build()<span class="question-mark">?
@@ -199,6 +202,7 @@
             .content
             .context(<span class="string">"No content in response"</span>)<span class="question-mark">?</span>;
 
+        <span class="macro">dbg!</span>(<span class="string">"GPT-3.5 Turbo processing complete"</span>);
         <span class="prelude-val">Ok</span>(content)
     }
 }

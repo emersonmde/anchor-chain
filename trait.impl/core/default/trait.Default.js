@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"anchor_chain":[["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.77.1/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"anchor_chain/node/struct.PassthroughNode.html\" title=\"struct anchor_chain::node::PassthroughNode\">PassthroughNode</a>&lt;T&gt;"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

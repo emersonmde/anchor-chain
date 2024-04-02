@@ -114,6 +114,16 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
@@ -131,6 +141,7 @@
 /// allowing for a flexible and composable approach to complex asynchronous processing tasks.
 </span><span class="kw">pub struct </span>Chain&lt;I, O, L&gt; {
     link: L,
+    trace: bool,
     _input: PhantomData&lt;I&gt;,
     _output: PhantomData&lt;O&gt;,
 }
@@ -143,9 +154,10 @@
     ///
     /// # Parameters
     /// - `link`: The starting link of the chain.
-    </span><span class="kw">pub fn </span>new(link: L) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(link: L, trace: bool) -&gt; <span class="self">Self </span>{
         Chain {
             link,
+            trace,
             _input: PhantomData,
             _output: PhantomData,
         }
@@ -170,6 +182,7 @@
 /// of complex processing logic.
 </span><span class="kw">pub struct </span>ChainBuilder&lt;I, L&gt; {
     link: L,
+    trace: bool,
     _input: PhantomData&lt;I&gt;,
 }
 
@@ -185,6 +198,7 @@
     </span><span class="kw">pub fn </span>new(link: L) -&gt; <span class="self">Self </span>{
         ChainBuilder {
             link,
+            trace: <span class="bool-val">false</span>,
             _input: PhantomData,
         }
     }
@@ -208,8 +222,13 @@
                 node: <span class="self">self</span>.link,
                 next,
             },
+            trace: <span class="self">self</span>.trace,
             _input: PhantomData,
         }
+    }
+
+    <span class="kw">pub fn </span>with_trace(<span class="self">self</span>, trace: bool) -&gt; <span class="self">Self </span>{
+        ChainBuilder { trace, ..<span class="self">self </span>}
     }
 
     <span class="doccomment">/// Finalizes the construction of the chain, returning a `Chain` instance
@@ -223,6 +242,7 @@
     {
         Chain {
             link: <span class="self">self</span>.link,
+            trace: <span class="self">self</span>.trace,
             _input: PhantomData,
             _output: PhantomData,
         }
