@@ -81,9 +81,9 @@
     O: Send + Sync,
     F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt;,
 {
-    <span class="doccomment">/// The node to process the input.
+    <span class="doccomment">/// The nodes that will process the input in parallel.
     </span><span class="kw">pub </span>nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
-    <span class="doccomment">/// The function to process the output of the node.
+    <span class="doccomment">/// The function to process the output of the nodes.
     </span><span class="kw">pub </span>function: F,
 }
 
