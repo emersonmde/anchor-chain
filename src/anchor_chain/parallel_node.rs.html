@@ -113,6 +113,21 @@
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Parallel Node
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -199,8 +214,8 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;I, O, F&gt; Node <span class="kw">for </span>ParallelNode&lt;I, O, F&gt;
 <span class="kw">where
-    </span>I: Clone + Send + Sync,
-    O: Send + Sync,
+    </span>I: Clone + Send + Sync + std::fmt::Debug,
+    O: Send + Sync + std::fmt::Debug,
     F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; + Send + Sync,
 {
     <span class="kw">type </span>Input = I;
@@ -224,6 +239,21 @@
 
         <span class="kw">let </span>results = try_join_all(futures).<span class="kw">await</span><span class="question-mark">?</span>;
         (<span class="self">self</span>.function)(results)
+    }
+}
+
+<span class="kw">impl</span>&lt;I, O, F&gt; std::fmt::Debug <span class="kw">for </span>ParallelNode&lt;I, O, F&gt;
+<span class="kw">where
+    </span>I: std::fmt::Debug + Clone + Send + Sync,
+    O: std::fmt::Debug + Send + Sync,
+    F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; + Send + Sync,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">"ParallelNode"</span>)
+            .field(<span class="string">"nodes"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.nodes)
+            <span class="comment">// Unable to debug print closures
+            </span>.field(<span class="string">"function"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"&lt;function/closure&gt;"</span>))
+            .finish()
     }
 }
 </code></pre></div></section></main></body></html>

@@ -57,6 +57,15 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
 
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
@@ -66,14 +75,23 @@
 ///
 /// `Link` serves as a container for chaining two `Node` instances together,
 /// where the output of the first node is fed as the input to the next.
-</span><span class="kw">pub struct </span>Link&lt;C, N&gt; {
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Link&lt;C, N&gt;
+<span class="kw">where
+    </span>C: std::fmt::Debug,
+    N: std::fmt::Debug,
+{
     <span class="doccomment">/// The first node in the chain.
     </span><span class="kw">pub </span>node: C,
     <span class="doccomment">/// The next node or link in the chain.
     </span><span class="kw">pub </span>next: N,
 }
 
-<span class="kw">impl</span>&lt;C, N&gt; Link&lt;C, N&gt; {
+<span class="kw">impl</span>&lt;C, N&gt; Link&lt;C, N&gt;
+<span class="kw">where
+    </span>C: std::fmt::Debug,
+    N: std::fmt::Debug,
+{
     <span class="doccomment">/// Creates a new `Link` connecting the specified nodes.
     ///
     /// # Parameters
@@ -90,10 +108,10 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;C, N&gt; Node <span class="kw">for </span>Link&lt;C, N&gt;
 <span class="kw">where
-    </span>C: Node + Send + Sync,
+    </span>C: Node + Send + Sync + std::fmt::Debug,
     C::Output: Send + <span class="lifetime">'static</span>,
     C::Input: Send,
-    N: Node&lt;Input = C::Output&gt; + Send + Sync,
+    N: Node&lt;Input = C::Output&gt; + Send + Sync + std::fmt::Debug,
     N::Output: Send,
 {
     <span class="kw">type </span>Input = C::Input;

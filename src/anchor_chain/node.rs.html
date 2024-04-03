@@ -71,6 +71,7 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module providing foundational structures for building chains.
 //!
 //! This module defines a `Node` trait for asynchronous operations and
@@ -87,7 +88,7 @@
 /// specified input and output type. Implementors of this trait can be
 /// composed together to form a processing chain.
 </span><span class="attr">#[async_trait]
-</span><span class="kw">pub trait </span>Node {
+</span><span class="kw">pub trait </span>Node: std::fmt::Debug {
     <span class="doccomment">/// The input type for the node.
     </span><span class="kw">type </span>Input;
     <span class="doccomment">/// The output type for the node.
@@ -104,6 +105,7 @@
 }
 
 <span class="doccomment">/// A no-op node that passes input through unchanged.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PassthroughNode&lt;T&gt; {
     _marker: PhantomData&lt;T&gt;,
 }
@@ -127,7 +129,7 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>PassthroughNode&lt;T&gt;
 <span class="kw">where
-    </span>T: Send + Sync,
+    </span>T: Send + Sync + std::fmt::Debug,
 {
     <span class="kw">type </span>Input = T;
     <span class="kw">type </span>Output = T;
