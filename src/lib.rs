@@ -38,13 +38,13 @@
 //! async fn main() -> anyhow::Result<()> {
 //!     use anchor_chain::{
 //!         chain::ChainBuilder,
-//!         models::openai::OpenAI,
+//!         models::openai::OpenAIModel,
 //!         prompt::Prompt,
 //!     };
 //!
 //!     let chain = ChainBuilder::new()
 //!         .link(Prompt::new("{input}"))
-//!         .link(OpenAI::new("You are a helpful assistant".to_string()).await)
+//!         .link(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await)
 //!         .build();
 //!
 //!     let result = chain

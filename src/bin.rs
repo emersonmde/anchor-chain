@@ -5,7 +5,7 @@ extern crate anchor_chain;
 
 use anchor_chain::{
     chain::{ChainBuilder, LinkedChainBuilder},
-    models::{claude_3::Claude3Bedrock, openai::OpenAI},
+    models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
     node::{Node, PassthroughNode},
     parallel_node::ParallelNode,
     prompt::Prompt,
@@ -69,7 +69,7 @@ fn concat(outputs: Vec<String>) -> Result<String> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let llm = OpenAI::new("You are a helpful assistant".to_string()).await;
+    let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
 
     let chain = ChainBuilder::new_with_trace()
         .link(Prompt::new("{input}"))
