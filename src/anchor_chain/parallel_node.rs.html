@@ -143,10 +143,10 @@
 //!
 //!     let parallel_node = ParallelNode::new(vec![gpt3_link, claude3_link], concat_fn);
 //!
-//!     let chain = ChainBuilder::new(Prompt::new("{input}"))
+//!     let chain = ChainBuilder::new()
+//!         .link(Prompt::new("{input}"))
 //!         .link(parallel_node)
 //!         .link(PassthroughNode::new())
-//!         .with_trace(true)
 //!         .build();
 //!     chain
 //!         .process("Write a hello world program in Rust".to_string())

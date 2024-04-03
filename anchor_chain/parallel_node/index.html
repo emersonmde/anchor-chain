@@ -27,10 +27,10 @@ a provided function to produce the final output.</p>
 
     <span class="kw">let </span>parallel_node = ParallelNode::new(<span class="macro">vec!</span>[gpt3_link, claude3_link], concat_fn);
 
-    <span class="kw">let </span>chain = ChainBuilder::new(Prompt::new(<span class="string">"{input}"</span>))
+    <span class="kw">let </span>chain = ChainBuilder::new()
+        .link(Prompt::new(<span class="string">"{input}"</span>))
         .link(parallel_node)
         .link(PassthroughNode::new())
-        .with_trace(<span class="bool-val">true</span>)
         .build();
     chain
         .process(<span class="string">"Write a hello world program in Rust"</span>.to_string())

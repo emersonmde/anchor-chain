@@ -124,6 +124,30 @@
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
@@ -175,18 +199,46 @@
     </span>}
 }
 
+<span class="kw">pub struct </span>ChainBuilder {
+    trace: bool,
+}
+
+<span class="kw">impl </span>ChainBuilder {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        ChainBuilder { trace: <span class="bool-val">false </span>}
+    }
+
+    <span class="kw">pub fn </span>new_with_trace() -&gt; <span class="self">Self </span>{
+        ChainBuilder { trace: <span class="bool-val">true </span>}
+    }
+
+    <span class="kw">pub fn </span>link&lt;I, N&gt;(<span class="self">self</span>, node: N) -&gt; LinkedChainBuilder&lt;I, N&gt;
+    <span class="kw">where
+        </span>N: Node&lt;Input = I&gt; + Send + Sync,
+        I: Send,
+    {
+        LinkedChainBuilder::new(node, <span class="self">self</span>.trace)
+    }
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>ChainBuilder {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        ChainBuilder::new()
+    }
+}
+
 <span class="doccomment">/// A builder for constructing a `Chain` of nodes.
 ///
 /// `ChainBuilder` allows for incremental construction of a processing chain, adding
 /// node one at a time. This approach facilitates clear and concise assembly
 /// of complex processing logic.
-</span><span class="kw">pub struct </span>ChainBuilder&lt;I, L&gt; {
+</span><span class="kw">pub struct </span>LinkedChainBuilder&lt;I, L&gt; {
     link: L,
     trace: bool,
     _input: PhantomData&lt;I&gt;,
 }
 
-<span class="kw">impl</span>&lt;I, L&gt; ChainBuilder&lt;I, L&gt;
+<span class="kw">impl</span>&lt;I, L&gt; LinkedChainBuilder&lt;I, L&gt;
 <span class="kw">where
     </span>L: Node&lt;Input = I&gt; + Send + Sync,
     I: Send,
@@ -195,10 +247,10 @@
     ///
     /// # Parameters
     /// - `link`: The first node or link to start building the chain.
-    </span><span class="kw">pub fn </span>new(link: L) -&gt; <span class="self">Self </span>{
-        ChainBuilder {
+    </span><span class="kw">pub fn </span>new(link: L, trace: bool) -&gt; <span class="self">Self </span>{
+        LinkedChainBuilder {
             link,
-            trace: <span class="bool-val">false</span>,
+            trace,
             _input: PhantomData,
         }
     }
@@ -211,13 +263,13 @@
     /// # Returns
     /// A new `ChainBuilder` instance representing the current state of the chain,
     /// with the new node added.
-    </span><span class="kw">pub fn </span>link&lt;N&gt;(<span class="self">self</span>, next: N) -&gt; ChainBuilder&lt;I, Link&lt;L, N&gt;&gt;
+    </span><span class="kw">pub fn </span>link&lt;N&gt;(<span class="self">self</span>, next: N) -&gt; LinkedChainBuilder&lt;I, Link&lt;L, N&gt;&gt;
     <span class="kw">where
         </span>N: Node&lt;Input = L::Output&gt; + Send + Sync,
         L::Output: Send,
         Link&lt;L, N&gt;: Node&lt;Input = I&gt;,
     {
-        ChainBuilder {
+        LinkedChainBuilder {
             link: Link {
                 node: <span class="self">self</span>.link,
                 next,
@@ -225,10 +277,6 @@
             trace: <span class="self">self</span>.trace,
             _input: PhantomData,
         }
-    }
-
-    <span class="kw">pub fn </span>with_trace(<span class="self">self</span>, trace: bool) -&gt; <span class="self">Self </span>{
-        ChainBuilder { trace, ..<span class="self">self </span>}
     }
 
     <span class="doccomment">/// Finalizes the construction of the chain, returning a `Chain` instance

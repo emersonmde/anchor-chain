@@ -39,8 +39,8 @@ Below is an illustrative example:</p>
         prompt::Prompt,
     };
 
-    <span class="kw">let </span>prompt_processor = Prompt::new(<span class="string">"{input}"</span>);
-    <span class="kw">let </span>chain = ChainBuilder::new(prompt_processor)
+    <span class="kw">let </span>chain = ChainBuilder::new()
+        .link(Prompt::new(<span class="string">"{input}"</span>))
         .link(Gpt3_5Turbo::new(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>)
         .build();
 
