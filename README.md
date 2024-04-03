@@ -38,30 +38,31 @@ processing of nodes in complex chains.
 
 ## Getting Started
 
-While `anchor_chain` is still under development, here's a brief glimpse into 
-how a chain might be constructed and executed:
+Chains can be created using `ChainBuilder` and invoked with the `.process()`
+function:
 
 ```rust
 use anchor_chain::{
     chain::ChainBuilder,
-    models::Gpt3_5Turbo,
     prompt::Prompt,
+    models::openai::OpenAIModel,
 };
+use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-
-    let prompt_processor = Prompt::new("{input}");
-    let chain = ChainBuilder::new(prompt_processor)
-        .link(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await)
+async fn main() -> Result<()> {
+    let chain = ChainBuilder::new()
+        .link(Prompt::new("{input}"))
+        .link(OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await)
         .build();
 
-    let result = chain
+    let output = chain
         .process("Write a hello world program in Rust".to_string())
         .await?;
-
-    println!("Result: {}", result);
+    println!("Output:\n{}", output);
 
     Ok(())
 }
 ```
+
+See more examples in [here](examples)

@@ -78,21 +78,10 @@ async fn main() -> Result<()> {
         .link(PassthroughNode::new())
         .build();
 
-    println!("Chain: {:#?}", chain);
     let output = chain
         .process("Write a hello world program in Rust".to_string())
         .await?;
-    println!("Output {}", output);
-
-    // let gpt3 = Box::new(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await);
-    // let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
-    //
-    // let chain = ChainBuilder::new()
-    //     .link(Prompt::new("{input}"))
-    //     .link(ParallelNode::new(vec![gpt3, claude3], concat))
-    //     .build();
-    //
-    // println!("Chain: {:#?}", chain);
+    println!("Output:\n{}", output);
 
     Ok(())
 }
