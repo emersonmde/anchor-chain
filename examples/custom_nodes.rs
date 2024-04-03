@@ -1,10 +1,8 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-extern crate anchor_chain;
-
 use anchor_chain::{
-    chain::{ChainBuilder, LinkedChainBuilder},
+    chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
     node::{Node, PassthroughNode},
     parallel_node::ParallelNode,

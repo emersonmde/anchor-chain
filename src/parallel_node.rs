@@ -6,64 +6,68 @@
 //!
 //! Example:
 //! ```no_run
-//! use anyhow::Result;
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
 //!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
-//!     node::PassthroughNode,
-//!     parallel_node::ParallelNode,
+//!     parallel_node::{to_boxed_future, ParallelNode},
 //!     prompt::Prompt,
 //! };
+//! use anyhow::Result;
+//! use async_trait::async_trait;
+//! use futures::{future::BoxFuture, Future};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<()> {
-//!     let gpt3_link = Box::new(
-//!         OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
-//!     let claude3_link = Box::new(
-//!         Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+//!     let gpt3 =
+//!         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
+//!     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
 //!
-//!     let concat_fn = Box::new(|outputs: Vec<String>| {
-//!         println!("Outputs: {:?}", outputs);
-//!         Ok(outputs.concat())
+//!     let concat_fn = to_boxed_future(|outputs: Vec<String>| {
+//!         Ok(outputs
+//!             .iter()
+//!             .enumerate()
+//!             .map(|(i, output)| format!("Output {}:\n```\n{}\n```\n", i + 1, output))
+//!             .collect::<Vec<String>>()
+//!             .concat())
 //!     });
 //!
-//!     let parallel_node = ParallelNode::new(vec![gpt3_link, claude3_link], concat_fn);
 //!
 //!     let chain = ChainBuilder::new()
 //!         .link(Prompt::new("{input}"))
-//!         .link(parallel_node)
-//!         .link(PassthroughNode::new())
+//!         .link(ParallelNode::new(vec![gpt3, claude3], concat_fn))
 //!         .build();
-//!     chain
+//!
+//!     let output = chain
 //!         .process("Write a hello world program in Rust".to_string())
 //!         .await?;
+//!     println!("{}", output);
 //!
 //!     Ok(())
 //! }
 //! ```
+
+use futures::{future::BoxFuture, FutureExt};
 
 use crate::node::Node;
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::future::try_join_all;
 
-pub struct ParallelNode<I, O, F>
+pub struct ParallelNode<I, O>
 where
     I: Clone + Send + Sync,
     O: Send + Sync,
-    F: Fn(Vec<O>) -> Result<O>,
 {
     /// The nodes that will process the input in parallel.
     pub nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
     /// The function to process the output of the nodes.
-    pub function: F,
+    pub function: Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O>> + Send + Sync>,
 }
 
-impl<I, O, F> ParallelNode<I, O, F>
+impl<I, O> ParallelNode<I, O>
 where
     I: Clone + Send + Sync,
     O: Send + Sync,
-    F: Fn(Vec<O>) -> Result<O>,
 {
     /// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.
@@ -76,18 +80,17 @@ where
     /// A new `ParallelNode` instance with the specified nodes and function.
     pub fn new(
         nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
-        function: F,
+        function: Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O>> + Send + Sync>,
     ) -> Self {
         ParallelNode { nodes, function }
     }
 }
 
 #[async_trait]
-impl<I, O, F> Node for ParallelNode<I, O, F>
+impl<I, O> Node for ParallelNode<I, O>
 where
     I: Clone + Send + Sync + std::fmt::Debug,
     O: Send + Sync + std::fmt::Debug,
-    F: Fn(Vec<O>) -> Result<O> + Send + Sync,
 {
     type Input = I;
     type Output = O;
@@ -109,15 +112,14 @@ where
         });
 
         let results = try_join_all(futures).await?;
-        (self.function)(results)
+        (self.function)(results).await
     }
 }
 
-impl<I, O, F> std::fmt::Debug for ParallelNode<I, O, F>
+impl<I, O> std::fmt::Debug for ParallelNode<I, O>
 where
     I: std::fmt::Debug + Clone + Send + Sync,
     O: std::fmt::Debug + Send + Sync,
-    F: Fn(Vec<O>) -> Result<O> + Send + Sync,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ParallelNode")
@@ -126,4 +128,17 @@ where
             .field("function", &format_args!("<function/closure>"))
             .finish()
     }
+}
+
+pub fn to_boxed_future<T, F>(
+    f: F,
+) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String>> + Send + Sync>
+where
+    F: Fn(T) -> Result<String> + Send + Sync + Clone + 'static,
+    T: Send + 'static,
+{
+    Box::new(move |input| {
+        let f_clone = f.clone();
+        async move { f_clone(input) }.boxed()
+    })
 }

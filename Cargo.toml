@@ -9,11 +9,6 @@ edition = "2021"
 name = "anchor_chain"
 path = "src/lib.rs"
 
-
-[[bin]]
-name = "anchor_chain"
-path = "src/bin.rs"
-
 [dependencies]
 anyhow = "1.0.81"
 async-openai = "0.19.1"
