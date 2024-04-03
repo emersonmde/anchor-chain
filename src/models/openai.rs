@@ -1,32 +1,32 @@
-//! Module for integrating GPT-3.5 Turbo model interactions.
+//! Module for integrating OpenAI models.
 //!
-//! Facilitates the construction and execution of requests to the GPT-3.5 Turbo model,
-//! leveraging the OpenAI API. This module is part of a larger framework designed to
-//! support asynchronous processing chains for AI and natural language processing tasks.
+//! Facilitates the construction and execution of requests to OpenAI models,
+//! leveraging the OpenAI API.
 
 use std::fmt;
 
 use anyhow::{anyhow, Context, Result};
 use async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-    CreateChatCompletionRequestArgs,
+    ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
 };
 use async_trait::async_trait;
 
 use crate::node::Node;
 
-/// Represents a processor for sending and processing requests to GPT-3.5 Turbo.
+/// Represents a processor for sending and processing requests to the OpenAI API.
 ///
-/// `Gpt3_5Turbo` encapsulates the functionality required to interact with the
-/// GPT-3.5 Turbo model via the OpenAI API, handling both the construction of requests
-/// and the parsing of responses.
-pub struct OpenAI {
+/// `OpenAI` encapsulates the functionality required to interact with the
+/// the OpenAI API, handling both the construction of requests and the parsing
+/// of responses.
+pub struct OpenAI<T> {
     system_prompt: String,
     client: async_openai::Client<async_openai::config::OpenAIConfig>,
+    _phantom: std::marker::PhantomData<T>,
 }
 
-impl OpenAI {
-    /// Constructs a new `Gpt3_5Turbo` processor with the default API configuration.
+impl<T> OpenAI<T> {
+    /// Constructs a new `OpenAI` processor with the default API configuration.
     ///
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
@@ -36,10 +36,11 @@ impl OpenAI {
         OpenAI {
             system_prompt,
             client,
+            _phantom: std::marker::PhantomData,
         }
     }
 
-    /// Constructs a new `Gpt3_5Turbo` processor with a specified API key.
+    /// Constructs a new `OpenAI` processor with a specified API key.
     ///
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
@@ -50,16 +51,21 @@ impl OpenAI {
         OpenAI {
             system_prompt,
             client,
+            _phantom: std::marker::PhantomData,
         }
     }
 }
 
 #[async_trait]
-impl Node for OpenAI {
-    type Input = String;
-    type Output = String;
+impl<T> Node for OpenAI<T>
+where
+    T: From<String> + Send + Sync,
+    ChatCompletionRequestUserMessageContent: From<T> + Send + Sync,
+{
+    type Input = T;
+    type Output = T;
 
-    /// Asynchronously sends the input to the GPT-3.5 Turbo model and processes the response.
+    /// Sends the input to the OpenAI API and processes the response.
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
@@ -98,13 +104,13 @@ impl Node for OpenAI {
             .content
             .context("No content in response")?;
 
-        Ok(content)
+        Ok(content.into())
     }
 }
 
-impl fmt::Debug for OpenAI {
+impl<T> fmt::Debug for OpenAI<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Gpt3_5Turbo")
+        f.debug_struct("OpenAI")
             .field("system_prompt", &self.system_prompt)
             .finish()
     }
