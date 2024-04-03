@@ -176,8 +176,6 @@
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for interfacing with Claude 3 via AWS Bedrock.
 //!
 //! Provides the functionality to construct and send requests to Claude 3 models hosted
@@ -305,7 +303,6 @@
     /// Constructs a request to the Claude 3 model with the provided input, sends it via
     /// AWS Bedrock, and extracts the text content from the response.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="macro">dbg!</span>(<span class="string">"Claude3Bedrock processing input"</span>);
         <span class="kw">let </span>request = ClaudeMessagesRequest {
             anthropic_version: <span class="string">"bedrock-2023-05-31"</span>.to_string(),
             max_tokens: <span class="number">512</span>,
@@ -341,7 +338,6 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"No content in response"</span>));
         }
 
-        <span class="macro">dbg!</span>(<span class="string">"Claude3Bedrock processing complete"</span>);
         <span class="prelude-val">Ok</span>(response.content[<span class="number">0</span>]
             .text
             .clone()

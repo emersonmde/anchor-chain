@@ -129,6 +129,21 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Parallel Node
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -137,64 +152,68 @@
 //!
 //! Example:
 //! ```no_run
-//! use anyhow::Result;
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
 //!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
-//!     node::PassthroughNode,
-//!     parallel_node::ParallelNode,
+//!     parallel_node::{to_boxed_future, ParallelNode},
 //!     prompt::Prompt,
 //! };
+//! use anyhow::Result;
+//! use async_trait::async_trait;
+//! use futures::{future::BoxFuture, Future};
 //!
 //! #[tokio::main]
 //! async fn main() -&gt; Result&lt;()&gt; {
-//!     let gpt3_link = Box::new(
-//!         OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
-//!     let claude3_link = Box::new(
-//!         Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+//!     let gpt3 =
+//!         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
+//!     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
 //!
-//!     let concat_fn = Box::new(|outputs: Vec&lt;String&gt;| {
-//!         println!("Outputs: {:?}", outputs);
-//!         Ok(outputs.concat())
+//!     let concat_fn = to_boxed_future(|outputs: Vec&lt;String&gt;| {
+//!         Ok(outputs
+//!             .iter()
+//!             .enumerate()
+//!             .map(|(i, output)| format!("Output {}:\n```\n{}\n```\n", i + 1, output))
+//!             .collect::&lt;Vec&lt;String&gt;&gt;()
+//!             .concat())
 //!     });
 //!
-//!     let parallel_node = ParallelNode::new(vec![gpt3_link, claude3_link], concat_fn);
 //!
 //!     let chain = ChainBuilder::new()
 //!         .link(Prompt::new("{input}"))
-//!         .link(parallel_node)
-//!         .link(PassthroughNode::new())
+//!         .link(ParallelNode::new(vec![gpt3, claude3], concat_fn))
 //!         .build();
-//!     chain
+//!
+//!     let output = chain
 //!         .process("Write a hello world program in Rust".to_string())
 //!         .await?;
+//!     println!("{}", output);
 //!
 //!     Ok(())
 //! }
 //! ```
 
-</span><span class="kw">use </span><span class="kw">crate</span>::node::Node;
+</span><span class="kw">use </span>futures::{future::BoxFuture, FutureExt};
+
+<span class="kw">use </span><span class="kw">crate</span>::node::Node;
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures::future::try_join_all;
 
-<span class="kw">pub struct </span>ParallelNode&lt;I, O, F&gt;
+<span class="kw">pub struct </span>ParallelNode&lt;I, O&gt;
 <span class="kw">where
     </span>I: Clone + Send + Sync,
     O: Send + Sync,
-    F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt;,
 {
     <span class="doccomment">/// The nodes that will process the input in parallel.
     </span><span class="kw">pub </span>nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
     <span class="doccomment">/// The function to process the output of the nodes.
-    </span><span class="kw">pub </span>function: F,
+    </span><span class="kw">pub </span>function: Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O&gt;&gt; + Send + Sync&gt;,
 }
 
-<span class="kw">impl</span>&lt;I, O, F&gt; ParallelNode&lt;I, O, F&gt;
+<span class="kw">impl</span>&lt;I, O&gt; ParallelNode&lt;I, O&gt;
 <span class="kw">where
     </span>I: Clone + Send + Sync,
     O: Send + Sync,
-    F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt;,
 {
     <span class="doccomment">/// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.
@@ -207,18 +226,17 @@
     /// A new `ParallelNode` instance with the specified nodes and function.
     </span><span class="kw">pub fn </span>new(
         nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
-        function: F,
+        function: Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O&gt;&gt; + Send + Sync&gt;,
     ) -&gt; <span class="self">Self </span>{
         ParallelNode { nodes, function }
     }
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;I, O, F&gt; Node <span class="kw">for </span>ParallelNode&lt;I, O, F&gt;
+</span><span class="kw">impl</span>&lt;I, O&gt; Node <span class="kw">for </span>ParallelNode&lt;I, O&gt;
 <span class="kw">where
     </span>I: Clone + Send + Sync + std::fmt::Debug,
     O: Send + Sync + std::fmt::Debug,
-    F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; + Send + Sync,
 {
     <span class="kw">type </span>Input = I;
     <span class="kw">type </span>Output = O;
@@ -240,15 +258,14 @@
         });
 
         <span class="kw">let </span>results = try_join_all(futures).<span class="kw">await</span><span class="question-mark">?</span>;
-        (<span class="self">self</span>.function)(results)
-    }
+        (<span class="self">self</span>.function)(results).<span class="kw">await
+    </span>}
 }
 
-<span class="kw">impl</span>&lt;I, O, F&gt; std::fmt::Debug <span class="kw">for </span>ParallelNode&lt;I, O, F&gt;
+<span class="kw">impl</span>&lt;I, O&gt; std::fmt::Debug <span class="kw">for </span>ParallelNode&lt;I, O&gt;
 <span class="kw">where
     </span>I: std::fmt::Debug + Clone + Send + Sync,
     O: std::fmt::Debug + Send + Sync,
-    F: Fn(Vec&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; + Send + Sync,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         f.debug_struct(<span class="string">"ParallelNode"</span>)
@@ -257,5 +274,18 @@
             </span>.field(<span class="string">"function"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"&lt;function/closure&gt;"</span>))
             .finish()
     }
+}
+
+<span class="kw">pub fn </span>to_boxed_future&lt;T, F&gt;(
+    f: F,
+) -&gt; Box&lt;<span class="kw">dyn </span>Fn(T) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;String&gt;&gt; + Send + Sync&gt;
+<span class="kw">where
+    </span>F: Fn(T) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; + Send + Sync + Clone + <span class="lifetime">'static</span>,
+    T: Send + <span class="lifetime">'static</span>,
+{
+    Box::new(<span class="kw">move </span>|input| {
+        <span class="kw">let </span>f_clone = f.clone();
+        <span class="kw">async move </span>{ f_clone(input) }.boxed()
+    })
 }
 </code></pre></div></section></main></body></html>

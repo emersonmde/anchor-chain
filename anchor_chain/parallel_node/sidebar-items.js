@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ParallelNode"]};
+window.SIDEBAR_ITEMS = {"fn":["to_boxed_future"],"struct":["ParallelNode"]};

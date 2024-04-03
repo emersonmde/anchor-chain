@@ -1,42 +1,46 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parallel Node"><title>anchor_chain::parallel_node - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../anchor_chain/index.html">anchor_chain</a><span class="version">0.1.0</span></h2></div><h2 class="location"><a href="#">Module parallel_node</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#structs">Structs</a></li></ul></section><h2><a href="../index.html">In crate anchor_chain</a></h2></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../anchor_chain/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">anchor_chain</a>::<wbr><a class="mod" href="#">parallel_node</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/anchor_chain/parallel_node.rs.html#1-129">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="parallel-node"><a class="doc-anchor" href="#parallel-node">§</a>Parallel Node</h2>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parallel Node"><title>anchor_chain::parallel_node - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../anchor_chain/index.html">anchor_chain</a><span class="version">0.1.0</span></h2></div><h2 class="location"><a href="#">Module parallel_node</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></section><h2><a href="../index.html">In crate anchor_chain</a></h2></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../anchor_chain/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">anchor_chain</a>::<wbr><a class="mod" href="#">parallel_node</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/anchor_chain/parallel_node.rs.html#1-144">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="parallel-node"><a class="doc-anchor" href="#parallel-node">§</a>Parallel Node</h2>
 <p>The <code>ParallelNode</code> struct represents a node that processes input through
 multiple nodes in parallel. The output of each node is then combined using
 a provided function to produce the final output.</p>
 <p>Example:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>anchor_chain::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anchor_chain::{
     chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
-    node::PassthroughNode,
-    parallel_node::ParallelNode,
+    parallel_node::{to_boxed_future, ParallelNode},
     prompt::Prompt,
 };
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>futures::{future::BoxFuture, Future};
 
 <span class="attr">#[tokio::main]
 </span><span class="kw">async fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>gpt3_link = Box::new(
-        OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
-    <span class="kw">let </span>claude3_link = Box::new(
-        Claude3Bedrock::new(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
+    <span class="kw">let </span>gpt3 =
+        Box::new(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
+    <span class="kw">let </span>claude3 = Box::new(Claude3Bedrock::new(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
 
-    <span class="kw">let </span>concat_fn = Box::new(|outputs: Vec&lt;String&gt;| {
-        <span class="macro">println!</span>(<span class="string">"Outputs: {:?}"</span>, outputs);
-        <span class="prelude-val">Ok</span>(outputs.concat())
+    <span class="kw">let </span>concat_fn = to_boxed_future(|outputs: Vec&lt;String&gt;| {
+        <span class="prelude-val">Ok</span>(outputs
+            .iter()
+            .enumerate()
+            .map(|(i, output)| <span class="macro">format!</span>(<span class="string">"Output {}:\n```\n{}\n```\n"</span>, i + <span class="number">1</span>, output))
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .concat())
     });
 
-    <span class="kw">let </span>parallel_node = ParallelNode::new(<span class="macro">vec!</span>[gpt3_link, claude3_link], concat_fn);
 
     <span class="kw">let </span>chain = ChainBuilder::new()
         .link(Prompt::new(<span class="string">"{input}"</span>))
-        .link(parallel_node)
-        .link(PassthroughNode::new())
+        .link(ParallelNode::new(<span class="macro">vec!</span>[gpt3, claude3], concat_fn))
         .build();
-    chain
+
+    <span class="kw">let </span>output = chain
         .process(<span class="string">"Write a hello world program in Rust"</span>.to_string())
         .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"{}"</span>, output);
 
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.ParallelNode.html" title="struct anchor_chain::parallel_node::ParallelNode">ParallelNode</a></div></li></ul></section></div></main></body></html>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.ParallelNode.html" title="struct anchor_chain::parallel_node::ParallelNode">ParallelNode</a></div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.to_boxed_future.html" title="fn anchor_chain::parallel_node::to_boxed_future">to_boxed_future</a></div></li></ul></section></div></main></body></html>

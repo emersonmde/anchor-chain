@@ -54,7 +54,6 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for handling dynamic prompts in processing chains.
 //!
 //! This module provides the `Prompt` struct, a processor for handling
@@ -106,7 +105,6 @@
     /// A `Result` containing the original input text, facilitating further processing
     /// in subsequent chain links.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="self">self</span>.text);
         <span class="prelude-val">Ok</span>(input)
     }
 }
