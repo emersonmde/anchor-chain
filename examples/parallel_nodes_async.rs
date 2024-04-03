@@ -21,8 +21,8 @@ async fn main() -> Result<()> {
         |outputs: Vec<String>| -> BoxFuture<Result<String, anyhow::Error>> {
             Box::pin(async move {
                 let decision_chain = ChainBuilder::new()
-                .link(Prompt::new("Determine which output is the most helpful and return only that output verbatim.\n\n{input}"))
-                .link(OpenAIModel::new_gpt3_5_turbo("You are an expert in rating LLM outputs".to_string()).await)
+                .link(Prompt::new("Return exactly one output verbatim for the output that you believe is the most helpful. Do not output anything other than the exact output quoted."))
+                .link(OpenAIModel::new_gpt3_5_turbo_instruct("You are an expert in rating LLM outputs and following instructions exactly.".to_string()).await)
                 .build();
                 let labeled_outputs = outputs
                     .iter()
