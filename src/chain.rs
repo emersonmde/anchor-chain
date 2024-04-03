@@ -49,18 +49,46 @@ where
     }
 }
 
+pub struct ChainBuilder {
+    trace: bool,
+}
+
+impl ChainBuilder {
+    pub fn new() -> Self {
+        ChainBuilder { trace: false }
+    }
+
+    pub fn new_with_trace() -> Self {
+        ChainBuilder { trace: true }
+    }
+
+    pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
+    where
+        N: Node<Input = I> + Send + Sync,
+        I: Send,
+    {
+        LinkedChainBuilder::new(node, self.trace)
+    }
+}
+
+impl Default for ChainBuilder {
+    fn default() -> Self {
+        ChainBuilder::new()
+    }
+}
+
 /// A builder for constructing a `Chain` of nodes.
 ///
 /// `ChainBuilder` allows for incremental construction of a processing chain, adding
 /// node one at a time. This approach facilitates clear and concise assembly
 /// of complex processing logic.
-pub struct ChainBuilder<I, L> {
+pub struct LinkedChainBuilder<I, L> {
     link: L,
     trace: bool,
     _input: PhantomData<I>,
 }
 
-impl<I, L> ChainBuilder<I, L>
+impl<I, L> LinkedChainBuilder<I, L>
 where
     L: Node<Input = I> + Send + Sync,
     I: Send,
@@ -69,10 +97,10 @@ where
     ///
     /// # Parameters
     /// - `link`: The first node or link to start building the chain.
-    pub fn new(link: L) -> Self {
-        ChainBuilder {
+    pub fn new(link: L, trace: bool) -> Self {
+        LinkedChainBuilder {
             link,
-            trace: false,
+            trace,
             _input: PhantomData,
         }
     }
@@ -85,13 +113,13 @@ where
     /// # Returns
     /// A new `ChainBuilder` instance representing the current state of the chain,
     /// with the new node added.
-    pub fn link<N>(self, next: N) -> ChainBuilder<I, Link<L, N>>
+    pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
         N: Node<Input = L::Output> + Send + Sync,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
     {
-        ChainBuilder {
+        LinkedChainBuilder {
             link: Link {
                 node: self.link,
                 next,
@@ -99,10 +127,6 @@ where
             trace: self.trace,
             _input: PhantomData,
         }
-    }
-
-    pub fn with_trace(self, trace: bool) -> Self {
-        ChainBuilder { trace, ..self }
     }
 
     /// Finalizes the construction of the chain, returning a `Chain` instance

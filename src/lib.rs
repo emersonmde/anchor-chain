@@ -42,8 +42,8 @@
 //!         prompt::Prompt,
 //!     };
 //!
-//!     let prompt_processor = Prompt::new("{input}");
-//!     let chain = ChainBuilder::new(prompt_processor)
+//!     let chain = ChainBuilder::new()
+//!         .link(Prompt::new("{input}"))
 //!         .link(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await)
 //!         .build();
 //!

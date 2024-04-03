@@ -4,7 +4,7 @@
 extern crate anchor_chain;
 
 use anchor_chain::{
-    chain::ChainBuilder,
+    chain::{ChainBuilder, LinkedChainBuilder},
     models::{claude_3::Claude3Bedrock, gpt_3_5_turbo::Gpt3_5Turbo},
     node::{Node, PassthroughNode},
     parallel_node::ParallelNode,
@@ -65,8 +65,8 @@ impl Node for AsteriskGenerator {
 async fn main() -> Result<()> {
     let llm = Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await;
 
-    let chain = ChainBuilder::new(Prompt::new("{input}"))
-        .with_trace(true)
+    let chain = ChainBuilder::new_with_trace()
+        .link(Prompt::new("{input}"))
         .link(llm)
         .link(PassthroughNode::new())
         .link(LineCounter::new())
