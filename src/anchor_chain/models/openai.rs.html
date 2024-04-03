@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/models/gpt_3_5_turbo.rs`."><title>gpt_3_5_turbo.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/models/openai.rs`."><title>openai.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../anchor_chain/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -113,48 +113,53 @@
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating GPT-3.5 Turbo model interactions.
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating OpenAI models.
 //!
-//! Facilitates the construction and execution of requests to the GPT-3.5 Turbo model,
-//! leveraging the OpenAI API. This module is part of a larger framework designed to
-//! support asynchronous processing chains for AI and natural language processing tasks.
+//! Facilitates the construction and execution of requests to OpenAI models,
+//! leveraging the OpenAI API.
 
 </span><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>anyhow::{anyhow, Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-    CreateChatCompletionRequestArgs,
+    ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
 };
 <span class="kw">use </span>async_trait::async_trait;
 
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 
-<span class="doccomment">/// Represents a processor for sending and processing requests to GPT-3.5 Turbo.
+<span class="doccomment">/// Represents a processor for sending and processing requests to the OpenAI API.
 ///
-/// `Gpt3_5Turbo` encapsulates the functionality required to interact with the
-/// GPT-3.5 Turbo model via the OpenAI API, handling both the construction of requests
-/// and the parsing of responses.
-</span><span class="kw">pub struct </span>Gpt3_5Turbo {
+/// `OpenAI` encapsulates the functionality required to interact with the
+/// the OpenAI API, handling both the construction of requests and the parsing
+/// of responses.
+</span><span class="kw">pub struct </span>OpenAI&lt;T&gt; {
     system_prompt: String,
     client: async_openai::Client&lt;async_openai::config::OpenAIConfig&gt;,
+    _phantom: std::marker::PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl </span>Gpt3_5Turbo {
-    <span class="doccomment">/// Constructs a new `Gpt3_5Turbo` processor with the default API configuration.
+<span class="kw">impl</span>&lt;T&gt; OpenAI&lt;T&gt; {
+    <span class="doccomment">/// Constructs a new `OpenAI` processor with the default API configuration.
     ///
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
     </span><span class="kw">pub async fn </span>new(system_prompt: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new();
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
-        Gpt3_5Turbo {
+        OpenAI {
             system_prompt,
             client,
+            _phantom: std::marker::PhantomData,
         }
     }
 
-    <span class="doccomment">/// Constructs a new `Gpt3_5Turbo` processor with a specified API key.
+    <span class="doccomment">/// Constructs a new `OpenAI` processor with a specified API key.
     ///
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
@@ -162,19 +167,24 @@
     </span><span class="kw">pub async fn </span>new_with_key(system_prompt: String, api_key: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
-        Gpt3_5Turbo {
+        OpenAI {
             system_prompt,
             client,
+            _phantom: std::marker::PhantomData,
         }
     }
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl </span>Node <span class="kw">for </span>Gpt3_5Turbo {
-    <span class="kw">type </span>Input = String;
-    <span class="kw">type </span>Output = String;
+</span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>OpenAI&lt;T&gt;
+<span class="kw">where
+    </span>T: From&lt;String&gt; + Send + Sync,
+    ChatCompletionRequestUserMessageContent: From&lt;T&gt; + Send + Sync,
+{
+    <span class="kw">type </span>Input = T;
+    <span class="kw">type </span>Output = T;
 
-    <span class="doccomment">/// Asynchronously sends the input to the GPT-3.5 Turbo model and processes the response.
+    <span class="doccomment">/// Sends the input to the OpenAI API and processes the response.
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
@@ -186,7 +196,6 @@
     /// A `Result` containing the model's response content, or an error if the request fails
     /// or the response lacks expected content.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="macro">dbg!</span>(<span class="string">"Starting GPT-3.5 Turbo processing"</span>);
         <span class="kw">let </span>system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(<span class="self">self</span>.system_prompt.clone())
             .build()<span class="question-mark">?
@@ -214,14 +223,13 @@
             .content
             .context(<span class="string">"No content in response"</span>)<span class="question-mark">?</span>;
 
-        <span class="macro">dbg!</span>(<span class="string">"GPT-3.5 Turbo processing complete"</span>);
-        <span class="prelude-val">Ok</span>(content)
+        <span class="prelude-val">Ok</span>(content.into())
     }
 }
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Gpt3_5Turbo {
+<span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>OpenAI&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">"Gpt3_5Turbo"</span>)
+        f.debug_struct(<span class="string">"OpenAI"</span>)
             .field(<span class="string">"system_prompt"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.system_prompt)
             .finish()
     }

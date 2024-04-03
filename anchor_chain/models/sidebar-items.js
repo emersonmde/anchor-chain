@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["claude_3","gpt_3_5_turbo"]};
+window.SIDEBAR_ITEMS = {"mod":["claude_3","openai"]};
