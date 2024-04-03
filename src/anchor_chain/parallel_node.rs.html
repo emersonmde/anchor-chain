@@ -128,6 +128,7 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Parallel Node
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -139,7 +140,7 @@
 //! use anyhow::Result;
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
-//!     models::{claude_3::Claude3Bedrock, openai::OpenAI},
+//!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
 //!     node::PassthroughNode,
 //!     parallel_node::ParallelNode,
 //!     prompt::Prompt,
@@ -147,9 +148,10 @@
 //!
 //! #[tokio::main]
 //! async fn main() -&gt; Result&lt;()&gt; {
-//!     let gpt3_link = Box::new(OpenAI::new("You are a helpful assistant".to_string()).await);
-//!     let claude3_link =
-//!         Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+//!     let gpt3_link = Box::new(
+//!         OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
+//!     let claude3_link = Box::new(
+//!         Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
 //!
 //!     let concat_fn = Box::new(|outputs: Vec&lt;String&gt;| {
 //!         println!("Outputs: {:?}", outputs);

@@ -35,13 +35,13 @@ Below is an illustrative example:</p>
 </span><span class="kw">async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
     <span class="kw">use </span>anchor_chain::{
         chain::ChainBuilder,
-        models::openai::OpenAI,
+        models::openai::OpenAIModel,
         prompt::Prompt,
     };
 
     <span class="kw">let </span>chain = ChainBuilder::new()
         .link(Prompt::new(<span class="string">"{input}"</span>))
-        .link(OpenAI::new(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>)
+        .link(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>)
         .build();
 
     <span class="kw">let </span>result = chain
