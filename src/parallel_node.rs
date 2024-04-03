@@ -84,8 +84,8 @@ where
 #[async_trait]
 impl<I, O, F> Node for ParallelNode<I, O, F>
 where
-    I: Clone + Send + Sync,
-    O: Send + Sync,
+    I: Clone + Send + Sync + std::fmt::Debug,
+    O: Send + Sync + std::fmt::Debug,
     F: Fn(Vec<O>) -> Result<O> + Send + Sync,
 {
     type Input = I;
@@ -109,5 +109,20 @@ where
 
         let results = try_join_all(futures).await?;
         (self.function)(results)
+    }
+}
+
+impl<I, O, F> std::fmt::Debug for ParallelNode<I, O, F>
+where
+    I: std::fmt::Debug + Clone + Send + Sync,
+    O: std::fmt::Debug + Send + Sync,
+    F: Fn(Vec<O>) -> Result<O> + Send + Sync,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ParallelNode")
+            .field("nodes", &self.nodes)
+            // Unable to debug print closures
+            .field("function", &format_args!("<function/closure>"))
+            .finish()
     }
 }

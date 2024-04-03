@@ -13,6 +13,7 @@ use anchor_chain::{
 use anyhow::Result;
 use async_trait::async_trait;
 
+#[derive(Debug)]
 pub struct LineCounter;
 
 impl LineCounter {
@@ -37,6 +38,7 @@ impl Node for LineCounter {
     }
 }
 
+#[derive(Debug)]
 pub struct AsteriskGenerator;
 
 impl AsteriskGenerator {
@@ -61,22 +63,38 @@ impl Node for AsteriskGenerator {
     }
 }
 
+fn concat(outputs: Vec<String>) -> Result<String> {
+    Ok(outputs.concat())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let llm = Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await;
+    // let llm = Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await;
+    //
+    // let chain = ChainBuilder::new_with_trace()
+    //     .link(Prompt::new("{input}"))
+    //     .link(llm)
+    //     .link(PassthroughNode::new())
+    //     .link(LineCounter::new())
+    //     .link(AsteriskGenerator::new())
+    //     .link(PassthroughNode::new())
+    //     .build();
+    //
+    // println!("Chain: {:#?}", chain);
+    // let output = chain
+    //     .process("Write a hello world program in Rust".to_string())
+    //     .await?;
+    // println!("Output {}", output);
 
-    let chain = ChainBuilder::new_with_trace()
+    let gpt3 = Box::new(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await);
+    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+
+    let chain = ChainBuilder::new()
         .link(Prompt::new("{input}"))
-        .link(llm)
-        .link(PassthroughNode::new())
-        .link(LineCounter::new())
-        .link(AsteriskGenerator::new())
-        .link(PassthroughNode::new())
+        .link(ParallelNode::new(vec![gpt3, claude3], concat))
         .build();
-    let output = chain
-        .process("Write a hello world program in Rust".to_string())
-        .await?;
-    println!("Output {}", output);
+
+    println!("Chain: {:#?}", chain);
 
     Ok(())
 }

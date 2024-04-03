@@ -14,7 +14,7 @@ use async_trait::async_trait;
 /// specified input and output type. Implementors of this trait can be
 /// composed together to form a processing chain.
 #[async_trait]
-pub trait Node {
+pub trait Node: std::fmt::Debug {
     /// The input type for the node.
     type Input;
     /// The output type for the node.
@@ -31,6 +31,7 @@ pub trait Node {
 }
 
 /// A no-op node that passes input through unchanged.
+#[derive(Debug)]
 pub struct PassthroughNode<T> {
     _marker: PhantomData<T>,
 }
@@ -54,7 +55,7 @@ impl<T> Default for PassthroughNode<T> {
 #[async_trait]
 impl<T> Node for PassthroughNode<T>
 where
-    T: Send + Sync,
+    T: Send + Sync + std::fmt::Debug,
 {
     type Input = T;
     type Output = T;

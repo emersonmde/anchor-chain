@@ -11,6 +11,7 @@ use async_trait::async_trait;
 ///
 /// `Prompt` is primarily used for manipulating or logging text data as it flows through
 /// a processing chain.
+#[derive(Debug)]
 pub struct Prompt {
     text: String,
 }

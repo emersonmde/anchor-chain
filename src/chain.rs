@@ -13,6 +13,7 @@ use std::marker::PhantomData;
 /// `Chain` is constructed from a sequence of `Node` instances, each taking an input
 /// and producing an output. The output of one node serves as the input to the next,
 /// allowing for a flexible and composable approach to complex asynchronous processing tasks.
+#[derive(Debug)]
 pub struct Chain<I, O, L> {
     link: L,
     trace: bool,
@@ -22,7 +23,9 @@ pub struct Chain<I, O, L> {
 
 impl<I, O, L> Chain<I, O, L>
 where
-    L: Node<Input = I, Output = O> + Send + Sync,
+    L: Node<Input = I, Output = O> + Send + Sync + std::fmt::Debug,
+    I: std::fmt::Debug,
+    O: std::fmt::Debug,
 {
     /// Creates a new `Chain` from the provided initial link.
     ///
@@ -64,10 +67,14 @@ impl ChainBuilder {
 
     pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
     where
-        N: Node<Input = I> + Send + Sync,
+        N: Node<Input = I> + Send + Sync + std::fmt::Debug,
         I: Send,
     {
-        LinkedChainBuilder::new(node, self.trace)
+        LinkedChainBuilder {
+            link: node,
+            trace: self.trace,
+            _input: PhantomData,
+        }
     }
 }
 
@@ -90,21 +97,9 @@ pub struct LinkedChainBuilder<I, L> {
 
 impl<I, L> LinkedChainBuilder<I, L>
 where
-    L: Node<Input = I> + Send + Sync,
+    L: Node<Input = I> + Send + Sync + std::fmt::Debug,
     I: Send,
 {
-    /// Initializes a new `ChainBuilder` with the provided starting link.
-    ///
-    /// # Parameters
-    /// - `link`: The first node or link to start building the chain.
-    pub fn new(link: L, trace: bool) -> Self {
-        LinkedChainBuilder {
-            link,
-            trace,
-            _input: PhantomData,
-        }
-    }
-
     /// Adds a new node to the chain, linking it to the previous node.
     ///
     /// # Parameters
@@ -115,7 +110,7 @@ where
     /// with the new node added.
     pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
-        N: Node<Input = L::Output> + Send + Sync,
+        N: Node<Input = L::Output> + Send + Sync + std::fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
     {

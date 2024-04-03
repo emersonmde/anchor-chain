@@ -5,6 +5,8 @@
 //! processing chains. This module is designed to handle text and image inputs, offering a
 //! flexible interface for various types of content.
 
+use std::fmt;
+
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
@@ -164,5 +166,13 @@ impl Node for Claude3Bedrock {
             .text
             .clone()
             .expect("No text in response"))
+    }
+}
+
+impl fmt::Debug for Claude3Bedrock {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Claude3Bedrock")
+            .field("system_prompt", &self.system_prompt)
+            .finish()
     }
 }

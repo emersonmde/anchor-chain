@@ -4,6 +4,8 @@
 //! leveraging the OpenAI API. This module is part of a larger framework designed to
 //! support asynchronous processing chains for AI and natural language processing tasks.
 
+use std::fmt;
+
 use anyhow::{anyhow, Context, Result};
 use async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
@@ -99,5 +101,13 @@ impl Node for Gpt3_5Turbo {
 
         dbg!("GPT-3.5 Turbo processing complete");
         Ok(content)
+    }
+}
+
+impl fmt::Debug for Gpt3_5Turbo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Gpt3_5Turbo")
+            .field("system_prompt", &self.system_prompt)
+            .finish()
     }
 }

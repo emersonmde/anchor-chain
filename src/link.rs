@@ -7,14 +7,23 @@ use anyhow::Result;
 ///
 /// `Link` serves as a container for chaining two `Node` instances together,
 /// where the output of the first node is fed as the input to the next.
-pub struct Link<C, N> {
+#[derive(Debug)]
+pub struct Link<C, N>
+where
+    C: std::fmt::Debug,
+    N: std::fmt::Debug,
+{
     /// The first node in the chain.
     pub node: C,
     /// The next node or link in the chain.
     pub next: N,
 }
 
-impl<C, N> Link<C, N> {
+impl<C, N> Link<C, N>
+where
+    C: std::fmt::Debug,
+    N: std::fmt::Debug,
+{
     /// Creates a new `Link` connecting the specified nodes.
     ///
     /// # Parameters
@@ -31,10 +40,10 @@ impl<C, N> Link<C, N> {
 #[async_trait]
 impl<C, N> Node for Link<C, N>
 where
-    C: Node + Send + Sync,
+    C: Node + Send + Sync + std::fmt::Debug,
     C::Output: Send + 'static,
     C::Input: Send,
-    N: Node<Input = C::Output> + Send + Sync,
+    N: Node<Input = C::Output> + Send + Sync + std::fmt::Debug,
     N::Output: Send,
 {
     type Input = C::Input;
