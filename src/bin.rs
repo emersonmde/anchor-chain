@@ -5,7 +5,7 @@ extern crate anchor_chain;
 
 use anchor_chain::{
     chain::{ChainBuilder, LinkedChainBuilder},
-    models::{claude_3::Claude3Bedrock, gpt_3_5_turbo::Gpt3_5Turbo},
+    models::{claude_3::Claude3Bedrock, openai::OpenAI},
     node::{Node, PassthroughNode},
     parallel_node::ParallelNode,
     prompt::Prompt,
@@ -69,32 +69,32 @@ fn concat(outputs: Vec<String>) -> Result<String> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // let llm = Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await;
-    //
-    // let chain = ChainBuilder::new_with_trace()
-    //     .link(Prompt::new("{input}"))
-    //     .link(llm)
-    //     .link(PassthroughNode::new())
-    //     .link(LineCounter::new())
-    //     .link(AsteriskGenerator::new())
-    //     .link(PassthroughNode::new())
-    //     .build();
-    //
-    // println!("Chain: {:#?}", chain);
-    // let output = chain
-    //     .process("Write a hello world program in Rust".to_string())
-    //     .await?;
-    // println!("Output {}", output);
+    let llm = OpenAI::new("You are a helpful assistant".to_string()).await;
 
-    let gpt3 = Box::new(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await);
-    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
-
-    let chain = ChainBuilder::new()
+    let chain = ChainBuilder::new_with_trace()
         .link(Prompt::new("{input}"))
-        .link(ParallelNode::new(vec![gpt3, claude3], concat))
+        .link(llm)
+        .link(PassthroughNode::new())
+        .link(LineCounter::new())
+        .link(AsteriskGenerator::new())
+        .link(PassthroughNode::new())
         .build();
 
     println!("Chain: {:#?}", chain);
+    let output = chain
+        .process("Write a hello world program in Rust".to_string())
+        .await?;
+    println!("Output {}", output);
+
+    // let gpt3 = Box::new(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await);
+    // let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+    //
+    // let chain = ChainBuilder::new()
+    //     .link(Prompt::new("{input}"))
+    //     .link(ParallelNode::new(vec![gpt3, claude3], concat))
+    //     .build();
+    //
+    // println!("Chain: {:#?}", chain);
 
     Ok(())
 }

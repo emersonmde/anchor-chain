@@ -9,7 +9,7 @@
 //! use anyhow::Result;
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
-//!     models::{claude_3::Claude3Bedrock, gpt_3_5_turbo::Gpt3_5Turbo},
+//!     models::{claude_3::Claude3Bedrock, openai::OpenAI},
 //!     node::PassthroughNode,
 //!     parallel_node::ParallelNode,
 //!     prompt::Prompt,
@@ -17,7 +17,7 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<()> {
-//!     let gpt3_link = Box::new(Gpt3_5Turbo::new("You are a helpful assistant".to_string()).await);
+//!     let gpt3_link = Box::new(OpenAI::new("You are a helpful assistant".to_string()).await);
 //!     let claude3_link =
 //!         Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
 //!

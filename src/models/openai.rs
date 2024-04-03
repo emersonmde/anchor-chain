@@ -20,12 +20,12 @@ use crate::node::Node;
 /// `Gpt3_5Turbo` encapsulates the functionality required to interact with the
 /// GPT-3.5 Turbo model via the OpenAI API, handling both the construction of requests
 /// and the parsing of responses.
-pub struct Gpt3_5Turbo {
+pub struct OpenAI {
     system_prompt: String,
     client: async_openai::Client<async_openai::config::OpenAIConfig>,
 }
 
-impl Gpt3_5Turbo {
+impl OpenAI {
     /// Constructs a new `Gpt3_5Turbo` processor with the default API configuration.
     ///
     /// # Parameters
@@ -33,7 +33,7 @@ impl Gpt3_5Turbo {
     pub async fn new(system_prompt: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
-        Gpt3_5Turbo {
+        OpenAI {
             system_prompt,
             client,
         }
@@ -47,7 +47,7 @@ impl Gpt3_5Turbo {
     pub async fn new_with_key(system_prompt: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
-        Gpt3_5Turbo {
+        OpenAI {
             system_prompt,
             client,
         }
@@ -55,7 +55,7 @@ impl Gpt3_5Turbo {
 }
 
 #[async_trait]
-impl Node for Gpt3_5Turbo {
+impl Node for OpenAI {
     type Input = String;
     type Output = String;
 
@@ -71,7 +71,6 @@ impl Node for Gpt3_5Turbo {
     /// A `Result` containing the model's response content, or an error if the request fails
     /// or the response lacks expected content.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
-        dbg!("Starting GPT-3.5 Turbo processing");
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
             .build()?
@@ -99,12 +98,11 @@ impl Node for Gpt3_5Turbo {
             .content
             .context("No content in response")?;
 
-        dbg!("GPT-3.5 Turbo processing complete");
         Ok(content)
     }
 }
 
-impl fmt::Debug for Gpt3_5Turbo {
+impl fmt::Debug for OpenAI {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Gpt3_5Turbo")
             .field("system_prompt", &self.system_prompt)
