@@ -333,7 +333,7 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>OpenAIModel&lt;T&gt;
 <span class="kw">where
-    </span>T: From&lt;String&gt; + Into&lt;Prompt&gt;,
+    </span>T: Into&lt;Prompt&gt;,
 {
     GPT3_5Turbo(OpenAIChatModel&lt;T&gt;),
     GPT3_5TurboInstruct(OpenAIInstructModel&lt;T&gt;),
@@ -342,7 +342,7 @@
 
 <span class="kw">impl</span>&lt;T&gt; OpenAIModel&lt;T&gt;
 <span class="kw">where
-    </span>T: From&lt;String&gt; + Into&lt;Prompt&gt;,
+    </span>T: Into&lt;Prompt&gt;,
 {
     <span class="doccomment">/// Constructs a GPT4 Turbo model with the specified system prompt.
     ///
@@ -378,11 +378,11 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>OpenAIModel&lt;T&gt;
 <span class="kw">where
-    </span>T: From&lt;String&gt; + Send + Sync + fmt::Debug,
-    T: From&lt;String&gt; + Into&lt;Prompt&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt;,
+    </span>T: Send + Sync + fmt::Debug,
+    T: Into&lt;Prompt&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt;,
 {
     <span class="kw">type </span>Input = T;
-    <span class="kw">type </span>Output = T;
+    <span class="kw">type </span>Output = String;
 
     <span class="doccomment">/// Sends the input to the OpenAI model and processes the response.
     ///
@@ -478,10 +478,10 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>OpenAIChatModel&lt;T&gt;
 <span class="kw">where
-    </span>T: From&lt;String&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt; + Send + Sync,
+    </span>T: Into&lt;ChatCompletionRequestUserMessageContent&gt; + Send + Sync,
 {
     <span class="kw">type </span>Input = T;
-    <span class="kw">type </span>Output = T;
+    <span class="kw">type </span>Output = String;
 
     <span class="doccomment">/// Sends the input to the OpenAI API and processes the response.
     ///
@@ -525,7 +525,7 @@
             .content
             .context(<span class="string">"No content in response"</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(content.into())
+        <span class="prelude-val">Ok</span>(content)
     }
 }
 
@@ -579,10 +579,10 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>OpenAIInstructModel&lt;T&gt;
 <span class="kw">where
-    </span>T: From&lt;String&gt; + Into&lt;Prompt&gt; + Send + Sync,
+    </span>T: Into&lt;Prompt&gt; + Send + Sync,
 {
     <span class="kw">type </span>Input = T;
-    <span class="kw">type </span>Output = T;
+    <span class="kw">type </span>Output = String;
 
     <span class="doccomment">/// Sends the input to the OpenAI API and processes the response.
     ///
@@ -612,7 +612,7 @@
             </span>.text
             .clone();
 
-        <span class="prelude-val">Ok</span>(content.into())
+        <span class="prelude-val">Ok</span>(content)
     }
 }
 
