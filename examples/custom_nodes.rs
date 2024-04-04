@@ -61,7 +61,7 @@ impl Node for AsteriskGenerator {
 async fn main() -> Result<()> {
     let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
 
-    let chain = ChainBuilder::new_with_trace()
+    let chain = ChainBuilder::new()
         .link(Prompt::new("{input}"))
         .link(llm)
         .link(PassthroughNode::new())

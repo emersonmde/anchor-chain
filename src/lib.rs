@@ -70,3 +70,4 @@ pub mod models;
 pub mod node;
 pub mod parallel_node;
 pub mod prompt;
+pub mod trace_node;
