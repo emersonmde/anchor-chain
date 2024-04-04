@@ -1,6 +1,3 @@
-#![allow(unused_imports)]
-#![allow(dead_code)]
-
 use anchor_chain::{
     chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
@@ -8,7 +5,6 @@ use anchor_chain::{
     prompt::Prompt,
 };
 use anyhow::Result;
-use async_trait::async_trait;
 use futures::future::BoxFuture;
 
 #[tokio::main]
@@ -20,15 +16,15 @@ async fn main() -> Result<()> {
     let select_output_fn = Box::new(
         |outputs: Vec<String>| -> BoxFuture<Result<String, anyhow::Error>> {
             Box::pin(async move {
-                let decision_chain = ChainBuilder::new()
-                .link(Prompt::new("Return exactly one output verbatim for the output that you believe is the most helpful. Do not output anything other than the exact output quoted."))
-                .link(OpenAIModel::new_gpt3_5_turbo_instruct("You are an expert in rating LLM outputs and following instructions exactly.".to_string()).await)
-                .build();
                 let labeled_outputs = outputs
                     .iter()
                     .enumerate()
-                    .map(|(i, output)| format!("Output {}: ```\n{}\n```", i + 1, output))
+                    .map(|(i, output)| format!("<output{}>\n{}\n</output{}>", i + 1, output, i + 1))
                     .collect::<Vec<String>>();
+                let decision_chain = ChainBuilder::new()
+                    .link(Prompt::new("Decide which input is the most helpful. Return only the output within between the <outputN></outputN> tags without outputting the tags themselves. Ensure the output is returned verbatim without any comentary.\n{input}"))
+                    .link(OpenAIModel::new_gpt3_5_turbo_instruct().await)
+                    .build();
                 decision_chain.process(labeled_outputs.join("\n\n")).await
             })
         },
@@ -42,7 +38,7 @@ async fn main() -> Result<()> {
     let output = chain
         .process("Write a hello world program in Rust".to_string())
         .await?;
-    println!("==================\n\nOutput {}", output);
+    println!("{}", output);
 
     Ok(())
 }

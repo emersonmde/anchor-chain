@@ -1,11 +1,7 @@
-#![allow(unused_imports)]
-#![allow(dead_code)]
-
 use anchor_chain::{
     chain::ChainBuilder,
-    models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
+    models::openai::OpenAIModel,
     node::{Node, PassthroughNode},
-    parallel_node::ParallelNode,
     prompt::Prompt,
 };
 use anyhow::Result;
@@ -59,10 +55,6 @@ impl Node for AsteriskGenerator {
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         Ok("*".repeat(input))
     }
-}
-
-fn concat(outputs: Vec<String>) -> Result<String> {
-    Ok(outputs.concat())
 }
 
 #[tokio::main]

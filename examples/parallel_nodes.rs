@@ -1,6 +1,3 @@
-#![allow(unused_imports)]
-#![allow(dead_code)]
-
 use anchor_chain::{
     chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
@@ -8,8 +5,6 @@ use anchor_chain::{
     prompt::Prompt,
 };
 use anyhow::Result;
-use async_trait::async_trait;
-use futures::{future::BoxFuture, Future};
 
 #[tokio::main]
 async fn main() -> Result<()> {
