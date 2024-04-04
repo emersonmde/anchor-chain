@@ -49,6 +49,7 @@ impl Node for Prompt {
     /// A `Result` containing the original input text, facilitating further processing
     /// in subsequent chain links.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
-        Ok(input)
+        let text = self.text.replace("{input}", &input);
+        Ok(text)
     }
 }

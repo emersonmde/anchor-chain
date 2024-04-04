@@ -54,9 +54,9 @@ where
     ///
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
-    pub async fn new_gpt3_5_turbo_instruct(system_prompt: String) -> Self {
+    pub async fn new_gpt3_5_turbo_instruct() -> Self {
         OpenAIModel::GPT3_5TurboInstruct(
-            OpenAIInstructModel::new(system_prompt, "gpt-3.5-turbo-instruct".to_string()).await,
+            OpenAIInstructModel::new("gpt-3.5-turbo-instruct-0914".to_string()).await,
         )
     }
 }
@@ -227,7 +227,6 @@ pub struct OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
-    system_prompt: String,
     model: String,
     client: async_openai::Client<async_openai::config::OpenAIConfig>,
     _phantom: std::marker::PhantomData<T>,
@@ -237,11 +236,10 @@ impl<T> OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
-    async fn new(system_prompt: String, model: String) -> Self {
+    async fn new(model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
         OpenAIInstructModel {
-            system_prompt,
             client,
             model,
             _phantom: std::marker::PhantomData,
@@ -253,11 +251,10 @@ where
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
     /// - `api_key`: The API key for authenticating with the OpenAI API.
-    pub async fn new_with_key(system_prompt: String, model: String, api_key: String) -> Self {
+    pub async fn new_with_key(model: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
         OpenAIInstructModel {
-            system_prompt,
             client,
             model,
             _phantom: std::marker::PhantomData,
@@ -268,8 +265,7 @@ where
 #[async_trait]
 impl<T> Node for OpenAIInstructModel<T>
 where
-    T: From<String> + Send + Sync,
-    T: Send + Sync + From<String> + Into<Prompt>,
+    T: From<String> + Into<Prompt> + Send + Sync,
 {
     type Input = T;
     type Output = T;
@@ -287,15 +283,13 @@ where
     /// or the response lacks expected content.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let request = CreateCompletionRequestArgs::default()
-            .max_tokens(512u16)
             .model(&self.model)
             .prompt(input)
+            .temperature(0.8)
+            .max_tokens(512u16)
             .build()?;
 
         let response = self.client.completions().create(request).await?;
-
-        // TODO: Fix error with completion_tokens
-        // Error: failed to deserialize api response: missing field `completion_tokens` at line 17 column 3
 
         let content = response
             .choices
@@ -313,8 +307,6 @@ where
     T: Into<Prompt>,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("OpenAI")
-            .field("system_prompt", &self.system_prompt)
-            .finish()
+        f.debug_struct("OpenAI").finish()
     }
 }
