@@ -19,7 +19,7 @@ use crate::node::Node;
 #[derive(Debug)]
 pub enum OpenAIModel<T>
 where
-    T: From<String> + Into<Prompt>,
+    T: Into<Prompt>,
 {
     GPT3_5Turbo(OpenAIChatModel<T>),
     GPT3_5TurboInstruct(OpenAIInstructModel<T>),
@@ -28,7 +28,7 @@ where
 
 impl<T> OpenAIModel<T>
 where
-    T: From<String> + Into<Prompt>,
+    T: Into<Prompt>,
 {
     /// Constructs a GPT4 Turbo model with the specified system prompt.
     ///
@@ -64,11 +64,11 @@ where
 #[async_trait]
 impl<T> Node for OpenAIModel<T>
 where
-    T: From<String> + Send + Sync + fmt::Debug,
-    T: From<String> + Into<Prompt> + Into<ChatCompletionRequestUserMessageContent>,
+    T: Send + Sync + fmt::Debug,
+    T: Into<Prompt> + Into<ChatCompletionRequestUserMessageContent>,
 {
     type Input = T;
-    type Output = T;
+    type Output = String;
 
     /// Sends the input to the OpenAI model and processes the response.
     ///
@@ -164,10 +164,10 @@ impl<T> OpenAIChatModel<T> {
 #[async_trait]
 impl<T> Node for OpenAIChatModel<T>
 where
-    T: From<String> + Into<ChatCompletionRequestUserMessageContent> + Send + Sync,
+    T: Into<ChatCompletionRequestUserMessageContent> + Send + Sync,
 {
     type Input = T;
-    type Output = T;
+    type Output = String;
 
     /// Sends the input to the OpenAI API and processes the response.
     ///
@@ -211,7 +211,7 @@ where
             .content
             .context("No content in response")?;
 
-        Ok(content.into())
+        Ok(content)
     }
 }
 
@@ -265,10 +265,10 @@ where
 #[async_trait]
 impl<T> Node for OpenAIInstructModel<T>
 where
-    T: From<String> + Into<Prompt> + Send + Sync,
+    T: Into<Prompt> + Send + Sync,
 {
     type Input = T;
-    type Output = T;
+    type Output = String;
 
     /// Sends the input to the OpenAI API and processes the response.
     ///
@@ -298,7 +298,7 @@ where
             .text
             .clone();
 
-        Ok(content.into())
+        Ok(content)
     }
 }
 
