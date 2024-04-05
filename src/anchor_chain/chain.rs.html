@@ -143,6 +143,20 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
@@ -197,20 +211,35 @@
     </span>}
 }
 
-<span class="kw">pub struct </span>ChainBuilder {
+<span class="doccomment">/// A builder for constructing a `Chain` of nodes.
+///
+/// `ChainBuilder` allows for incremental construction of a processing chain, adding
+/// node one at a time. This approach facilitates clear and concise assembly
+/// of complex processing logic.
+</span><span class="kw">pub struct </span>ChainBuilder {
     trace: bool,
 }
 
 <span class="kw">impl </span>ChainBuilder {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new `ChainBuilder` instance.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         ChainBuilder { trace: <span class="bool-val">false </span>}
     }
 
-    <span class="kw">pub fn </span>new_with_trace() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new `ChainBuilder` instance with tracing enabled.
+    </span><span class="kw">pub fn </span>new_with_trace() -&gt; <span class="self">Self </span>{
         ChainBuilder { trace: <span class="bool-val">true </span>}
     }
 
-    <span class="kw">pub fn </span>link&lt;I, N&gt;(<span class="self">self</span>, node: N) -&gt; LinkedChainBuilder&lt;I, N&gt;
+    <span class="doccomment">/// Adds a new node to the chain, linking it to the previous node.
+    ///
+    /// # Parameters
+    /// - `node`: The node to add to the chain.
+    ///
+    /// # Returns
+    /// A new `LinkedChainBuilder` instance representing the current state of
+    /// the chain with the new node added.
+    </span><span class="kw">pub fn </span>link&lt;I, N&gt;(<span class="self">self</span>, node: N) -&gt; LinkedChainBuilder&lt;I, N&gt;
     <span class="kw">where
         </span>N: Node&lt;Input = I&gt; + Send + Sync + std::fmt::Debug,
         I: Send,
@@ -229,11 +258,10 @@
     }
 }
 
-<span class="doccomment">/// A builder for constructing a `Chain` of nodes.
+<span class="doccomment">/// A builder for constructing a `Chain` of nodes using Link.
 ///
-/// `ChainBuilder` allows for incremental construction of a processing chain, adding
-/// node one at a time. This approach facilitates clear and concise assembly
-/// of complex processing logic.
+/// `LinkedChainBuilder` allows for incremental construction of a processing
+/// chain, adding nodes one at a time.
 </span><span class="kw">pub struct </span>LinkedChainBuilder&lt;I, L&gt; {
     link: L,
     trace: bool,
@@ -251,7 +279,7 @@
     /// - `next`: The node to add to the chain.
     ///
     /// # Returns
-    /// A new `ChainBuilder` instance representing the current state of the chain,
+    /// A new `LinkedChainBuilder` instance representing the current state of the chain,
     /// with the new node added.
     </span><span class="kw">pub fn </span>link&lt;N&gt;(<span class="self">self</span>, next: N) -&gt; LinkedChainBuilder&lt;I, Link&lt;L, N&gt;&gt;
     <span class="kw">where
