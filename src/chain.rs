@@ -52,19 +52,34 @@ where
     }
 }
 
+/// A builder for constructing a `Chain` of nodes.
+///
+/// `ChainBuilder` allows for incremental construction of a processing chain, adding
+/// node one at a time. This approach facilitates clear and concise assembly
+/// of complex processing logic.
 pub struct ChainBuilder {
     trace: bool,
 }
 
 impl ChainBuilder {
+    /// Creates a new `ChainBuilder` instance.
     pub fn new() -> Self {
         ChainBuilder { trace: false }
     }
 
+    /// Creates a new `ChainBuilder` instance with tracing enabled.
     pub fn new_with_trace() -> Self {
         ChainBuilder { trace: true }
     }
 
+    /// Adds a new node to the chain, linking it to the previous node.
+    ///
+    /// # Parameters
+    /// - `node`: The node to add to the chain.
+    ///
+    /// # Returns
+    /// A new `LinkedChainBuilder` instance representing the current state of
+    /// the chain with the new node added.
     pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
     where
         N: Node<Input = I> + Send + Sync + std::fmt::Debug,
@@ -84,11 +99,10 @@ impl Default for ChainBuilder {
     }
 }
 
-/// A builder for constructing a `Chain` of nodes.
+/// A builder for constructing a `Chain` of nodes using Link.
 ///
-/// `ChainBuilder` allows for incremental construction of a processing chain, adding
-/// node one at a time. This approach facilitates clear and concise assembly
-/// of complex processing logic.
+/// `LinkedChainBuilder` allows for incremental construction of a processing
+/// chain, adding nodes one at a time.
 pub struct LinkedChainBuilder<I, L> {
     link: L,
     trace: bool,
@@ -106,7 +120,7 @@ where
     /// - `next`: The node to add to the chain.
     ///
     /// # Returns
-    /// A new `ChainBuilder` instance representing the current state of the chain,
+    /// A new `LinkedChainBuilder` instance representing the current state of the chain,
     /// with the new node added.
     pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
