@@ -66,7 +66,17 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! A link in a processing chain that connects one `Node` to another.
+//!
+//! `Link` serves as a container for chaining two `Node` instances together,
+//! where the output of the first node is fed as the input to the next.
+
+</span><span class="kw">use </span>async_trait::async_trait;
 
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 <span class="kw">use </span>anyhow::Result;

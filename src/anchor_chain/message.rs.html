@@ -116,7 +116,23 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>async_openai::types::{
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Contains generic message types that can be used with multiple LLM models.
+//!
+//! These types are used to represent messages that can be sent to and received
+//! from LLM models. They are designed to be generic and reusable across
+//! different models and applications. This module also provides conversion
+//! traits to convert these generic message types into model-specific message
+//! types for use with specific LLM models.
+
+</span><span class="kw">use </span>async_openai::types::{
     ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
     ChatCompletionRequestUserMessageArgs,
 };

@@ -73,40 +73,86 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain: A Rust Framework for Large Language Models (LLMs)
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
-//! `anchor_chain` is a framework designed for building and executing asynchronous
-//! processing chains, particularly tailored for interacting with Large Language Models (LLMs)
-//! such as GPT-3.5 and Claude 3. This library was inspired by LangChain but leverages the
-//! statically typed nature of Rust ensuring compile-time type safety and
-//! performance. It's particularly suited for scenarios requiring data
-//! processing pipelines, including natural language processing and data transformation.
+//! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
+//! Large Language Models (LLMs). Inspired by LangChain, Anchor Chain provides a set of easy-to-use
+//! and extensible building blocks that enable developers to create robust and efficient LLM-based
+//! applications quickly. The framework prioritizes type safety, processing efficiency, and
+//! flexibility through its carefully designed APIs and abstractions.
 //!
-//! ## Why Rust?
+//! ## Features
 //!
-//! Rust brings several advantages to the table, especially for high-stakes data processing
-//! applications, by offering:
+//! - Statically Typed Chains: Anchor Chain leverages Rust's type system to provide statically
+//!   typed chains, catching potential type mismatches at compile time.
 //!
-//! - **Compile-Time Type Safety**: Guarantees about the correctness of processor chain types,
-//!   minimizing runtime errors.
-//! - **Optimized Performance**: Efficient memory management and execution speed, crucial for
-//!   processing large volumes of data or complex model outputs.
-//! - **Robust Concurrency**: Safe and expressive concurrency primitives make it easier to
-//!   construct non-blocking, concurrent processing pipelines.
+//! - Async Runtime for Parallel Execution: Built with Rust's async runtime, Anchor Chain allows
+//!   for efficient parallel processing of nodes in complex chains.
 //!
-//! ## Core Components
+//! - Extensibility through the Node Trait: The Node trait allows developers to create custom
+//!   nodes tailored to their specific use cases, enabling seamless integration into the chain.
 //!
-//! - `chain::ChainBuilder`: Constructs processing chains in a type-safe manner, ensuring
-//!   seamless data flow between processors.
-//! - `models`: Features predefined models and processors, such as `Gpt3_5Turbo` and
-//!   `Claude3Bedrock`, facilitating easy integration with well-known LLMs via AWS Bedrock.
-//! - `prompt::Prompt`: Enhances prompt construction and modification, enabling dynamic
-//!   LLM interactions.
+//! - Support for Popular LLMs: Anchor Chain provides built-in support for popular LLMs, such as
+//!   OpenAI's GPT models and Anthropic's Claude, abstracting away API details to provide a common
+//!   interface.
+//!
+//! - Parallel Node Execution: The ParallelNode struct enables parallel execution of multiple
+//!   nodes, leveraging concurrency to improve overall chain performance.
+//!
+//! ## Why Anchor Chain?
+//!
+//! Anchor Chain addresses some of the challenges developers face when working with LangChain, such
+//! as the lack of comprehensive documentation, rapidly evolving APIs, and the absence of type
+//! safety. These issues can lead to a steep learning curve and time-consuming trial and error when
+//! building LLM-based applications.
+//!
+//! By leveraging Rust's expressive type system, Anchor Chain provides statically typed chains that
+//! offer clear compile-time feedback and in-editor type hints. This helps catch potential errors
+//! early in the development process and facilitates a more efficient workflow.
+//!
+//! Additionally, Anchor Chain's built-in support for async runtimes enables efficient parallel
+//! processing of nodes in complex chains. This can significantly reduce the overall execution time
+//! of LLM-based workflows, making Anchor Chain an attractive choice for performance-critical
+//! applications.
 //!
 //! ## Getting Started
 //!
-//! Define your processors and use `ChainBuilder` to piece together a processing chain.
-//! Below is an illustrative example:
+//! To get started with Anchor Chain, add the following dependency to your Cargo.toml file:
+//!
+//! ```toml
+//! [dependencies]
+//! anchor-chain = "0.1.0"
+//! ```
+//!
+//! Then, you can create chains using the ChainBuilder and invoke them with the .process()
+//! function:
 //!
 //! ```no_run
 //! #[tokio::main]
@@ -131,10 +177,18 @@
 //! }
 //! ```
 //!
-//! `anchor_chain` is designed for a wide range of applications, from simple text manipulation
-//! to advanced natural language processing tasks. Its adaptable architecture ensures it can be
-//! tailored to fit specific processing requirements, making Rust a compelling choice for AI
-//! and machine learning projects.
+//! For more examples please refer to the [examples
+//! directory](https://github.com/emersonmde/anchor-chain/tree/main/examples).
+//!
+//! ## Contributing
+//!
+//! Contributions to Anchor Chain are welcome! If you encounter any issues, have suggestions for
+//! improvements, or would like to contribute new features, please open an issue or submit a pull
+//! request on the GitHub repository.
+//!
+//! ## License
+//!
+//! Anchor Chain is released under the MIT License.
 
 </span><span class="attr">#![allow(dead_code)]
 

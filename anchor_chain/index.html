@@ -1,35 +1,54 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Anchor Chain: A Rust Framework for Large Language Models (LLMs)"><title>anchor_chain - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-4c98445ec4002617.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../anchor_chain/index.html">anchor_chain</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Anchor Chain"><title>anchor_chain - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="anchor_chain" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-4c98445ec4002617.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../anchor_chain/index.html">anchor_chain</a><span class="version">0.1.1</span></h2></div><div class="sidebar-elems"><ul class="block">
             <li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../anchor_chain/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">anchor_chain</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/anchor_chain/lib.rs.html#1-73">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="anchor-chain-a-rust-framework-for-large-language-models-llms"><a class="doc-anchor" href="#anchor-chain-a-rust-framework-for-large-language-models-llms">§</a>Anchor Chain: A Rust Framework for Large Language Models (LLMs)</h2>
-<p><code>anchor_chain</code> is a framework designed for building and executing asynchronous
-processing chains, particularly tailored for interacting with Large Language Models (LLMs)
-such as GPT-3.5 and Claude 3. This library was inspired by LangChain but leverages the
-statically typed nature of Rust ensuring compile-time type safety and
-performance. It’s particularly suited for scenarios requiring data
-processing pipelines, including natural language processing and data transformation.</p>
-<h3 id="why-rust"><a class="doc-anchor" href="#why-rust">§</a>Why Rust?</h3>
-<p>Rust brings several advantages to the table, especially for high-stakes data processing
-applications, by offering:</p>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../anchor_chain/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">anchor_chain</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/anchor_chain/lib.rs.html#1-100">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="anchor-chain"><a class="doc-anchor" href="#anchor-chain">§</a>Anchor Chain</h2>
+<p>Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
+Large Language Models (LLMs). Inspired by LangChain, Anchor Chain provides a set of easy-to-use
+and extensible building blocks that enable developers to create robust and efficient LLM-based
+applications quickly. The framework prioritizes type safety, processing efficiency, and
+flexibility through its carefully designed APIs and abstractions.</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3>
 <ul>
-<li><strong>Compile-Time Type Safety</strong>: Guarantees about the correctness of processor chain types,
-minimizing runtime errors.</li>
-<li><strong>Optimized Performance</strong>: Efficient memory management and execution speed, crucial for
-processing large volumes of data or complex model outputs.</li>
-<li><strong>Robust Concurrency</strong>: Safe and expressive concurrency primitives make it easier to
-construct non-blocking, concurrent processing pipelines.</li>
+<li>
+<p>Statically Typed Chains: Anchor Chain leverages Rust’s type system to provide statically
+typed chains, catching potential type mismatches at compile time.</p>
+</li>
+<li>
+<p>Async Runtime for Parallel Execution: Built with Rust’s async runtime, Anchor Chain allows
+for efficient parallel processing of nodes in complex chains.</p>
+</li>
+<li>
+<p>Extensibility through the Node Trait: The Node trait allows developers to create custom
+nodes tailored to their specific use cases, enabling seamless integration into the chain.</p>
+</li>
+<li>
+<p>Support for Popular LLMs: Anchor Chain provides built-in support for popular LLMs, such as
+OpenAI’s GPT models and Anthropic’s Claude, abstracting away API details to provide a common
+interface.</p>
+</li>
+<li>
+<p>Parallel Node Execution: The ParallelNode struct enables parallel execution of multiple
+nodes, leveraging concurrency to improve overall chain performance.</p>
+</li>
 </ul>
-<h3 id="core-components"><a class="doc-anchor" href="#core-components">§</a>Core Components</h3>
-<ul>
-<li><code>chain::ChainBuilder</code>: Constructs processing chains in a type-safe manner, ensuring
-seamless data flow between processors.</li>
-<li><code>models</code>: Features predefined models and processors, such as <code>Gpt3_5Turbo</code> and
-<code>Claude3Bedrock</code>, facilitating easy integration with well-known LLMs via AWS Bedrock.</li>
-<li><code>prompt::Prompt</code>: Enhances prompt construction and modification, enabling dynamic
-LLM interactions.</li>
-</ul>
+<h3 id="why-anchor-chain"><a class="doc-anchor" href="#why-anchor-chain">§</a>Why Anchor Chain?</h3>
+<p>Anchor Chain addresses some of the challenges developers face when working with LangChain, such
+as the lack of comprehensive documentation, rapidly evolving APIs, and the absence of type
+safety. These issues can lead to a steep learning curve and time-consuming trial and error when
+building LLM-based applications.</p>
+<p>By leveraging Rust’s expressive type system, Anchor Chain provides statically typed chains that
+offer clear compile-time feedback and in-editor type hints. This helps catch potential errors
+early in the development process and facilitates a more efficient workflow.</p>
+<p>Additionally, Anchor Chain’s built-in support for async runtimes enables efficient parallel
+processing of nodes in complex chains. This can significantly reduce the overall execution time
+of LLM-based workflows, making Anchor Chain an attractive choice for performance-critical
+applications.</p>
 <h3 id="getting-started"><a class="doc-anchor" href="#getting-started">§</a>Getting Started</h3>
-<p>Define your processors and use <code>ChainBuilder</code> to piece together a processing chain.
-Below is an illustrative example:</p>
+<p>To get started with Anchor Chain, add the following dependency to your Cargo.toml file:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+anchor-chain = &quot;0.1.0&quot;
+</code></pre></div>
+<p>Then, you can create chains using the ChainBuilder and invoke them with the .process()
+function:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[tokio::main]
 </span><span class="kw">async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
@@ -51,8 +70,12 @@ Below is an illustrative example:</p>
     <span class="macro">println!</span>(<span class="string">"Result: {}"</span>, result);
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<p><code>anchor_chain</code> is designed for a wide range of applications, from simple text manipulation
-to advanced natural language processing tasks. Its adaptable architecture ensures it can be
-tailored to fit specific processing requirements, making Rust a compelling choice for AI
-and machine learning projects.</p>
-</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="chain/index.html" title="mod anchor_chain::chain">chain</a></div><div class="desc docblock-short">Provides structures for creating and executing chains.</div></li><li><div class="item-name"><a class="mod" href="link/index.html" title="mod anchor_chain::link">link</a></div></li><li><div class="item-name"><a class="mod" href="message/index.html" title="mod anchor_chain::message">message</a></div></li><li><div class="item-name"><a class="mod" href="models/index.html" title="mod anchor_chain::models">models</a></div></li><li><div class="item-name"><a class="mod" href="node/index.html" title="mod anchor_chain::node">node</a></div><div class="desc docblock-short">Module providing foundational structures for building chains.</div></li><li><div class="item-name"><a class="mod" href="parallel_node/index.html" title="mod anchor_chain::parallel_node">parallel_node</a></div><div class="desc docblock-short">Parallel Node</div></li><li><div class="item-name"><a class="mod" href="prompt/index.html" title="mod anchor_chain::prompt">prompt</a></div><div class="desc docblock-short">Module for handling dynamic prompts in processing chains.</div></li><li><div class="item-name"><a class="mod" href="trace_node/index.html" title="mod anchor_chain::trace_node">trace_node</a></div></li></ul></section></div></main></body></html>
+<p>For more examples please refer to the <a href="https://github.com/emersonmde/anchor-chain/tree/main/examples">examples
+directory</a>.</p>
+<h3 id="contributing"><a class="doc-anchor" href="#contributing">§</a>Contributing</h3>
+<p>Contributions to Anchor Chain are welcome! If you encounter any issues, have suggestions for
+improvements, or would like to contribute new features, please open an issue or submit a pull
+request on the GitHub repository.</p>
+<h3 id="license"><a class="doc-anchor" href="#license">§</a>License</h3>
+<p>Anchor Chain is released under the MIT License.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="chain/index.html" title="mod anchor_chain::chain">chain</a></div><div class="desc docblock-short">Provides structures for creating and executing chains.</div></li><li><div class="item-name"><a class="mod" href="link/index.html" title="mod anchor_chain::link">link</a></div><div class="desc docblock-short">A link in a processing chain that connects one <code>Node</code> to another.</div></li><li><div class="item-name"><a class="mod" href="message/index.html" title="mod anchor_chain::message">message</a></div><div class="desc docblock-short">Contains generic message types that can be used with multiple LLM models.</div></li><li><div class="item-name"><a class="mod" href="models/index.html" title="mod anchor_chain::models">models</a></div><div class="desc docblock-short">Contains nodes that are designed to work with various LLM models.</div></li><li><div class="item-name"><a class="mod" href="node/index.html" title="mod anchor_chain::node">node</a></div><div class="desc docblock-short">Module providing foundational structures for building chains.</div></li><li><div class="item-name"><a class="mod" href="parallel_node/index.html" title="mod anchor_chain::parallel_node">parallel_node</a></div><div class="desc docblock-short">Provides a structure for processing input through multiple nodes in parallel.</div></li><li><div class="item-name"><a class="mod" href="prompt/index.html" title="mod anchor_chain::prompt">prompt</a></div><div class="desc docblock-short">Module for handling dynamic prompts in processing chains.</div></li><li><div class="item-name"><a class="mod" href="trace_node/index.html" title="mod anchor_chain::trace_node">trace_node</a></div></li></ul></section></div></main></body></html>
