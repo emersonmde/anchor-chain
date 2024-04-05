@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/emersonmde/anchor-chain"
 documentation = "https://errorsignal.dev/anchor-chain/anchor_chain/"
 readme = "README.md"
-keywords = ["async", "LLM", "langchain", "rag", "chatgpt", "gpt", "prompt-engineering", "parallel", "static-typing", "claude"]
+keywords = ["llm", "langchain", "rag", "openai", "claude"]
 categories = ["development-tools", "api-bindings", "asynchronous", "concurrency"]
 authors = ["Matthew Emerson <emersonmde@protonmail.com>"]
 
