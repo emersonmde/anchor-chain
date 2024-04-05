@@ -53,6 +53,11 @@ use anyhow::Result;
 use async_trait::async_trait;
 use futures::future::try_join_all;
 
+/// A node that processes input through multiple nodes in parallel.
+///
+/// The `ParallelNode` struct represents a node that processes input through
+/// multiple nodes in parallel. The output of each node is then combined using
+/// a provided function to produce the final output.
 pub struct ParallelNode<I, O>
 where
     I: Clone + Send + Sync,
@@ -130,6 +135,16 @@ where
     }
 }
 
+/// Converts a function into a boxed future that can be used in a `ParallelNode`.
+///
+/// This function takes a function that processes input and returns a `Result` and
+/// converts it into a boxed future that can be used in a `ParallelNode` to process
+/// the output of multiple nodes.
+///
+/// # Parameters
+/// - `f`: The function to convert into a boxed future.
+/// # Returns
+/// A boxed future that processes the output of multiple nodes.
 pub fn to_boxed_future<T, F>(
     f: F,
 ) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String>> + Send + Sync>

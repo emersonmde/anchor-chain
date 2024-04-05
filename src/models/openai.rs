@@ -21,8 +21,11 @@ pub enum OpenAIModel<T>
 where
     T: Into<Prompt>,
 {
+    /// GPT-3.5 Turbo model
     GPT3_5Turbo(OpenAIChatModel<T>),
+    /// GPT-3.5 Turbo Instruct model
     GPT3_5TurboInstruct(OpenAIInstructModel<T>),
+    /// GPT-4 Turbo model
     GPT4Turbo(OpenAIChatModel<T>),
 }
 
@@ -216,6 +219,7 @@ where
 }
 
 impl<T> fmt::Debug for OpenAIChatModel<T> {
+    /// Formats the `OpenAI` processor for debugging.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OpenAI")
             .field("system_prompt", &self.system_prompt)
@@ -223,11 +227,14 @@ impl<T> fmt::Debug for OpenAIChatModel<T> {
     }
 }
 
+/// Processor for making requests to OpenAI Instruct models.
 pub struct OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
+    /// The name of the instruct model.
     model: String,
+    /// The OpenAI API client.
     client: async_openai::Client<async_openai::config::OpenAIConfig>,
     _phantom: std::marker::PhantomData<T>,
 }
@@ -236,6 +243,12 @@ impl<T> OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
+    /// Constructs a new `OpenAI` processor with the default API configuration.
+    ///
+    /// # Parameters
+    /// - `model`: The OpenAI model to use for processing.
+    /// # Returns
+    /// A new `OpenAI` processor instance.
     async fn new(model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
@@ -251,6 +264,8 @@ where
     /// # Parameters
     /// - `system_prompt`: The system prompt or context string.
     /// - `api_key`: The API key for authenticating with the OpenAI API.
+    /// # Returns
+    /// A new `OpenAI` processor instance.
     pub async fn new_with_key(model: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
@@ -306,6 +321,7 @@ impl<T> fmt::Debug for OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
+    /// Formats the `OpenAI` processor for debugging.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OpenAI").finish()
     }

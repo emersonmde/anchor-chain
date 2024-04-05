@@ -13,6 +13,7 @@ use async_trait::async_trait;
 /// a processing chain.
 #[derive(Debug)]
 pub struct Prompt {
+    /// The prompt text that will be combined with the input text.
     text: String,
 }
 
