@@ -1,4 +1,4 @@
-//! # Parallel Node
+//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
 //! multiple nodes in parallel. The output of each node is then combined using

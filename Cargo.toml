@@ -1,6 +1,6 @@
 [package]
 name = "anchor-chain"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A statically typed async framework for building robust and efficient LLM-based applications."
 license = "MIT"

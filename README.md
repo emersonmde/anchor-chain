@@ -71,7 +71,7 @@ To get started with Anchor Chain, add the following dependency to your
 
 ```toml
 [dependencies]
-anchor-chain = "0.1.0"
+anchor-chain = "0.1.1"
 ```
 
 Then, you can create chains using the `ChainBuilder` and invoke them with the 

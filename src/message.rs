@@ -1,3 +1,11 @@
+//! Contains generic message types that can be used with multiple LLM models.
+//!
+//! These types are used to represent messages that can be sent to and received
+//! from LLM models. They are designed to be generic and reusable across
+//! different models and applications. This module also provides conversion
+//! traits to convert these generic message types into model-specific message
+//! types for use with specific LLM models.
+
 use async_openai::types::{
     ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
     ChatCompletionRequestUserMessageArgs,

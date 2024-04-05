@@ -1,37 +1,56 @@
-//! # Anchor Chain: A Rust Framework for Large Language Models (LLMs)
+//! # Anchor Chain
 //!
-//! `anchor_chain` is a framework designed for building and executing asynchronous
-//! processing chains, particularly tailored for interacting with Large Language Models (LLMs)
-//! such as GPT-3.5 and Claude 3. This library was inspired by LangChain but leverages the
-//! statically typed nature of Rust ensuring compile-time type safety and
-//! performance. It's particularly suited for scenarios requiring data
-//! processing pipelines, including natural language processing and data transformation.
+//! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
+//! Large Language Models (LLMs). Inspired by LangChain, Anchor Chain provides a set of easy-to-use
+//! and extensible building blocks that enable developers to create robust and efficient LLM-based
+//! applications quickly. The framework prioritizes type safety, processing efficiency, and
+//! flexibility through its carefully designed APIs and abstractions.
 //!
-//! ## Why Rust?
+//! ## Features
 //!
-//! Rust brings several advantages to the table, especially for high-stakes data processing
-//! applications, by offering:
+//! - Statically Typed Chains: Anchor Chain leverages Rust's type system to provide statically
+//!   typed chains, catching potential type mismatches at compile time.
 //!
-//! - **Compile-Time Type Safety**: Guarantees about the correctness of processor chain types,
-//!   minimizing runtime errors.
-//! - **Optimized Performance**: Efficient memory management and execution speed, crucial for
-//!   processing large volumes of data or complex model outputs.
-//! - **Robust Concurrency**: Safe and expressive concurrency primitives make it easier to
-//!   construct non-blocking, concurrent processing pipelines.
+//! - Async Runtime for Parallel Execution: Built with Rust's async runtime, Anchor Chain allows
+//!   for efficient parallel processing of nodes in complex chains.
 //!
-//! ## Core Components
+//! - Extensibility through the Node Trait: The Node trait allows developers to create custom
+//!   nodes tailored to their specific use cases, enabling seamless integration into the chain.
 //!
-//! - `chain::ChainBuilder`: Constructs processing chains in a type-safe manner, ensuring
-//!   seamless data flow between processors.
-//! - `models`: Features predefined models and processors, such as `Gpt3_5Turbo` and
-//!   `Claude3Bedrock`, facilitating easy integration with well-known LLMs via AWS Bedrock.
-//! - `prompt::Prompt`: Enhances prompt construction and modification, enabling dynamic
-//!   LLM interactions.
+//! - Support for Popular LLMs: Anchor Chain provides built-in support for popular LLMs, such as
+//!   OpenAI's GPT models and Anthropic's Claude, abstracting away API details to provide a common
+//!   interface.
+//!
+//! - Parallel Node Execution: The ParallelNode struct enables parallel execution of multiple
+//!   nodes, leveraging concurrency to improve overall chain performance.
+//!
+//! ## Why Anchor Chain?
+//!
+//! Anchor Chain addresses some of the challenges developers face when working with LangChain, such
+//! as the lack of comprehensive documentation, rapidly evolving APIs, and the absence of type
+//! safety. These issues can lead to a steep learning curve and time-consuming trial and error when
+//! building LLM-based applications.
+//!
+//! By leveraging Rust's expressive type system, Anchor Chain provides statically typed chains that
+//! offer clear compile-time feedback and in-editor type hints. This helps catch potential errors
+//! early in the development process and facilitates a more efficient workflow.
+//!
+//! Additionally, Anchor Chain's built-in support for async runtimes enables efficient parallel
+//! processing of nodes in complex chains. This can significantly reduce the overall execution time
+//! of LLM-based workflows, making Anchor Chain an attractive choice for performance-critical
+//! applications.
 //!
 //! ## Getting Started
 //!
-//! Define your processors and use `ChainBuilder` to piece together a processing chain.
-//! Below is an illustrative example:
+//! To get started with Anchor Chain, add the following dependency to your Cargo.toml file:
+//!
+//! ```toml
+//! [dependencies]
+//! anchor-chain = "0.1.0"
+//! ```
+//!
+//! Then, you can create chains using the ChainBuilder and invoke them with the .process()
+//! function:
 //!
 //! ```no_run
 //! #[tokio::main]
@@ -56,10 +75,18 @@
 //! }
 //! ```
 //!
-//! `anchor_chain` is designed for a wide range of applications, from simple text manipulation
-//! to advanced natural language processing tasks. Its adaptable architecture ensures it can be
-//! tailored to fit specific processing requirements, making Rust a compelling choice for AI
-//! and machine learning projects.
+//! For more examples please refer to the [examples
+//! directory](https://github.com/emersonmde/anchor-chain/tree/main/examples).
+//!
+//! ## Contributing
+//!
+//! Contributions to Anchor Chain are welcome! If you encounter any issues, have suggestions for
+//! improvements, or would like to contribute new features, please open an issue or submit a pull
+//! request on the GitHub repository.
+//!
+//! ## License
+//!
+//! Anchor Chain is released under the MIT License.
 
 #![allow(dead_code)]
 
