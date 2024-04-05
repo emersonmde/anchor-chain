@@ -3,11 +3,12 @@
 
 # Anchor Chain
 
-Work In Progress
-
-Anchor Chain is a Rust framework for working with LLMs inspired LangChain. Anchor Chain
-allows LLM actions, document retrievers, and other processing steps to be chained 
-together to produce an end to end workflow.
+Anchor Chain is a Rust framework designed to simplify the orchestration of 
+workflows involving Large Language Models (LLMs). Inspired by LangChain, 
+Anchor Chain provides a set of easy-to-use and extensible building blocks that 
+enable developers to create robust and efficient LLM-based applications quickly. 
+The framework prioritizes type safety, processing efficiency, and flexibility 
+through its carefully designed APIs and abstractions.
 
 ```text
               |>   |>   |>
@@ -24,22 +25,57 @@ together to produce an end to end workflow.
                          \_⟂_/
 ```
 
+## Features
+
+- **Statically Typed Chains**: Anchor Chain leverages Rust's type system to 
+provide statically typed chains, catching potential type mismatches at compile 
+time.
+
+- **Async Runtime for Parallel Execution**: Built with Rust's async runtime, 
+Anchor Chain allows for efficient parallel processing of nodes in complex 
+chains.
+
+- **Extensibility through the Node Trait**: The `Node` trait allows developers 
+to create custom nodes tailored to their specific use cases, enabling seamless 
+integration into the chain.
+
+- **Support for Popular LLMs**: Anchor Chain provides built-in support for 
+popular LLMs, such as OpenAI's GPT models and Anthropic's Claude, abstracting 
+away API details to provide a common interface.
+
+- **Parallel Node Execution**: The `ParallelNode` struct enables parallel 
+execution of multiple nodes, leveraging concurrency to improve overall chain 
+performance.
+
 ## Why Anchor Chain?
 
-One problem I faced with LangChain was the lack of documentation and the quickly 
-evolving API that made it difficult to learn and work with. This problem was 
-exacerbated by the lack of type safety resulting in trial and error with long 
-iteration times when calling long running LLM steps. 
+Anchor Chain addresses some of the challenges developers face when working with 
+LangChain, such as the lack of comprehensive documentation, rapidly evolving 
+APIs, and the absence of type safety. These issues can lead to a steep learning 
+curve and time-consuming trial and error when building LLM-based applications.
 
-The expressive type system of Rust allows for statically typed chains giving 
-clear compile time feedback and in editor type hints. Also having built in 
-support for async runtimes opens the possibility of efficient parallel 
-processing of nodes in complex chains.
+By leveraging Rust's expressive type system, Anchor Chain provides statically 
+typed chains that offer clear compile-time feedback and in-editor type hints. 
+This helps catch potential errors early in the development process and 
+facilitates a more efficient workflow.
+
+Additionally, Anchor Chain's built-in support for async runtimes enables 
+efficient parallel processing of nodes in complex chains. This can significantly 
+reduce the overall execution time of LLM-based workflows, making Anchor Chain an 
+attractive choice for performance-critical applications.
 
 ## Getting Started
 
-Chains can be created using `ChainBuilder` and invoked with the `.process()`
-function:
+To get started with Anchor Chain, add the following dependency to your 
+`Cargo.toml` file:
+
+```toml
+[dependencies]
+anchor-chain = "0.1.0"
+```
+
+Then, you can create chains using the `ChainBuilder` and invoke them with the 
+`.process()` function:
 
 ```rust
 use anchor_chain::{
@@ -65,4 +101,27 @@ async fn main() -> Result<()> {
 }
 ```
 
-See more examples [here](examples)
+For more examples and detailed documentation, please refer to the 
+[examples](examples) directory and the [API documentation](https://errorsignal.dev/anchor-chain/anchor_chain/).
+
+## Contributing
+
+Contributions to Anchor Chain are welcome! If you encounter any issues, have 
+suggestions for improvements, or would like to contribute new features, please 
+open an issue or submit a pull request on the 
+[GitHub repository](https://github.com/emersonmde/anchor-chain).
+
+## TODO
+
+While Anchor Chain is usable today, it's still a work in progress. Below are a 
+list of future features that will be implemented before a 1.0 release.
+
+- Create an AddShots Node that allows adding relevant examples to the prompt
+- Create a node to categorize and log input for better input observability
+- Add error handling strategy that will use a backup model if the primary fails
+- Output validation node that can attempt to fix unexpected or incomplete outputs
+- Add OpenTelemetry support
+
+## License
+
+Anchor Chain is released under the [MIT License](LICENSE).
