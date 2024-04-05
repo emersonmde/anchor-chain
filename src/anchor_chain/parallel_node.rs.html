@@ -144,6 +144,21 @@
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -199,7 +214,12 @@
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures::future::try_join_all;
 
-<span class="kw">pub struct </span>ParallelNode&lt;I, O&gt;
+<span class="doccomment">/// A node that processes input through multiple nodes in parallel.
+///
+/// The `ParallelNode` struct represents a node that processes input through
+/// multiple nodes in parallel. The output of each node is then combined using
+/// a provided function to produce the final output.
+</span><span class="kw">pub struct </span>ParallelNode&lt;I, O&gt;
 <span class="kw">where
     </span>I: Clone + Send + Sync,
     O: Send + Sync,
@@ -276,7 +296,17 @@
     }
 }
 
-<span class="kw">pub fn </span>to_boxed_future&lt;T, F&gt;(
+<span class="doccomment">/// Converts a function into a boxed future that can be used in a `ParallelNode`.
+///
+/// This function takes a function that processes input and returns a `Result` and
+/// converts it into a boxed future that can be used in a `ParallelNode` to process
+/// the output of multiple nodes.
+///
+/// # Parameters
+/// - `f`: The function to convert into a boxed future.
+/// # Returns
+/// A boxed future that processes the output of multiple nodes.
+</span><span class="kw">pub fn </span>to_boxed_future&lt;T, F&gt;(
     f: F,
 ) -&gt; Box&lt;<span class="kw">dyn </span>Fn(T) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;String&gt;&gt; + Send + Sync&gt;
 <span class="kw">where
