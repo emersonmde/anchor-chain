@@ -1,5 +1,7 @@
 [![Rust Build](https://github.com/emersonmde/anchor-chain/actions/workflows/rust.yml/badge.svg)](https://github.com/emersonmde/anchor-chain/actions/workflows/rust.yml)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/docsrs/anchor-chain/latest)](https://docs.rs/anchor-chain)
+[![crates](https://img.shields.io/crates/v/anchor-chain.svg)](https://crates.io/crates/anchor-chain)
+[![License](https://img.shields.io/crates/l/anchor-chain.svg)](LICENSE)
 
 # Anchor Chain
 
@@ -116,12 +118,11 @@ open an issue or submit a pull request on the
 While Anchor Chain is usable today, it's still a work in progress. Below are a 
 list of future features that will be implemented before a 1.0 release.
 
-- Add support for Tera templates in prompts
 - Create a node to categorize and log input for better input observability
 - Add error handling strategy that will use a backup model if the primary fails
 - Output validation node that can attempt to fix unexpected or incomplete outputs
 - Add OpenTelemetry support
-- Add feature flag for Askama prompts
+- Add feature flag for Askama to support statically typed prompts
 
 ## License
 
