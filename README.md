@@ -8,9 +8,9 @@
 Anchor Chain is a Rust framework designed to simplify the orchestration of 
 workflows involving Large Language Models (LLMs). Inspired by LangChain, 
 Anchor Chain provides a set of easy-to-use and extensible building blocks that 
-enable developers to create robust and efficient LLM-based applications quickly. 
-The framework prioritizes type safety, processing efficiency, and flexibility 
-through its carefully designed APIs and abstractions.
+enable developers to create LLM-based applications quickly. 
+The framework prioritizes type safety, processing efficiency, and composibility 
+by design.
 
 Anchor Chain is currently under active development and its API is
 subject to change. The framework has not yet reached a stable 1.0 release, and
@@ -53,12 +53,22 @@ away API details to provide a common interface.
 execution of multiple nodes, leveraging concurrency to improve overall chain 
 performance.
 
+## Supported Models
+Currently Anchor chain supports OpenAI's GPT3.5 Turbo, GPT4 Trubo, and GPT3.5 
+Instruct through the use of the
+[async-openai](https://crates.io/crates/async-openai) crate as well as
+Claude 3 Sonnet through the [AWS Bedrock API](https://aws.amazon.com/bedrock/). 
+There are plans to add support for Mistral and other models supported by AWS 
+Bedrock as well as support for connecting to a locally running
+[Ollama](https://ollama.com/) or [llama.cpp](https://github.com/ggerganov/llama.cpp)
+model through the provided REST APIs.
+
 ## Why Anchor Chain?
 
 Anchor Chain addresses some of the challenges developers face when working with 
-LangChain, such as the lack of comprehensive documentation, rapidly evolving 
-APIs, and the absence of type safety. These issues can lead to a steep learning 
-curve and time-consuming trial and error when building LLM-based applications.
+LangChain, such as the lack of documentation, ambigious APIs, and the lack of 
+type safety. These issues can lead to time-consuming trial and error when 
+building LLM-based applications.
 
 By leveraging Rust's expressive type system, Anchor Chain provides statically 
 typed chains that offer clear compile-time feedback and in-editor type hints. 
@@ -124,13 +134,18 @@ open an issue or submit a pull request on the
 ## TODO
 
 While Anchor Chain is usable today, it's still a work in progress. Below are a 
-list of future features that will be implemented before a 1.0 release.
+list of future features that are planned for the 1.0 release:
 
-- Create a node to categorize and log input for better input observability
+- Add OpenSearch document retriever
+- Support for Mistral through AWS Bedrock
+- Support for Ollama REST API
 - Add error handling strategy that will use a backup model if the primary fails
-- Output validation node that can attempt to fix unexpected or incomplete outputs
 - Add OpenTelemetry support
+
+Other potential features for future releases:
 - Add feature flag for Askama to support statically typed prompts
+- Create a node to categorize and log input for better input observability
+- Output validation node that can attempt to fix unexpected or incomplete outputs
 
 ## License
 

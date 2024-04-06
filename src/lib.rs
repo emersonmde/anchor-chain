@@ -90,16 +90,6 @@
 //!
 //! For more examples please refer to the [examples
 //! directory](https://github.com/emersonmde/anchor-chain/tree/main/examples).
-//!
-//! ## Contributing
-//!
-//! Contributions to Anchor Chain are welcome! If you encounter any issues, have suggestions for
-//! improvements, or would like to contribute new features, please open an issue or submit a pull
-//! request on the GitHub repository.
-//!
-//! ## License
-//!
-//! Anchor Chain is released under the MIT License.
 
 #[cfg(doctest)]
 #[doc = include_str!("../README.md")]
