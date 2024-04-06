@@ -10,24 +10,6 @@ use anyhow::Result;
 use async_trait::async_trait;
 use tera::{Context, Tera};
 
-trait IntoContext {
-    fn into_context(self) -> Context;
-}
-
-impl IntoContext for Context {
-    fn into_context(self) -> Context {
-        self
-    }
-}
-
-impl IntoContext for String {
-    fn into_context(self) -> Context {
-        let mut context = Context::new();
-        context.insert("input", &self);
-        context
-    }
-}
-
 /// A processor for handling text prompts within a processing chain.
 ///
 /// `Prompt` is primarily used for manipulating or logging text data as it flows through
@@ -35,7 +17,6 @@ impl IntoContext for String {
 #[derive(Debug)]
 pub struct Prompt<'a> {
     /// The prompt text that will be combined with the input text.
-    text: String,
     tera: Tera,
     _marker: PhantomData<&'a str>,
 }
@@ -57,7 +38,6 @@ impl<'a> Prompt<'a> {
         tera.add_raw_template("prompt", text)
             .expect("Error creating template");
         Prompt {
-            text: text.to_string(),
             tera,
             _marker: PhantomData,
         }

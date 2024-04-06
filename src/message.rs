@@ -18,6 +18,7 @@ pub enum ChatMessage {
     Assistant(AssisnantChatMessage),
 }
 
+#[allow(dead_code)]
 enum ChatMessageContent {
     Text(String),
     Image(String),

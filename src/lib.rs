@@ -90,8 +90,6 @@
 //!
 //! Anchor Chain is released under the MIT License.
 
-#![allow(dead_code)]
-
 pub mod chain;
 pub mod link;
 pub mod message;

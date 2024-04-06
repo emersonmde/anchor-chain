@@ -16,7 +16,6 @@ use std::marker::PhantomData;
 #[derive(Debug)]
 pub struct Chain<I, O, L> {
     link: L,
-    trace: bool,
     _input: PhantomData<I>,
     _output: PhantomData<O>,
 }
@@ -31,10 +30,9 @@ where
     ///
     /// # Parameters
     /// - `link`: The starting link of the chain.
-    pub fn new(link: L, trace: bool) -> Self {
+    pub fn new(link: L) -> Self {
         Chain {
             link,
-            trace,
             _input: PhantomData,
             _output: PhantomData,
         }
@@ -57,19 +55,12 @@ where
 /// `ChainBuilder` allows for incremental construction of a processing chain, adding
 /// node one at a time. This approach facilitates clear and concise assembly
 /// of complex processing logic.
-pub struct ChainBuilder {
-    trace: bool,
-}
+pub struct ChainBuilder {}
 
 impl ChainBuilder {
     /// Creates a new `ChainBuilder` instance.
     pub fn new() -> Self {
-        ChainBuilder { trace: false }
-    }
-
-    /// Creates a new `ChainBuilder` instance with tracing enabled.
-    pub fn new_with_trace() -> Self {
-        ChainBuilder { trace: true }
+        ChainBuilder {}
     }
 
     /// Adds a new node to the chain, linking it to the previous node.
@@ -87,7 +78,6 @@ impl ChainBuilder {
     {
         LinkedChainBuilder {
             link: node,
-            trace: self.trace,
             _input: PhantomData,
         }
     }
@@ -105,7 +95,6 @@ impl Default for ChainBuilder {
 /// chain, adding nodes one at a time.
 pub struct LinkedChainBuilder<I, L> {
     link: L,
-    trace: bool,
     _input: PhantomData<I>,
 }
 
@@ -133,7 +122,6 @@ where
                 node: self.link,
                 next,
             },
-            trace: self.trace,
             _input: PhantomData,
         }
     }
@@ -149,7 +137,6 @@ where
     {
         Chain {
             link: self.link,
-            trace: self.trace,
             _input: PhantomData,
             _output: PhantomData,
         }
