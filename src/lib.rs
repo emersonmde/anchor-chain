@@ -90,6 +90,10 @@
 //!
 //! Anchor Chain is released under the MIT License.
 
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+struct _README;
+
 pub mod chain;
 pub mod link;
 pub mod message;

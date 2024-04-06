@@ -79,23 +79,27 @@ anchor-chain = "0.1.1"
 Then, you can create chains using the `ChainBuilder` and invoke them with the 
 `.process()` function:
 
-```rust
+```rust,no_run
 use anchor_chain::{
     chain::ChainBuilder,
     prompt::Prompt,
     models::openai::OpenAIModel,
 };
 use anyhow::Result;
+use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let chain = ChainBuilder::new()
-        .link(Prompt::new("{input}"))
+        .link(Prompt::new("{{ input }}"))
         .link(OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await)
         .build();
 
     let output = chain
-        .process("Write a hello world program in Rust".to_string())
+        .process(HashMap::from([(
+            "input",
+            "Write a hello world program in Rust",
+        )]))
         .await?;
     println!("Output:\n{}", output);
 
