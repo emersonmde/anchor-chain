@@ -53,6 +53,8 @@
 //! function:
 //!
 //! ```no_run
+//! use std::collections::HashMap;
+//!
 //! #[tokio::main]
 //! async fn main() -> anyhow::Result<()> {
 //!     use anchor_chain::{
@@ -62,12 +64,12 @@
 //!     };
 //!
 //!     let chain = ChainBuilder::new()
-//!         .link(Prompt::new("{input}"))
+//!         .link(Prompt::new("{{ input }}"))
 //!         .link(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await)
 //!         .build();
 //!
 //!     let result = chain
-//!         .process("Write a hello world program in Rust".to_string())
+//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
 //!         .await?;
 //!
 //!     println!("Result: {}", result);

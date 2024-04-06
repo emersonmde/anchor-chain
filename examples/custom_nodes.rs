@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anchor_chain::{
     chain::ChainBuilder,
     models::openai::OpenAIModel,
@@ -62,7 +64,7 @@ async fn main() -> Result<()> {
     let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
 
     let chain = ChainBuilder::new()
-        .link(Prompt::new("{input}"))
+        .link(Prompt::new("{{ input }}"))
         .link(llm)
         .link(PassthroughNode::new())
         .link(LineCounter::new())
@@ -71,7 +73,10 @@ async fn main() -> Result<()> {
         .build();
 
     let output = chain
-        .process("Write a hello world program in Rust".to_string())
+        .process(HashMap::from([(
+            "input",
+            "Write a hello world program in Rust",
+        )]))
         .await?;
     println!("Output:\n{}", output);
 

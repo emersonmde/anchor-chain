@@ -90,9 +90,9 @@ where
 
 /// Represents a processor for sending and processing requests to the OpenAI API.
 ///
-/// `OpenAI` encapsulates the functionality required to interact with the
-/// the OpenAI API, handling both the construction of requests and the parsing
-/// of responses.
+/// `OpenAIChatModel` encapsulates the functionality required to interact with
+/// the the OpenAI Chat API, handling both the construction of requests and the
+/// parsing of responses.
 pub struct OpenAIChatModel<T> {
     system_prompt: String,
     model: String,

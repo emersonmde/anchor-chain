@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anchor_chain::{
     chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
@@ -22,12 +24,15 @@ async fn main() -> Result<()> {
     });
 
     let chain = ChainBuilder::new()
-        .link(Prompt::new("{input}"))
+        .link(Prompt::new("{{ input }}"))
         .link(ParallelNode::new(vec![gpt3, claude3], concat_fn))
         .build();
 
     let output = chain
-        .process("Write a hello world program in Rust".to_string())
+        .process(HashMap::from([(
+            "input",
+            "Write a hello world program in Rust",
+        )]))
         .await?;
     println!("{}", output);
 

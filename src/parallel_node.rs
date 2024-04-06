@@ -15,6 +15,7 @@
 //! use anyhow::Result;
 //! use async_trait::async_trait;
 //! use futures::{future::BoxFuture, Future};
+//! use std::collections::HashMap;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<()> {
@@ -33,12 +34,12 @@
 //!
 //!
 //!     let chain = ChainBuilder::new()
-//!         .link(Prompt::new("{input}"))
+//!         .link(Prompt::new("{{ input }}"))
 //!         .link(ParallelNode::new(vec![gpt3, claude3], concat_fn))
 //!         .build();
 //!
 //!     let output = chain
-//!         .process("Write a hello world program in Rust".to_string())
+//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
 //!         .await?;
 //!     println!("{}", output);
 //!

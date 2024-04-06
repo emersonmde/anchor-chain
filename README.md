@@ -116,11 +116,12 @@ open an issue or submit a pull request on the
 While Anchor Chain is usable today, it's still a work in progress. Below are a 
 list of future features that will be implemented before a 1.0 release.
 
-- Create an AddShots Node that allows adding relevant examples to the prompt
+- Add support for Tera templates in prompts
 - Create a node to categorize and log input for better input observability
 - Add error handling strategy that will use a backup model if the primary fails
 - Output validation node that can attempt to fix unexpected or incomplete outputs
 - Add OpenTelemetry support
+- Add feature flag for Askama prompts
 
 ## License
 
