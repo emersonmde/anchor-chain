@@ -5,7 +5,7 @@
 //! a provided function to produce the final output.
 //!
 //! Example:
-//! ```no_run
+//! ```rust,no_run
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
 //!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
