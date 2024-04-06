@@ -1,8 +1,8 @@
 [package]
 name = "anchor-chain"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
-description = "A statically typed async framework for building robust and efficient LLM-based applications."
+description = "A statically typed async framework for building LLM-based applications."
 license = "MIT"
 repository = "https://github.com/emersonmde/anchor-chain"
 documentation = "https://errorsignal.dev/anchor-chain/anchor_chain/"
