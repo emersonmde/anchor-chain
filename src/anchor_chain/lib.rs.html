@@ -100,6 +100,8 @@
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
 //! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
@@ -155,6 +157,8 @@
 //! function:
 //!
 //! ```no_run
+//! use std::collections::HashMap;
+//!
 //! #[tokio::main]
 //! async fn main() -&gt; anyhow::Result&lt;()&gt; {
 //!     use anchor_chain::{
@@ -164,12 +168,12 @@
 //!     };
 //!
 //!     let chain = ChainBuilder::new()
-//!         .link(Prompt::new("{input}"))
+//!         .link(Prompt::new("{{ input }}"))
 //!         .link(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await)
 //!         .build();
 //!
 //!     let result = chain
-//!         .process("Write a hello world program in Rust".to_string())
+//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
 //!         .await?;
 //!
 //!     println!("Result: {}", result);

@@ -56,26 +56,69 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for handling dynamic prompts in processing chains.
 //!
 //! This module provides the `Prompt` struct, a processor for handling
 //! and displaying text prompts.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::node::Node;
+</span><span class="kw">use </span>std::{collections::HashMap, marker::PhantomData};
+
+<span class="kw">use </span><span class="kw">crate</span>::node::Node;
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>tera::{Context, Tera};
+
+<span class="kw">trait </span>IntoContext {
+    <span class="kw">fn </span>into_context(<span class="self">self</span>) -&gt; Context;
+}
+
+<span class="kw">impl </span>IntoContext <span class="kw">for </span>Context {
+    <span class="kw">fn </span>into_context(<span class="self">self</span>) -&gt; Context {
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>IntoContext <span class="kw">for </span>String {
+    <span class="kw">fn </span>into_context(<span class="self">self</span>) -&gt; Context {
+        <span class="kw">let </span><span class="kw-2">mut </span>context = Context::new();
+        context.insert(<span class="string">"input"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>);
+        context
+    }
+}
 
 <span class="doccomment">/// A processor for handling text prompts within a processing chain.
 ///
 /// `Prompt` is primarily used for manipulating or logging text data as it flows through
 /// a processing chain.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Prompt {
+</span><span class="kw">pub struct </span>Prompt&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The prompt text that will be combined with the input text.
     </span>text: String,
+    tera: Tera,
+    _marker: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
 }
 
-<span class="kw">impl </span>Prompt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Prompt&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new `Prompt` processor with the specified text.
     ///
     /// # Parameters
@@ -88,28 +131,25 @@
     /// let prompt = Prompt::new("Hello, World!");
     /// ```
     </span><span class="kw">pub fn </span>new(text: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>tera = Tera::default();
+        tera.add_raw_template(<span class="string">"prompt"</span>, text)
+            .expect(<span class="string">"Error creating template"</span>);
         Prompt {
             text: text.to_string(),
+            tera,
+            _marker: PhantomData,
         }
     }
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl </span>Node <span class="kw">for </span>Prompt {
-    <span class="kw">type </span>Input = String;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Node <span class="kw">for </span>Prompt&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Input = HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;;
     <span class="kw">type </span>Output = String;
 
-    <span class="doccomment">/// Processes the input by simply logging the prompt text and returning the input unchanged.
-    ///
-    /// # Parameters
-    /// - `input`: The input text to the processor, which is passed through unchanged.
-    ///
-    /// # Returns
-    /// A `Result` containing the original input text, facilitating further processing
-    /// in subsequent chain links.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="kw">let </span>text = <span class="self">self</span>.text.replace(<span class="string">"{input}"</span>, <span class="kw-2">&amp;</span>input);
-        <span class="prelude-val">Ok</span>(text)
+    <span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>context = Context::from_serialize(input)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.tera.render(<span class="string">"prompt"</span>, <span class="kw-2">&amp;</span>context)<span class="question-mark">?</span>.to_string())
     }
 }
 </code></pre></div></section></main></body></html>
