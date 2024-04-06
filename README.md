@@ -108,7 +108,7 @@ async fn main() -> Result<()> {
 ```
 
 For more examples and detailed documentation, please refer to the 
-[examples](examples) directory and the [API documentation](https://errorsignal.dev/anchor-chain/anchor_chain/).
+[examples](examples) directory and the [API documentation](https://docs.rs/anchor-chain).
 
 ## Contributing
 
