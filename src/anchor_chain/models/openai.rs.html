@@ -299,35 +299,6 @@
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating OpenAI models.
 //!
 //! Facilitates the construction and execution of requests to OpenAI models,
@@ -365,8 +336,8 @@
 {
     <span class="doccomment">/// Constructs a GPT4 Turbo model with the specified system prompt.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     </span><span class="kw">pub async fn </span>new_gpt4_turbo(system_prompt: String) -&gt; <span class="self">Self </span>{
         OpenAIModel::GPT3_5Turbo(
             OpenAIChatModel::new(system_prompt, <span class="string">"gpt-4-turbo-preview"</span>.to_string()).<span class="kw">await</span>,
@@ -375,18 +346,15 @@
 
     <span class="doccomment">/// Constructs a GPT3.5 Turbo model with the specified system prompt.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     </span><span class="kw">pub async fn </span>new_gpt3_5_turbo(system_prompt: String) -&gt; <span class="self">Self </span>{
         OpenAIModel::GPT4Turbo(
             OpenAIChatModel::new(system_prompt, <span class="string">"gpt-3.5-turbo"</span>.to_string()).<span class="kw">await</span>,
         )
     }
 
-    <span class="doccomment">/// Constructs a GPT3.5 Turbo Instruct model with the specified system prompt.
-    ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    <span class="doccomment">/// Constructs a GPT3.5 Turbo Instruct model.
     </span><span class="kw">pub async fn </span>new_gpt3_5_turbo_instruct() -&gt; <span class="self">Self </span>{
         OpenAIModel::GPT3_5TurboInstruct(
             OpenAIInstructModel::new(<span class="string">"gpt-3.5-turbo-instruct-0914"</span>.to_string()).<span class="kw">await</span>,
@@ -400,15 +368,12 @@
     </span>T: Send + Sync + fmt::Debug,
     T: Into&lt;Prompt&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt;,
 {
-    <span class="kw">type </span>Input = T;
-    <span class="kw">type </span>Output = String;
+    <span class="doccomment">/// The input that is converted to a `Prompt` for the OpenAI model.
+    </span><span class="kw">type </span>Input = T;
+    <span class="doccomment">/// The output from the OpenAI model.
+    </span><span class="kw">type </span>Output = String;
 
-    <span class="doccomment">/// Sends the input to the OpenAI model and processes the response.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails.
+    <span class="doccomment">/// Sends the prompt to the OpenAI model and processes the response.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             OpenAIModel::GPT3_5Turbo(model) =&gt; model.process(input).<span class="kw">await</span>,
@@ -433,7 +398,12 @@
 <span class="kw">impl</span>&lt;T&gt; OpenAIChatModel&lt;T&gt; {
     <span class="doccomment">/// Constructs a new `OpenAI` processor with the default API configuration.
     ///
-    /// Possible Model Types
+    /// The OpenAIConfig will try to use the API key from the environment
+    /// variable `OPENAI_API_KEY` by default. The system prompt is passed in
+    /// as the first message in the conversation using
+    /// `ChatCompletionRequestSystemMessage`.
+    ///
+    /// Possible Model Types:
     /// gpt-3.5-turbo-16k
     /// davinci-002
     /// gpt-3.5-turbo-1106
@@ -462,10 +432,6 @@
     /// text-embedding-ada-002
     /// gpt-3.5-turbo-instruct
     /// gpt-3.5-turbo-16k-0613
-    ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `model`: The OpenAI model to use for processing.
     </span><span class="kw">async fn </span>new(system_prompt: String, model: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new();
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
@@ -477,11 +443,10 @@
         }
     }
 
-    <span class="doccomment">/// Constructs a new `OpenAI` processor with a specified API key.
+    <span class="doccomment">/// Constructs a new `OpenAI` node using the specified API key.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `api_key`: The API key for authenticating with the OpenAI API.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     </span><span class="kw">pub async fn </span>new_with_key(system_prompt: String, model: String, api_key: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
@@ -505,14 +470,7 @@
     <span class="doccomment">/// Sends the input to the OpenAI API and processes the response.
     ///
     /// Constructs a request based on the input and the system prompt, then parses
-    /// the model's response to extract and return the processed content.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    ///
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails
-    /// or the response lacks expected content.
+    /// the model's response to extract and return final output.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(<span class="self">self</span>.system_prompt.clone())
@@ -549,15 +507,14 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>OpenAIChatModel&lt;T&gt; {
-    <span class="doccomment">/// Formats the `OpenAI` processor for debugging.
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"OpenAI"</span>)
             .field(<span class="string">"system_prompt"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.system_prompt)
             .finish()
     }
 }
 
-<span class="doccomment">/// Processor for making requests to OpenAI Instruct models.
+<span class="doccomment">/// Node for making requests to OpenAI Instruct models.
 </span><span class="kw">pub struct </span>OpenAIInstructModel&lt;T&gt;
 <span class="kw">where
     </span>T: Into&lt;Prompt&gt;,
@@ -573,12 +530,9 @@
 <span class="kw">where
     </span>T: Into&lt;Prompt&gt;,
 {
-    <span class="doccomment">/// Constructs a new `OpenAI` processor with the default API configuration.
+    <span class="doccomment">/// Constructs a new `OpenAI` node with the default API configuration.
     ///
-    /// # Parameters
-    /// - `model`: The OpenAI model to use for processing.
-    /// # Returns
-    /// A new `OpenAI` processor instance.
+    /// The model specified must support the instruct API.
     </span><span class="kw">async fn </span>new(model: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new();
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
@@ -591,11 +545,7 @@
 
     <span class="doccomment">/// Constructs a new `OpenAI` processor with a specified API key.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `api_key`: The API key for authenticating with the OpenAI API.
-    /// # Returns
-    /// A new `OpenAI` processor instance.
+    /// The model specified must support the instruct API.
     </span><span class="kw">pub async fn </span>new_with_key(model: String, api_key: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         <span class="kw">let </span>client = async_openai::Client::with_config(config);
@@ -619,13 +569,6 @@
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    ///
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails
-    /// or the response lacks expected content.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>request = CreateCompletionRequestArgs::default()
             .model(<span class="kw-2">&amp;</span><span class="self">self</span>.model)
@@ -651,8 +594,7 @@
 <span class="kw">where
     </span>T: Into&lt;Prompt&gt;,
 {
-    <span class="doccomment">/// Formats the `OpenAI` processor for debugging.
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"OpenAI"</span>).finish()
     }
 }

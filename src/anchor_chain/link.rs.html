@@ -64,13 +64,6 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A link in a processing chain that connects one `Node` to another.
 //!
 //! `Link` serves as a container for chaining two `Node` instances together,
@@ -104,12 +97,9 @@
 {
     <span class="doccomment">/// Creates a new `Link` connecting the specified nodes.
     ///
-    /// # Parameters
-    /// - `node`: The first node in the chain.
-    /// - `next`: The next node or link in the chain.
-    ///
-    /// # Returns
-    /// A new `Link` instance connecting the two nodes.
+    /// The `node` is linked with the `next` node in the chain. Output from the
+    /// `node` is passed as input to the `next` node. Either node can also be
+    /// a `Link` forming a nested linked list of nodes.
     </span><span class="kw">pub fn </span>new(node: C, next: N) -&gt; <span class="self">Self </span>{
         Link { node, next }
     }
@@ -124,19 +114,15 @@
     N: Node&lt;Input = C::Output&gt; + Send + Sync + std::fmt::Debug,
     N::Output: Send,
 {
-    <span class="kw">type </span>Input = C::Input;
-    <span class="kw">type </span>Output = &lt;N <span class="kw">as </span>Node&gt;::Output;
+    <span class="doccomment">/// The input type for the current node
+    </span><span class="kw">type </span>Input = C::Input;
+    <span class="doccomment">/// The output type of the next node
+    </span><span class="kw">type </span>Output = &lt;N <span class="kw">as </span>Node&gt;::Output;
 
     <span class="doccomment">/// Processes the given input through the chain of nodes.
     ///
     /// First, the input is processed by the current node. Then, the output of the current
     /// node is passed to the next node or link in the chain for further processing.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be processed by the chain.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output from the chain or an error if processing fails at any point.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>output = <span class="self">self</span>.node.process(input).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.next.process(output).<span class="kw">await

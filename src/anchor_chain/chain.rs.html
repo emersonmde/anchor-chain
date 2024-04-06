@@ -128,22 +128,6 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
@@ -174,8 +158,9 @@
 {
     <span class="doccomment">/// Creates a new `Chain` from the provided initial link.
     ///
-    /// # Parameters
-    /// - `link`: The starting link of the chain.
+    /// `Link` serves as a container for chaining two `Node` instances together,
+    /// where the output of the first node is fed as the input to the next. These
+    /// links can be nested to create a chain of nodes.
     </span><span class="kw">pub fn </span>new(link: L) -&gt; <span class="self">Self </span>{
         Chain {
             link,
@@ -186,11 +171,10 @@
 
     <span class="doccomment">/// Asynchronously processes the provided input through the chain of nodes.
     ///
-    /// # Parameters
-    /// - `input`: The initial input to the chain.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output after processing or an error if processing fails.
+    /// The input is processed by each node in the chain, with the output of one node
+    /// serving as the input to the next. The final output of the chain is returned.
+    /// If any node in the chain returns an error, the processing is halted and
+    /// the error is returned.
     </span><span class="kw">pub async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: I) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; {
         <span class="self">self</span>.link.process(input).<span class="kw">await
     </span>}
@@ -209,14 +193,7 @@
         ChainBuilder {}
     }
 
-    <span class="doccomment">/// Adds a new node to the chain, linking it to the previous node.
-    ///
-    /// # Parameters
-    /// - `node`: The node to add to the chain.
-    ///
-    /// # Returns
-    /// A new `LinkedChainBuilder` instance representing the current state of
-    /// the chain with the new node added.
+    <span class="doccomment">/// Adds the first node to the chain.
     </span><span class="kw">pub fn </span>link&lt;I, N&gt;(<span class="self">self</span>, node: N) -&gt; LinkedChainBuilder&lt;I, N&gt;
     <span class="kw">where
         </span>N: Node&lt;Input = I&gt; + Send + Sync + std::fmt::Debug,
@@ -237,8 +214,9 @@
 
 <span class="doccomment">/// A builder for constructing a `Chain` of nodes using Link.
 ///
-/// `LinkedChainBuilder` allows for incremental construction of a processing
-/// chain, adding nodes one at a time.
+/// `LinkedChainBuilder` takes an initial node and allows for incremental
+/// construction of a processing chain, adding nodes one at a time. New nodes
+/// are linked to the previous nodes using nested `Link` instances.
 </span><span class="kw">pub struct </span>LinkedChainBuilder&lt;I, L&gt; {
     link: L,
     _input: PhantomData&lt;I&gt;,
@@ -250,13 +228,6 @@
     I: Send,
 {
     <span class="doccomment">/// Adds a new node to the chain, linking it to the previous node.
-    ///
-    /// # Parameters
-    /// - `next`: The node to add to the chain.
-    ///
-    /// # Returns
-    /// A new `LinkedChainBuilder` instance representing the current state of the chain,
-    /// with the new node added.
     </span><span class="kw">pub fn </span>link&lt;N&gt;(<span class="self">self</span>, next: N) -&gt; LinkedChainBuilder&lt;I, Link&lt;L, N&gt;&gt;
     <span class="kw">where
         </span>N: Node&lt;Input = L::Output&gt; + Send + Sync + std::fmt::Debug,
@@ -274,9 +245,6 @@
 
     <span class="doccomment">/// Finalizes the construction of the chain, returning a `Chain` instance
     /// ready for processing.
-    ///
-    /// # Returns
-    /// A `Chain` instance constructed from the nodes added to the builder.
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; Chain&lt;I, L::Output, L&gt;
     <span class="kw">where
         </span>L: Node,

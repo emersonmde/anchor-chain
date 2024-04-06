@@ -64,14 +64,6 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module providing foundational structures for building chains.
 //!
 //! This module defines a `Node` trait for asynchronous operations and
@@ -94,13 +86,9 @@
     <span class="doccomment">/// The output type for the node.
     </span><span class="kw">type </span>Output;
 
-    <span class="doccomment">/// Asynchronously processes the given input, returning the output.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be processed.
-    ///
-    /// # Returns
-    /// A `Result` containing the processed output value or an error if processing fails.
+    <span class="doccomment">/// Asynchronously processes the given input, returning the output. When
+    /// chained together the output type of one node must match the input of
+    /// the next node in the chain.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt;;
 }
 
@@ -120,8 +108,7 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>PassthroughNode&lt;T&gt; {
-    <span class="doccomment">/// Creates a default `PassthroughNode`.
-    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
@@ -131,15 +118,12 @@
 <span class="kw">where
     </span>T: Send + Sync + std::fmt::Debug,
 {
-    <span class="kw">type </span>Input = T;
-    <span class="kw">type </span>Output = T;
+    <span class="doccomment">/// The input type for the PassthroughNode.
+    </span><span class="kw">type </span>Input = T;
+    <span class="doccomment">/// The output type for the PassthroughNode.
+    </span><span class="kw">type </span>Output = T;
 
-    <span class="doccomment">/// Passes the input through unchanged.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be passed through.
-    /// # Returns
-    /// The input value unchanged.
+    <span class="doccomment">/// Returns the input unchanged.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="prelude-val">Ok</span>(input)
     }

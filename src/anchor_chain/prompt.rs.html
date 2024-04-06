@@ -56,10 +56,23 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for handling dynamic prompts in processing chains.
 //!
 //! This module provides the `Prompt` struct, a processor for handling
-//! and displaying text prompts.
+//! and displaying text prompts. The `Prompt` struct uses Tera templating
+//! to allow for dynamic input substitution in the prompt text. Tera is a
+//! template engine that allows for dynamic templating using variables with
+//! a similar syntax to Jinja2. For more information on Tera, see the
+//! [Tera documentation](https://keats.github.io/tera/docs/#templates).
 
 </span><span class="kw">use </span>std::{collections::HashMap, marker::PhantomData};
 
@@ -70,30 +83,31 @@
 
 <span class="doccomment">/// A processor for handling text prompts within a processing chain.
 ///
-/// `Prompt` is primarily used for manipulating or logging text data as it flows through
-/// a processing chain.
+/// The `Prompt` struct is a processor for handling text prompts within a
+/// processing chain using Tera templating.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Prompt&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// The prompt text that will be combined with the input text.
+    <span class="doccomment">/// The Tera template used to process the prompt text.
     </span>tera: Tera,
     _marker: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Prompt&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// Creates a new `Prompt` processor with the specified text.
+    <span class="doccomment">/// Creates a new `Prompt` processor with the specified template.
     ///
-    /// # Parameters
-    /// - `text`: The static or template text to be associated with this prompt processor.
+    /// Templates need to be specified using the Tera syntax which is based on
+    /// Jinja2. For more information on Tera, see the
+    /// [Tera Templates documentation](https://keats.github.io/tera/docs/#templates).
     ///
     /// # Examples
-    /// ```
+    /// ```rust
     /// use anchor_chain::prompt::Prompt;
     ///
-    /// let prompt = Prompt::new("Hello, World!");
+    /// let prompt = Prompt::new("Create a {{ language }} program that prints 'Hello, World!'");
     /// ```
-    </span><span class="kw">pub fn </span>new(text: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(template: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>tera = Tera::default();
-        tera.add_raw_template(<span class="string">"prompt"</span>, text)
+        tera.add_raw_template(<span class="string">"prompt"</span>, template)
             .expect(<span class="string">"Error creating template"</span>);
         Prompt {
             tera,
@@ -102,12 +116,16 @@
     }
 }
 
-<span class="attr">#[async_trait]
+<span class="doccomment">/// Implements the `Node` trait for the `Prompt` struct.
+</span><span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Node <span class="kw">for </span>Prompt&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">type </span>Input = HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;;
-    <span class="kw">type </span>Output = String;
+    <span class="doccomment">/// Input HashMap that will be converted to the tera::Context.
+    </span><span class="kw">type </span>Input = HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;;
+    <span class="doccomment">/// Output string from the rendered template.
+    </span><span class="kw">type </span>Output = String;
 
-    <span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="doccomment">/// Processes the input HashMap and returns the rendered template.
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>context = Context::from_serialize(input)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.tera.render(<span class="string">"prompt"</span>, <span class="kw-2">&amp;</span>context)<span class="question-mark">?</span>.to_string())
     }

@@ -160,6 +160,13 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -167,7 +174,7 @@
 //! a provided function to produce the final output.
 //!
 //! Example:
-//! ```no_run
+//! ```rust,no_run
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
 //!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
@@ -240,12 +247,31 @@
     <span class="doccomment">/// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.
     ///
-    /// # Parameters
-    /// - `nodes`: The nodes to process the input in parallel.
-    /// - `function`: The function to process the output of the nodes.
+    /// The combination function can be defined using the helper function `to_boxed_future`.
     ///
-    /// # Returns
-    /// A new `ParallelNode` instance with the specified nodes and function.
+    /// # Example
+    /// // Using PassThroughNode as an example node
+    /// ```rust
+    /// use anchor_chain::{
+    ///     node::PassthroughNode,
+    ///     parallel_node::ParallelNode,
+    ///     parallel_node::to_boxed_future
+    /// };
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let node1 = Box::new(PassthroughNode::new());
+    ///     let node2 = Box::new(PassthroughNode::new());
+    ///     let concat_fn = to_boxed_future(|outputs: Vec&lt;String&gt;| {
+    ///         Ok(outputs
+    ///            .iter()
+    ///            .enumerate()
+    ///            .map(|(i, output)| format!("Output {}:\n```\n{}\n```\n", i + 1, output))
+    ///            .collect::&lt;Vec&lt;String&gt;&gt;()
+    ///            .concat())
+    ///     });
+    ///     let parallel_node = ParallelNode::new(vec![node1, node2], concat_fn);
+    /// }
     </span><span class="kw">pub fn </span>new(
         nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
         function: Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O&gt;&gt; + Send + Sync&gt;,
@@ -267,12 +293,6 @@
     ///
     /// The input is processed by each node in parallel, and the results are combined
     /// using the provided function to produce the final output.
-    ///
-    /// # Parameters
-    /// - `input`: The input values to be processed by the parallel nodes.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output from the parallel nodes or an error if processing fails.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>futures = <span class="self">self</span>.nodes.iter().map(|node| {
             <span class="kw">let </span>input_clone = input.clone();
@@ -298,16 +318,10 @@
     }
 }
 
-<span class="doccomment">/// Converts a function into a boxed future that can be used in a `ParallelNode`.
+<span class="doccomment">/// Converts a function into a `BoxFuture` that can be used in a `ParallelNode`.
 ///
 /// This function takes a function that processes input and returns a `Result` and
-/// converts it into a boxed future that can be used in a `ParallelNode` to process
-/// the output of multiple nodes.
-///
-/// # Parameters
-/// - `f`: The function to convert into a boxed future.
-/// # Returns
-/// A boxed future that processes the output of multiple nodes.
+/// converts it into a boxed future.
 </span><span class="kw">pub fn </span>to_boxed_future&lt;T, F&gt;(
     f: F,
 ) -&gt; Box&lt;<span class="kw">dyn </span>Fn(T) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;String&gt;&gt; + Send + Sync&gt;
