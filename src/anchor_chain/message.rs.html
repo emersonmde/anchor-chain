@@ -124,6 +124,7 @@
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contains generic message types that can be used with multiple LLM models.
 //!
 //! These types are used to represent messages that can be sent to and received
@@ -144,7 +145,8 @@
     Assistant(AssisnantChatMessage),
 }
 
-<span class="kw">enum </span>ChatMessageContent {
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">enum </span>ChatMessageContent {
     Text(String),
     Image(String),
 }
