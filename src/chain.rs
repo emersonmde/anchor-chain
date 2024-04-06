@@ -28,8 +28,9 @@ where
 {
     /// Creates a new `Chain` from the provided initial link.
     ///
-    /// # Parameters
-    /// - `link`: The starting link of the chain.
+    /// `Link` serves as a container for chaining two `Node` instances together,
+    /// where the output of the first node is fed as the input to the next. These
+    /// links can be nested to create a chain of nodes.
     pub fn new(link: L) -> Self {
         Chain {
             link,
@@ -40,11 +41,10 @@ where
 
     /// Asynchronously processes the provided input through the chain of nodes.
     ///
-    /// # Parameters
-    /// - `input`: The initial input to the chain.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output after processing or an error if processing fails.
+    /// The input is processed by each node in the chain, with the output of one node
+    /// serving as the input to the next. The final output of the chain is returned.
+    /// If any node in the chain returns an error, the processing is halted and
+    /// the error is returned.
     pub async fn process(&self, input: I) -> Result<O> {
         self.link.process(input).await
     }
@@ -63,14 +63,7 @@ impl ChainBuilder {
         ChainBuilder {}
     }
 
-    /// Adds a new node to the chain, linking it to the previous node.
-    ///
-    /// # Parameters
-    /// - `node`: The node to add to the chain.
-    ///
-    /// # Returns
-    /// A new `LinkedChainBuilder` instance representing the current state of
-    /// the chain with the new node added.
+    /// Adds the first node to the chain.
     pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
     where
         N: Node<Input = I> + Send + Sync + std::fmt::Debug,
@@ -91,8 +84,9 @@ impl Default for ChainBuilder {
 
 /// A builder for constructing a `Chain` of nodes using Link.
 ///
-/// `LinkedChainBuilder` allows for incremental construction of a processing
-/// chain, adding nodes one at a time.
+/// `LinkedChainBuilder` takes an initial node and allows for incremental
+/// construction of a processing chain, adding nodes one at a time. New nodes
+/// are linked to the previous nodes using nested `Link` instances.
 pub struct LinkedChainBuilder<I, L> {
     link: L,
     _input: PhantomData<I>,
@@ -104,13 +98,6 @@ where
     I: Send,
 {
     /// Adds a new node to the chain, linking it to the previous node.
-    ///
-    /// # Parameters
-    /// - `next`: The node to add to the chain.
-    ///
-    /// # Returns
-    /// A new `LinkedChainBuilder` instance representing the current state of the chain,
-    /// with the new node added.
     pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
         N: Node<Input = L::Output> + Send + Sync + std::fmt::Debug,
@@ -128,9 +115,6 @@ where
 
     /// Finalizes the construction of the chain, returning a `Chain` instance
     /// ready for processing.
-    ///
-    /// # Returns
-    /// A `Chain` instance constructed from the nodes added to the builder.
     pub fn build(self) -> Chain<I, L::Output, L>
     where
         L: Node,

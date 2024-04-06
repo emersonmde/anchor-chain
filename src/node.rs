@@ -20,13 +20,9 @@ pub trait Node: std::fmt::Debug {
     /// The output type for the node.
     type Output;
 
-    /// Asynchronously processes the given input, returning the output.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be processed.
-    ///
-    /// # Returns
-    /// A `Result` containing the processed output value or an error if processing fails.
+    /// Asynchronously processes the given input, returning the output. When
+    /// chained together the output type of one node must match the input of
+    /// the next node in the chain.
     async fn process(&self, input: Self::Input) -> Result<Self::Output>;
 }
 
@@ -46,7 +42,6 @@ impl<T> PassthroughNode<T> {
 }
 
 impl<T> Default for PassthroughNode<T> {
-    /// Creates a default `PassthroughNode`.
     fn default() -> Self {
         Self::new()
     }
@@ -57,15 +52,12 @@ impl<T> Node for PassthroughNode<T>
 where
     T: Send + Sync + std::fmt::Debug,
 {
+    /// The input type for the PassthroughNode.
     type Input = T;
+    /// The output type for the PassthroughNode.
     type Output = T;
 
-    /// Passes the input through unchanged.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be passed through.
-    /// # Returns
-    /// The input value unchanged.
+    /// Returns the input unchanged.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         Ok(input)
     }

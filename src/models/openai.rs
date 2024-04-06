@@ -35,8 +35,8 @@ where
 {
     /// Constructs a GPT4 Turbo model with the specified system prompt.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     pub async fn new_gpt4_turbo(system_prompt: String) -> Self {
         OpenAIModel::GPT3_5Turbo(
             OpenAIChatModel::new(system_prompt, "gpt-4-turbo-preview".to_string()).await,
@@ -45,18 +45,15 @@ where
 
     /// Constructs a GPT3.5 Turbo model with the specified system prompt.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     pub async fn new_gpt3_5_turbo(system_prompt: String) -> Self {
         OpenAIModel::GPT4Turbo(
             OpenAIChatModel::new(system_prompt, "gpt-3.5-turbo".to_string()).await,
         )
     }
 
-    /// Constructs a GPT3.5 Turbo Instruct model with the specified system prompt.
-    ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
+    /// Constructs a GPT3.5 Turbo Instruct model.
     pub async fn new_gpt3_5_turbo_instruct() -> Self {
         OpenAIModel::GPT3_5TurboInstruct(
             OpenAIInstructModel::new("gpt-3.5-turbo-instruct-0914".to_string()).await,
@@ -70,15 +67,12 @@ where
     T: Send + Sync + fmt::Debug,
     T: Into<Prompt> + Into<ChatCompletionRequestUserMessageContent>,
 {
+    /// The input that is converted to a `Prompt` for the OpenAI model.
     type Input = T;
+    /// The output from the OpenAI model.
     type Output = String;
 
-    /// Sends the input to the OpenAI model and processes the response.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails.
+    /// Sends the prompt to the OpenAI model and processes the response.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         match self {
             OpenAIModel::GPT3_5Turbo(model) => model.process(input).await,
@@ -103,7 +97,12 @@ pub struct OpenAIChatModel<T> {
 impl<T> OpenAIChatModel<T> {
     /// Constructs a new `OpenAI` processor with the default API configuration.
     ///
-    /// Possible Model Types
+    /// The OpenAIConfig will try to use the API key from the environment
+    /// variable `OPENAI_API_KEY` by default. The system prompt is passed in
+    /// as the first message in the conversation using
+    /// `ChatCompletionRequestSystemMessage`.
+    ///
+    /// Possible Model Types:
     /// gpt-3.5-turbo-16k
     /// davinci-002
     /// gpt-3.5-turbo-1106
@@ -132,10 +131,6 @@ impl<T> OpenAIChatModel<T> {
     /// text-embedding-ada-002
     /// gpt-3.5-turbo-instruct
     /// gpt-3.5-turbo-16k-0613
-    ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `model`: The OpenAI model to use for processing.
     async fn new(system_prompt: String, model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
@@ -147,11 +142,10 @@ impl<T> OpenAIChatModel<T> {
         }
     }
 
-    /// Constructs a new `OpenAI` processor with a specified API key.
+    /// Constructs a new `OpenAI` node using the specified API key.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `api_key`: The API key for authenticating with the OpenAI API.
+    /// The system prompt is passed in as the first message in the conversation
+    /// using `ChatCompletionRequestSystemMessage`.
     pub async fn new_with_key(system_prompt: String, model: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
@@ -175,14 +169,7 @@ where
     /// Sends the input to the OpenAI API and processes the response.
     ///
     /// Constructs a request based on the input and the system prompt, then parses
-    /// the model's response to extract and return the processed content.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    ///
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails
-    /// or the response lacks expected content.
+    /// the model's response to extract and return final output.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
@@ -219,7 +206,6 @@ where
 }
 
 impl<T> fmt::Debug for OpenAIChatModel<T> {
-    /// Formats the `OpenAI` processor for debugging.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OpenAI")
             .field("system_prompt", &self.system_prompt)
@@ -227,7 +213,7 @@ impl<T> fmt::Debug for OpenAIChatModel<T> {
     }
 }
 
-/// Processor for making requests to OpenAI Instruct models.
+/// Node for making requests to OpenAI Instruct models.
 pub struct OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
@@ -243,12 +229,9 @@ impl<T> OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
-    /// Constructs a new `OpenAI` processor with the default API configuration.
+    /// Constructs a new `OpenAI` node with the default API configuration.
     ///
-    /// # Parameters
-    /// - `model`: The OpenAI model to use for processing.
-    /// # Returns
-    /// A new `OpenAI` processor instance.
+    /// The model specified must support the instruct API.
     async fn new(model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
@@ -261,11 +244,7 @@ where
 
     /// Constructs a new `OpenAI` processor with a specified API key.
     ///
-    /// # Parameters
-    /// - `system_prompt`: The system prompt or context string.
-    /// - `api_key`: The API key for authenticating with the OpenAI API.
-    /// # Returns
-    /// A new `OpenAI` processor instance.
+    /// The model specified must support the instruct API.
     pub async fn new_with_key(model: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
@@ -289,13 +268,6 @@ where
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
-    ///
-    /// # Parameters
-    /// - `input`: The user input text to be processed by the model.
-    ///
-    /// # Returns
-    /// A `Result` containing the model's response content, or an error if the request fails
-    /// or the response lacks expected content.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let request = CreateCompletionRequestArgs::default()
             .model(&self.model)
@@ -321,7 +293,6 @@ impl<T> fmt::Debug for OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
-    /// Formats the `OpenAI` processor for debugging.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OpenAI").finish()
     }

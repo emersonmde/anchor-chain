@@ -32,9 +32,6 @@ impl<'a> Prompt<'a> {
     /// Jinja2. For more information on Tera, see the
     /// [Tera Templates documentation](https://keats.github.io/tera/docs/#templates).
     ///
-    /// # Parameters
-    /// - `template`: The raw Tera template for the prompt.
-    ///
     /// # Examples
     /// ```rust
     /// use anchor_chain::prompt::Prompt;

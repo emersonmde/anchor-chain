@@ -31,12 +31,9 @@ where
 {
     /// Creates a new `Link` connecting the specified nodes.
     ///
-    /// # Parameters
-    /// - `node`: The first node in the chain.
-    /// - `next`: The next node or link in the chain.
-    ///
-    /// # Returns
-    /// A new `Link` instance connecting the two nodes.
+    /// The `node` is linked with the `next` node in the chain. Output from the
+    /// `node` is passed as input to the `next` node. Either node can also be
+    /// a `Link` forming a nested linked list of nodes.
     pub fn new(node: C, next: N) -> Self {
         Link { node, next }
     }
@@ -51,19 +48,15 @@ where
     N: Node<Input = C::Output> + Send + Sync + std::fmt::Debug,
     N::Output: Send,
 {
+    /// The input type for the current node
     type Input = C::Input;
+    /// The output type of the next node
     type Output = <N as Node>::Output;
 
     /// Processes the given input through the chain of nodes.
     ///
     /// First, the input is processed by the current node. Then, the output of the current
     /// node is passed to the next node or link in the chain for further processing.
-    ///
-    /// # Parameters
-    /// - `input`: The input value to be processed by the chain.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output from the chain or an error if processing fails at any point.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let output = self.node.process(input).await?;
         self.next.process(output).await

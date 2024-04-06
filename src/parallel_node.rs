@@ -78,12 +78,31 @@ where
     /// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.
     ///
-    /// # Parameters
-    /// - `nodes`: The nodes to process the input in parallel.
-    /// - `function`: The function to process the output of the nodes.
+    /// The combination function can be defined using the helper function `to_boxed_future`.
     ///
-    /// # Returns
-    /// A new `ParallelNode` instance with the specified nodes and function.
+    /// # Example
+    /// // Using PassThroughNode as an example node
+    /// ```rust
+    /// use anchor_chain::{
+    ///     node::PassthroughNode,
+    ///     parallel_node::ParallelNode,
+    ///     parallel_node::to_boxed_future
+    /// };
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let node1 = Box::new(PassthroughNode::new());
+    ///     let node2 = Box::new(PassthroughNode::new());
+    ///     let concat_fn = to_boxed_future(|outputs: Vec<String>| {
+    ///         Ok(outputs
+    ///            .iter()
+    ///            .enumerate()
+    ///            .map(|(i, output)| format!("Output {}:\n```\n{}\n```\n", i + 1, output))
+    ///            .collect::<Vec<String>>()
+    ///            .concat())
+    ///     });
+    ///     let parallel_node = ParallelNode::new(vec![node1, node2], concat_fn);
+    /// }
     pub fn new(
         nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
         function: Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O>> + Send + Sync>,
@@ -105,12 +124,6 @@ where
     ///
     /// The input is processed by each node in parallel, and the results are combined
     /// using the provided function to produce the final output.
-    ///
-    /// # Parameters
-    /// - `input`: The input values to be processed by the parallel nodes.
-    ///
-    /// # Returns
-    /// A `Result` containing the final output from the parallel nodes or an error if processing fails.
     async fn process(&self, input: Self::Input) -> Result<Self::Output> {
         let futures = self.nodes.iter().map(|node| {
             let input_clone = input.clone();
@@ -136,16 +149,10 @@ where
     }
 }
 
-/// Converts a function into a boxed future that can be used in a `ParallelNode`.
+/// Converts a function into a `BoxFuture` that can be used in a `ParallelNode`.
 ///
 /// This function takes a function that processes input and returns a `Result` and
-/// converts it into a boxed future that can be used in a `ParallelNode` to process
-/// the output of multiple nodes.
-///
-/// # Parameters
-/// - `f`: The function to convert into a boxed future.
-/// # Returns
-/// A boxed future that processes the output of multiple nodes.
+/// converts it into a boxed future.
 pub fn to_boxed_future<T, F>(
     f: F,
 ) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String>> + Send + Sync>
