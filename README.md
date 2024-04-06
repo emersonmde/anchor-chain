@@ -12,6 +12,10 @@ enable developers to create robust and efficient LLM-based applications quickly.
 The framework prioritizes type safety, processing efficiency, and flexibility 
 through its carefully designed APIs and abstractions.
 
+Anchor Chain is currently under active development and its API is
+subject to change. The framework has not yet reached a stable 1.0 release, and
+backward compatibility is not guaranteed for versions prior to 1.0.
+
 ```text
               |>   |>   |>
               )_)  )_)  )_)
