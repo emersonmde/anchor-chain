@@ -71,7 +71,7 @@
 
 </span><span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>async_trait::async_trait;
 
 <span class="doccomment">/// Represents an node that can process an input to produce an output.
@@ -89,7 +89,7 @@
     <span class="doccomment">/// Asynchronously processes the given input, returning the output. When
     /// chained together the output type of one node must match the input of
     /// the next node in the chain.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt;;
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt;;
 }
 
 <span class="doccomment">/// A no-op node that passes input through unchanged.
@@ -124,7 +124,7 @@
     </span><span class="kw">type </span>Output = T;
 
     <span class="doccomment">/// Returns the input unchanged.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="prelude-val">Ok</span>(input)
     }
 }

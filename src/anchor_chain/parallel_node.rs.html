@@ -167,6 +167,9 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -218,6 +221,7 @@
 
 </span><span class="kw">use </span>futures::{future::BoxFuture, FutureExt};
 
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>async_trait::async_trait;
@@ -293,15 +297,17 @@
     ///
     /// The input is processed by each node in parallel, and the results are combined
     /// using the provided function to produce the final output.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>futures = <span class="self">self</span>.nodes.iter().map(|node| {
             <span class="kw">let </span>input_clone = input.clone();
             <span class="kw">async move </span>{ node.process(input_clone).<span class="kw">await </span>}
         });
 
         <span class="kw">let </span>results = try_join_all(futures).<span class="kw">await</span><span class="question-mark">?</span>;
-        (<span class="self">self</span>.function)(results).<span class="kw">await
-    </span>}
+        (<span class="self">self</span>.function)(results)
+            .<span class="kw">await
+            </span>.map_err(AnchorChainError::ParallelNodeError)
+    }
 }
 
 <span class="kw">impl</span>&lt;I, O&gt; std::fmt::Debug <span class="kw">for </span>ParallelNode&lt;I, O&gt;

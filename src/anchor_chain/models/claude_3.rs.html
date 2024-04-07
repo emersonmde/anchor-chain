@@ -185,7 +185,7 @@
 
 </span><span class="kw">use </span>std::fmt;
 
-<span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>aws_sdk_bedrockruntime::{primitives::Blob, Client};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -302,7 +302,7 @@
     ///
     /// Constructs a request to the Claude 3 model with the provided input, sends it via
     /// AWS Bedrock, and extracts the text content from the response.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>request = ClaudeMessagesRequest {
             anthropic_version: <span class="string">"bedrock-2023-05-31"</span>.to_string(),
             max_tokens: <span class="number">512</span>,
@@ -335,7 +335,7 @@
         <span class="kw">let </span>response: ClaudeMessagesResponse = serde_json::from_slice(<span class="kw-2">&amp;</span>response_blob.into_inner())<span class="question-mark">?</span>;
 
         <span class="kw">if </span>response.content.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"No content in response"</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(AnchorChainError::EmptyResponseError);
         }
 
         <span class="prelude-val">Ok</span>(response.content[<span class="number">0</span>]

@@ -134,8 +134,8 @@
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
-</span><span class="kw">use crate</span>::{link::Link, node::Node};
-<span class="kw">use </span>anyhow::Result;
+</span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
+<span class="kw">use crate</span>::{link::Link, node::Node};
 <span class="kw">use </span>std::marker::PhantomData;
 
 <span class="doccomment">/// Represents a chain of nodes that can asynchronously process data.
@@ -175,7 +175,7 @@
     /// serving as the input to the next. The final output of the chain is returned.
     /// If any node in the chain returns an error, the processing is halted and
     /// the error is returned.
-    </span><span class="kw">pub async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: I) -&gt; <span class="prelude-ty">Result</span>&lt;O&gt; {
+    </span><span class="kw">pub async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: I) -&gt; <span class="prelude-ty">Result</span>&lt;O, AnchorChainError&gt; {
         <span class="self">self</span>.link.process(input).<span class="kw">await
     </span>}
 }

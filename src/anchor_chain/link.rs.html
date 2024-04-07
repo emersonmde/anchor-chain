@@ -69,10 +69,10 @@
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
-</span><span class="kw">use </span>async_trait::async_trait;
+</span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
+<span class="kw">use </span>async_trait::async_trait;
 
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
-<span class="kw">use </span>anyhow::Result;
 
 <span class="doccomment">/// A link in a processing chain that connects one `Node` to another.
 ///
@@ -123,7 +123,7 @@
     ///
     /// First, the input is processed by the current node. Then, the output of the current
     /// node is passed to the next node or link in the chain for further processing.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>output = <span class="self">self</span>.node.process(input).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.next.process(output).<span class="kw">await
     </span>}

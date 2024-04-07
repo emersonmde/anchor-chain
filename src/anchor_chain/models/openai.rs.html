@@ -306,7 +306,7 @@
 
 </span><span class="kw">use </span>std::fmt;
 
-<span class="kw">use </span>anyhow::{anyhow, Context, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
@@ -374,7 +374,7 @@
     </span><span class="kw">type </span>Output = String;
 
     <span class="doccomment">/// Sends the prompt to the OpenAI model and processes the response.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             OpenAIModel::GPT3_5Turbo(model) =&gt; model.process(input).<span class="kw">await</span>,
             OpenAIModel::GPT4Turbo(model) =&gt; model.process(input).<span class="kw">await</span>,
@@ -386,7 +386,7 @@
 <span class="doccomment">/// Represents a processor for sending and processing requests to the OpenAI API.
 ///
 /// `OpenAIChatModel` encapsulates the functionality required to interact with
-/// the the OpenAI Chat API, handling both the construction of requests and the
+/// the OpenAI Chat API, handling both the construction of requests and the
 /// parsing of responses.
 </span><span class="kw">pub struct </span>OpenAIChatModel&lt;T&gt; {
     system_prompt: String,
@@ -471,7 +471,7 @@
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return final output.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(<span class="self">self</span>.system_prompt.clone())
             .build()<span class="question-mark">?
@@ -490,17 +490,17 @@
 
         <span class="kw">let </span>response = <span class="self">self</span>.client.chat().create(request).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if </span>response.choices.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"No choices in response"</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(AnchorChainError::EmptyResponseError);
         }
 
         <span class="kw">let </span>content = response
             .choices
             .first()
-            .context(<span class="string">"No content in response"</span>)<span class="question-mark">?
+            .ok_or(AnchorChainError::EmptyResponseError)<span class="question-mark">?
             </span>.message
             .clone()
             .content
-            .context(<span class="string">"No content in response"</span>)<span class="question-mark">?</span>;
+            .ok_or(AnchorChainError::EmptyResponseError)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(content)
     }
@@ -569,7 +569,7 @@
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
-    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>request = CreateCompletionRequestArgs::default()
             .model(<span class="kw-2">&amp;</span><span class="self">self</span>.model)
             .prompt(input)
@@ -582,7 +582,7 @@
         <span class="kw">let </span>content = response
             .choices
             .first()
-            .context(<span class="string">"No content in response"</span>)<span class="question-mark">?
+            .ok_or(AnchorChainError::EmptyResponseError)<span class="question-mark">?
             </span>.text
             .clone();
 
