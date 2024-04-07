@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
+use anchor_chain::error::AnchorChainError;
 use anchor_chain::{
     chain::ChainBuilder,
     models::openai::OpenAIModel,
     node::{Node, PassthroughNode},
     prompt::Prompt,
 };
-use anyhow::Result;
 use async_trait::async_trait;
 
 #[derive(Debug)]
@@ -29,7 +29,7 @@ impl Node for LineCounter {
     type Input = String;
     type Output = usize;
 
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         Ok(input.lines().count())
     }
 }
@@ -54,13 +54,13 @@ impl Node for AsteriskGenerator {
     type Input = usize;
     type Output = String;
 
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         Ok("*".repeat(input))
     }
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
 
     let chain = ChainBuilder::new()
@@ -77,8 +77,7 @@ async fn main() -> Result<()> {
             "input",
             "Write a hello world program in Rust",
         )]))
-        .await?;
+        .await
+        .expect("Failed to process chain");
     println!("Output:\n{}", output);
-
-    Ok(())
 }

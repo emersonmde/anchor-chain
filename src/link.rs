@@ -3,10 +3,10 @@
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
+use crate::error::AnchorChainError;
 use async_trait::async_trait;
 
 use crate::node::Node;
-use anyhow::Result;
 
 /// A link in a processing chain that connects one `Node` to another.
 ///
@@ -57,7 +57,7 @@ where
     ///
     /// First, the input is processed by the current node. Then, the output of the current
     /// node is passed to the next node or link in the chain for further processing.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let output = self.node.process(input).await?;
         self.next.process(output).await
     }

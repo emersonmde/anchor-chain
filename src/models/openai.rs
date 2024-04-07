@@ -5,7 +5,7 @@
 
 use std::fmt;
 
-use anyhow::{anyhow, Context, Result};
+use crate::error::AnchorChainError;
 use async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
@@ -73,7 +73,7 @@ where
     type Output = String;
 
     /// Sends the prompt to the OpenAI model and processes the response.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         match self {
             OpenAIModel::GPT3_5Turbo(model) => model.process(input).await,
             OpenAIModel::GPT4Turbo(model) => model.process(input).await,
@@ -85,7 +85,7 @@ where
 /// Represents a processor for sending and processing requests to the OpenAI API.
 ///
 /// `OpenAIChatModel` encapsulates the functionality required to interact with
-/// the the OpenAI Chat API, handling both the construction of requests and the
+/// the OpenAI Chat API, handling both the construction of requests and the
 /// parsing of responses.
 pub struct OpenAIChatModel<T> {
     system_prompt: String,
@@ -170,7 +170,7 @@ where
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return final output.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
             .build()?
@@ -189,17 +189,17 @@ where
 
         let response = self.client.chat().create(request).await?;
         if response.choices.is_empty() {
-            return Err(anyhow!("No choices in response"));
+            return Err(AnchorChainError::EmptyResponseError);
         }
 
         let content = response
             .choices
             .first()
-            .context("No content in response")?
+            .ok_or(AnchorChainError::EmptyResponseError)?
             .message
             .clone()
             .content
-            .context("No content in response")?;
+            .ok_or(AnchorChainError::EmptyResponseError)?;
 
         Ok(content)
     }
@@ -268,7 +268,7 @@ where
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let request = CreateCompletionRequestArgs::default()
             .model(&self.model)
             .prompt(input)
@@ -281,7 +281,7 @@ where
         let content = response
             .choices
             .first()
-            .context("No content in response")?
+            .ok_or(AnchorChainError::EmptyResponseError)?
             .text
             .clone();
 

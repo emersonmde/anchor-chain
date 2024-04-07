@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
                         labeled_outputs.join("\n\n").as_str(),
                     )]))
                     .await
+                    .map_err(|e| e.into())
             })
         },
     );

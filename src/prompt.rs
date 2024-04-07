@@ -9,8 +9,8 @@
 
 use std::{collections::HashMap, marker::PhantomData};
 
+use crate::error::AnchorChainError;
 use crate::node::Node;
-use anyhow::Result;
 use async_trait::async_trait;
 use tera::{Context, Tera};
 
@@ -58,7 +58,7 @@ impl<'a> Node for Prompt<'a> {
     type Output = String;
 
     /// Processes the input HashMap and returns the rendered template.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let context = Context::from_serialize(input)?;
         Ok(self.tera.render("prompt", &context)?.to_string())
     }

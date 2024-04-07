@@ -49,6 +49,7 @@
 
 use futures::{future::BoxFuture, FutureExt};
 
+use crate::error::AnchorChainError;
 use crate::node::Node;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -124,14 +125,16 @@ where
     ///
     /// The input is processed by each node in parallel, and the results are combined
     /// using the provided function to produce the final output.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let futures = self.nodes.iter().map(|node| {
             let input_clone = input.clone();
             async move { node.process(input_clone).await }
         });
 
         let results = try_join_all(futures).await?;
-        (self.function)(results).await
+        (self.function)(results)
+            .await
+            .map_err(AnchorChainError::ParallelNodeError)
     }
 }
 

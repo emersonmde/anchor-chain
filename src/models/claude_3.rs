@@ -7,7 +7,7 @@
 
 use std::fmt;
 
-use anyhow::{anyhow, Result};
+use crate::error::AnchorChainError;
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
@@ -124,7 +124,7 @@ impl Node for Claude3Bedrock {
     ///
     /// Constructs a request to the Claude 3 model with the provided input, sends it via
     /// AWS Bedrock, and extracts the text content from the response.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let request = ClaudeMessagesRequest {
             anthropic_version: "bedrock-2023-05-31".to_string(),
             max_tokens: 512,
@@ -157,7 +157,7 @@ impl Node for Claude3Bedrock {
         let response: ClaudeMessagesResponse = serde_json::from_slice(&response_blob.into_inner())?;
 
         if response.content.is_empty() {
-            return Err(anyhow!("No content in response"));
+            return Err(AnchorChainError::EmptyResponseError);
         }
 
         Ok(response.content[0]

@@ -5,7 +5,7 @@
 
 use std::marker::PhantomData;
 
-use anyhow::Result;
+use crate::error::AnchorChainError;
 use async_trait::async_trait;
 
 /// Represents an node that can process an input to produce an output.
@@ -23,7 +23,7 @@ pub trait Node: std::fmt::Debug {
     /// Asynchronously processes the given input, returning the output. When
     /// chained together the output type of one node must match the input of
     /// the next node in the chain.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output>;
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError>;
 }
 
 /// A no-op node that passes input through unchanged.
@@ -58,7 +58,7 @@ where
     type Output = T;
 
     /// Returns the input unchanged.
-    async fn process(&self, input: Self::Input) -> Result<Self::Output> {
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         Ok(input)
     }
 }

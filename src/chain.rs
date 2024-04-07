@@ -4,8 +4,8 @@
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
+use crate::error::AnchorChainError;
 use crate::{link::Link, node::Node};
-use anyhow::Result;
 use std::marker::PhantomData;
 
 /// Represents a chain of nodes that can asynchronously process data.
@@ -45,7 +45,7 @@ where
     /// serving as the input to the next. The final output of the chain is returned.
     /// If any node in the chain returns an error, the processing is halted and
     /// the error is returned.
-    pub async fn process(&self, input: I) -> Result<O> {
+    pub async fn process(&self, input: I) -> Result<O, AnchorChainError> {
         self.link.process(input).await
     }
 }
