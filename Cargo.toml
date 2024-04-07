@@ -1,6 +1,6 @@
 [package]
 name = "anchor-chain"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 description = "A statically typed async framework for building LLM-based applications."
 license = "MIT"
@@ -13,8 +13,7 @@ authors = ["Matthew Emerson <emersonmde@protonmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-anyhow = "1.0.81"
-async-openai = "0.19.1"
+async-openai = "0.20.0"
 async-trait = "0.1.79"
 aws-config = { version = "1.1.9", features = ["behavior-version-latest"] }
 aws-sdk-bedrockruntime = "1.19.0"

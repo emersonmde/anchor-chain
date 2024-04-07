@@ -6,10 +6,9 @@ use anchor_chain::{
     parallel_node::{to_boxed_future, ParallelNode},
     prompt::Prompt,
 };
-use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let gpt3 =
         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
@@ -33,8 +32,7 @@ async fn main() -> Result<()> {
             "input",
             "Write a hello world program in Rust",
         )]))
-        .await?;
+        .await
+        .expect("Error processing chain");
     println!("{}", output);
-
-    Ok(())
 }

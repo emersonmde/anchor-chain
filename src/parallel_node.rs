@@ -6,19 +6,19 @@
 //!
 //! Example:
 //! ```rust,no_run
-//! use anchor_chain::{
-//!     chain::ChainBuilder,
-//!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
-//!     parallel_node::{to_boxed_future, ParallelNode},
-//!     prompt::Prompt,
-//! };
-//! use anyhow::Result;
 //! use async_trait::async_trait;
 //! use futures::{future::BoxFuture, Future};
 //! use std::collections::HashMap;
 //!
+//! use anchor_chain::{
+//!     chain::ChainBuilder,
+//!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
+//!     parallel_node::{ParallelNode, to_boxed_future},
+//!     prompt::Prompt,
+//! };
+//!
 //! #[tokio::main]
-//! async fn main() -> Result<()> {
+//! async fn main() {
 //!     let gpt3 =
 //!         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
 //!     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
@@ -40,10 +40,9 @@
 //!
 //!     let output = chain
 //!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
-//!         .await?;
+//!         .await
+//!         .expect("Error processing chain");
 //!     println!("{}", output);
-//!
-//!     Ok(())
 //! }
 //! ```
 

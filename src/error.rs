@@ -7,10 +7,6 @@ use aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 /// Defines errors types for Anchor Chain
 #[derive(Debug, thiserror::Error)]
 pub enum AnchorChainError {
-    /// General error returned in ParallelNode when the combination function fails.
-    #[error("error processing node: {0}")]
-    ParallelNodeError(#[from] anyhow::Error),
-
     /// Occurs when failing to construct OpenAI prompts, messages or when invoking
     /// the model fails.
     #[error("OpenAI error: {0}")]

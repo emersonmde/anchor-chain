@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
-use anyhow::Result;
 use futures::future::BoxFuture;
+use std::collections::HashMap;
 
 use anchor_chain::{
     chain::ChainBuilder,
@@ -11,7 +9,7 @@ use anchor_chain::{
 };
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let gpt3 =
         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
@@ -51,8 +49,7 @@ async fn main() -> Result<()> {
             "input",
             "Write a hello world program in Rust",
         )]))
-        .await?;
+        .await
+        .expect("Error processing chain");
     println!("{}", output);
-
-    Ok(())
 }

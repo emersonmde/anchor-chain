@@ -39,7 +39,7 @@
 //!
 //! ```rust,no_run
 //! #[tokio::main]
-//! async fn main() -> anyhow::Result<()> {
+//! async fn main() {
 //!     use anchor_chain::{
 //!         chain::ChainBuilder,
 //!         models::openai::OpenAIModel,
@@ -51,10 +51,10 @@
 //!
 //!     let result = chain
 //!         .process("Write a hello world program in Rust")
-//!         .await?;
+//!         .await
+//!         .expect("Error processing chain");
 //!
 //!     println!("Result: {}", result);
-//!     Ok(())
 //! }
 //! ```
 //!
@@ -67,7 +67,7 @@
 //! use std::collections::HashMap;
 //!
 //! #[tokio::main]
-//! async fn main() -> anyhow::Result<()> {
+//! async fn main() {
 //!     use anchor_chain::{
 //!         chain::ChainBuilder,
 //!         models::openai::OpenAIModel,
@@ -81,10 +81,10 @@
 //!
 //!     let result = chain
 //!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
-//!         .await?;
+//!         .await
+//!         .expect("Error processing chain");
 //!
 //!     println!("Result: {}", result);
-//!     Ok(())
 //! }
 //! ```
 //!

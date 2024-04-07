@@ -2,10 +2,8 @@ use std::collections::HashMap;
 
 use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, prompt::Prompt};
 
-use anyhow::Result;
-
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let gpt3 = OpenAIModel::new_gpt3_5_turbo_instruct().await;
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))
@@ -17,8 +15,7 @@ async fn main() -> Result<()> {
             "input",
             "Write a hello world program in Rust",
         )]))
-        .await?;
+        .await
+        .expect("Error processing chain");
     println!("{}", output);
-
-    Ok(())
 }
