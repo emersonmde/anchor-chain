@@ -30,10 +30,6 @@
 <a href="#28" id="28">28</a>
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
@@ -43,10 +39,6 @@
 <span class="doccomment">/// Defines errors types for Anchor Chain
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
 </span><span class="kw">pub enum </span>AnchorChainError {
-    <span class="doccomment">/// General error returned in ParallelNode when the combination function fails.
-    </span><span class="attr">#[error(<span class="string">"error processing node: {0}"</span>)]
-    </span>ParallelNodeError(<span class="attr">#[from] </span>anyhow::Error),
-
     <span class="doccomment">/// Occurs when failing to construct OpenAI prompts, messages or when invoking
     /// the model fails.
     </span><span class="attr">#[error(<span class="string">"OpenAI error: {0}"</span>)]
