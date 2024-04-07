@@ -98,7 +98,7 @@ pub struct Claude3Bedrock {
     /// The system prompt or context to use for all requests.
     system_prompt: String,
     /// The AWS Bedrock client for sending requests.
-    client: aws_sdk_bedrockruntime::Client,
+    client: Client,
 }
 
 impl Claude3Bedrock {

@@ -18,7 +18,7 @@
 //!   nodes tailored to their specific use cases, enabling seamless integration into the chain.
 //!
 //! - Support for Popular LLMs: Anchor Chain provides built-in support for popular LLMs, such as
-//!   OpenAI's GPT models and Anthropic's Claude, abstracting away API details to provide a common
+//!   OpenAI's GPT models and Anthropic Claude, abstracting away API details to provide a common
 //!   interface.
 //!
 //! - Parallel Node Execution: The ParallelNode struct enables parallel execution of multiple
@@ -60,7 +60,7 @@
 //!
 //! Prompts can be constructed using the `Prompt` struct. `Prompt` uses
 //! [Tera](https://keats.github.io/tera/docs/#templates) templating to allow
-//! for dynamic input substitution. Tera syntax is based on Jinja2 and Django
+//! for dynamic input substitution. Tera's syntax is based on Jinja2 and Django
 //! templates. Context variables are passed to the prompt using a HashMap.
 //!
 //! ```rust,no_run

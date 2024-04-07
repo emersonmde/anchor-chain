@@ -15,7 +15,7 @@ use crate::models::claude_3::{ClaudeMessage, ClaudeMessageContent};
 
 pub enum ChatMessage {
     User(UserChatMessage),
-    Assistant(AssisnantChatMessage),
+    Assistant(AssistantChatMessage),
 }
 
 #[allow(dead_code)]
@@ -28,7 +28,7 @@ pub struct UserChatMessage {
     content: ChatMessageContent,
 }
 
-pub struct AssisnantChatMessage {
+pub struct AssistantChatMessage {
     content: ChatMessageContent,
 }
 
@@ -83,8 +83,8 @@ impl From<UserChatMessage> for ClaudeMessage {
     }
 }
 
-impl From<AssisnantChatMessage> for ChatCompletionRequestMessage {
-    fn from(message: AssisnantChatMessage) -> ChatCompletionRequestMessage {
+impl From<AssistantChatMessage> for ChatCompletionRequestMessage {
+    fn from(message: AssistantChatMessage) -> ChatCompletionRequestMessage {
         match message.content {
             ChatMessageContent::Text(text) => ChatCompletionRequestAssistantMessageArgs::default()
                 .content(text)
@@ -96,8 +96,8 @@ impl From<AssisnantChatMessage> for ChatCompletionRequestMessage {
     }
 }
 
-impl From<AssisnantChatMessage> for ClaudeMessage {
-    fn from(message: AssisnantChatMessage) -> ClaudeMessage {
+impl From<AssistantChatMessage> for ClaudeMessage {
+    fn from(message: AssistantChatMessage) -> ClaudeMessage {
         match message.content {
             ChatMessageContent::Text(text) => ClaudeMessage {
                 role: Some("assistant".to_string()),

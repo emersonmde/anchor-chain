@@ -4,7 +4,7 @@ use anchor_chain::error::AnchorChainError;
 use anchor_chain::{
     chain::ChainBuilder,
     models::openai::OpenAIModel,
-    node::{Node, PassthroughNode},
+    node::{NoOpNode, Node},
     prompt::Prompt,
 };
 use async_trait::async_trait;
@@ -66,10 +66,10 @@ async fn main() {
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))
         .link(llm)
-        .link(PassthroughNode::new())
+        .link(NoOpNode::new())
         .link(LineCounter::new())
         .link(AsteriskGenerator::new())
-        .link(PassthroughNode::new())
+        .link(NoOpNode::new())
         .build();
 
     let output = chain

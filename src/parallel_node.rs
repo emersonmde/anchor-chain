@@ -92,15 +92,15 @@ where
     /// // Using PassThroughNode as an example node
     /// ```rust
     /// use anchor_chain::{
-    ///     node::PassthroughNode,
+    ///     node::NoOpNode,
     ///     parallel_node::ParallelNode,
     ///     parallel_node::to_boxed_future
     /// };
     ///
     /// #[tokio::main]
     /// async fn main() {
-    ///     let node1 = Box::new(PassthroughNode::new());
-    ///     let node2 = Box::new(PassthroughNode::new());
+    ///     let node1 = Box::new(NoOpNode::new());
+    ///     let node2 = Box::new(NoOpNode::new());
     ///     let concat_fn = to_boxed_future(|outputs: Vec<String>| {
     ///         Ok(outputs
     ///            .iter()

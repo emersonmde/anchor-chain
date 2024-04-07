@@ -8,7 +8,7 @@ use std::marker::PhantomData;
 use crate::error::AnchorChainError;
 use async_trait::async_trait;
 
-/// Represents an node that can process an input to produce an output.
+/// Represents a node that can process an input to produce an output.
 ///
 /// The `Node` trait defines a generic processing operation with a
 /// specified input and output type. Implementors of this trait can be
@@ -28,12 +28,12 @@ pub trait Node: std::fmt::Debug {
 
 /// A no-op node that passes input through unchanged.
 #[derive(Debug)]
-pub struct PassthroughNode<T> {
+pub struct NoOpNode<T> {
     _marker: PhantomData<T>,
 }
 
-impl<T> PassthroughNode<T> {
-    /// Creates a new `PassthroughNode`.
+impl<T> NoOpNode<T> {
+    /// Creates a new `NoOpNode`.
     pub fn new() -> Self {
         Self {
             _marker: PhantomData,
@@ -41,20 +41,20 @@ impl<T> PassthroughNode<T> {
     }
 }
 
-impl<T> Default for PassthroughNode<T> {
+impl<T> Default for NoOpNode<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[async_trait]
-impl<T> Node for PassthroughNode<T>
+impl<T> Node for NoOpNode<T>
 where
     T: Send + Sync + std::fmt::Debug,
 {
-    /// The input type for the PassthroughNode.
+    /// The input type for the NoOpNode.
     type Input = T;
-    /// The output type for the PassthroughNode.
+    /// The output type for the NoOpNode.
     type Output = T;
 
     /// Returns the input unchanged.

@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
+use anyhow::Result;
+use futures::future::BoxFuture;
+
 use anchor_chain::{
     chain::ChainBuilder,
     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
     parallel_node::ParallelNode,
     prompt::Prompt,
 };
-use anyhow::Result;
-use futures::future::BoxFuture;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,9 +24,14 @@ async fn main() -> Result<()> {
                 .map(|(i, output)| format!("<output{}>\n{}\n</output{}>", i + 1, output, i + 1))
                 .collect::<Vec<String>>();
             let decision_chain = ChainBuilder::new()
-                    .link(Prompt::new("Decide which input is the most helpful. Return only the output within between the <outputN></outputN> tags without outputting the tags themselves. Ensure the output is returned verbatim without any comentary.\n{{ input }}"))
-                    .link(OpenAIModel::new_gpt3_5_turbo_instruct().await)
-                    .build();
+                .link(Prompt::new(
+                    "Decide which input is the most helpful. Return only \
+                    the output within between the <outputN></outputN> tags without outputting the \
+                    tags themselves. Ensure the output is returned verbatim without any \
+                    commentary.\n{{ input }}",
+                ))
+                .link(OpenAIModel::new_gpt3_5_turbo_instruct().await)
+                .build();
             decision_chain
                 .process(HashMap::from([(
                     "input",
