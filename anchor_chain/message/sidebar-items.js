@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ChatMessage"],"struct":["AssisnantChatMessage","UserChatMessage"]};
+window.SIDEBAR_ITEMS = {"enum":["ChatMessage"],"struct":["AssistantChatMessage","UserChatMessage"]};

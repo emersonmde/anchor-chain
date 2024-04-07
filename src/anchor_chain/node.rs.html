@@ -74,7 +74,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>async_trait::async_trait;
 
-<span class="doccomment">/// Represents an node that can process an input to produce an output.
+<span class="doccomment">/// Represents a node that can process an input to produce an output.
 ///
 /// The `Node` trait defines a generic processing operation with a
 /// specified input and output type. Implementors of this trait can be
@@ -94,12 +94,12 @@
 
 <span class="doccomment">/// A no-op node that passes input through unchanged.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PassthroughNode&lt;T&gt; {
+</span><span class="kw">pub struct </span>NoOpNode&lt;T&gt; {
     _marker: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;T&gt; PassthroughNode&lt;T&gt; {
-    <span class="doccomment">/// Creates a new `PassthroughNode`.
+<span class="kw">impl</span>&lt;T&gt; NoOpNode&lt;T&gt; {
+    <span class="doccomment">/// Creates a new `NoOpNode`.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             _marker: PhantomData,
@@ -107,20 +107,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>PassthroughNode&lt;T&gt; {
+<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>NoOpNode&lt;T&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>PassthroughNode&lt;T&gt;
+</span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>NoOpNode&lt;T&gt;
 <span class="kw">where
     </span>T: Send + Sync + std::fmt::Debug,
 {
-    <span class="doccomment">/// The input type for the PassthroughNode.
+    <span class="doccomment">/// The input type for the NoOpNode.
     </span><span class="kw">type </span>Input = T;
-    <span class="doccomment">/// The output type for the PassthroughNode.
+    <span class="doccomment">/// The output type for the NoOpNode.
     </span><span class="kw">type </span>Output = T;
 
     <span class="doccomment">/// Returns the input unchanged.

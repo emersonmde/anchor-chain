@@ -142,7 +142,7 @@
 
 <span class="kw">pub enum </span>ChatMessage {
     User(UserChatMessage),
-    Assistant(AssisnantChatMessage),
+    Assistant(AssistantChatMessage),
 }
 
 <span class="attr">#[allow(dead_code)]
@@ -155,7 +155,7 @@
     content: ChatMessageContent,
 }
 
-<span class="kw">pub struct </span>AssisnantChatMessage {
+<span class="kw">pub struct </span>AssistantChatMessage {
     content: ChatMessageContent,
 }
 
@@ -210,8 +210,8 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;AssisnantChatMessage&gt; <span class="kw">for </span>ChatCompletionRequestMessage {
-    <span class="kw">fn </span>from(message: AssisnantChatMessage) -&gt; ChatCompletionRequestMessage {
+<span class="kw">impl </span>From&lt;AssistantChatMessage&gt; <span class="kw">for </span>ChatCompletionRequestMessage {
+    <span class="kw">fn </span>from(message: AssistantChatMessage) -&gt; ChatCompletionRequestMessage {
         <span class="kw">match </span>message.content {
             ChatMessageContent::Text(text) =&gt; ChatCompletionRequestAssistantMessageArgs::default()
                 .content(text)
@@ -223,8 +223,8 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;AssisnantChatMessage&gt; <span class="kw">for </span>ClaudeMessage {
-    <span class="kw">fn </span>from(message: AssisnantChatMessage) -&gt; ClaudeMessage {
+<span class="kw">impl </span>From&lt;AssistantChatMessage&gt; <span class="kw">for </span>ClaudeMessage {
+    <span class="kw">fn </span>from(message: AssistantChatMessage) -&gt; ClaudeMessage {
         <span class="kw">match </span>message.content {
             ChatMessageContent::Text(text) =&gt; ClaudeMessage {
                 role: <span class="prelude-val">Some</span>(<span class="string">"assistant"</span>.to_string()),
