@@ -15,5 +15,13 @@ cargo fmt -- --check
 echo "Running cargo test..."
 cargo test
 
+# Check for security vulnerabilities and yanked crates
+echo "Running cargo audit..."
+cargo audit
+
+# Check for outdated dependencies but don't fail if there are any
+echo "Checking for outdated dependencies..."
+cargo outdated -R || true
+
 # If all commands succeed, allow the commit to proceed
 exit 0
