@@ -170,6 +170,11 @@
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -223,9 +228,16 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
-<span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures::future::try_join_all;
+
+<span class="doccomment">/// A function that combines the output of multiple nodes.
+///
+/// The function takes a vector of outputs from multiple nodes and returns a
+/// `Result` containing the final output. The BoxFuture can be created using
+/// the `to_boxed_future` helper function.
+</span><span class="kw">type </span>CombinationFunction&lt;O&gt; =
+    Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O, AnchorChainError&gt;&gt; + Send + Sync&gt;;
 
 <span class="doccomment">/// A node that processes input through multiple nodes in parallel.
 ///
@@ -240,7 +252,7 @@
     <span class="doccomment">/// The nodes that will process the input in parallel.
     </span><span class="kw">pub </span>nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
     <span class="doccomment">/// The function to process the output of the nodes.
-    </span><span class="kw">pub </span>function: Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O&gt;&gt; + Send + Sync&gt;,
+    </span><span class="kw">pub </span>function: CombinationFunction&lt;O&gt;,
 }
 
 <span class="kw">impl</span>&lt;I, O&gt; ParallelNode&lt;I, O&gt;
@@ -278,7 +290,7 @@
     /// }
     </span><span class="kw">pub fn </span>new(
         nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
-        function: Box&lt;<span class="kw">dyn </span>Fn(Vec&lt;O&gt;) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;O&gt;&gt; + Send + Sync&gt;,
+        function: CombinationFunction&lt;O&gt;,
     ) -&gt; <span class="self">Self </span>{
         ParallelNode { nodes, function }
     }
@@ -304,10 +316,8 @@
         });
 
         <span class="kw">let </span>results = try_join_all(futures).<span class="kw">await</span><span class="question-mark">?</span>;
-        (<span class="self">self</span>.function)(results)
-            .<span class="kw">await
-            </span>.map_err(AnchorChainError::ParallelNodeError)
-    }
+        (<span class="self">self</span>.function)(results).<span class="kw">await
+    </span>}
 }
 
 <span class="kw">impl</span>&lt;I, O&gt; std::fmt::Debug <span class="kw">for </span>ParallelNode&lt;I, O&gt;
@@ -330,9 +340,9 @@
 /// converts it into a boxed future.
 </span><span class="kw">pub fn </span>to_boxed_future&lt;T, F&gt;(
     f: F,
-) -&gt; Box&lt;<span class="kw">dyn </span>Fn(T) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;String&gt;&gt; + Send + Sync&gt;
+) -&gt; Box&lt;<span class="kw">dyn </span>Fn(T) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;String, AnchorChainError&gt;&gt; + Send + Sync&gt;
 <span class="kw">where
-    </span>F: Fn(T) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; + Send + Sync + Clone + <span class="lifetime">'static</span>,
+    </span>F: Fn(T) -&gt; <span class="prelude-ty">Result</span>&lt;String, AnchorChainError&gt; + Send + Sync + Clone + <span class="lifetime">'static</span>,
     T: Send + <span class="lifetime">'static</span>,
 {
     Box::new(<span class="kw">move </span>|input| {
