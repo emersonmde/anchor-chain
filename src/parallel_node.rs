@@ -51,9 +51,16 @@ use futures::{future::BoxFuture, FutureExt};
 
 use crate::error::AnchorChainError;
 use crate::node::Node;
-use anyhow::Result;
 use async_trait::async_trait;
 use futures::future::try_join_all;
+
+/// A function that combines the output of multiple nodes.
+///
+/// The function takes a vector of outputs from multiple nodes and returns a
+/// `Result` containing the final output. The BoxFuture can be created using
+/// the `to_boxed_future` helper function.
+type CombinationFunction<O> =
+    Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O, AnchorChainError>> + Send + Sync>;
 
 /// A node that processes input through multiple nodes in parallel.
 ///
@@ -68,7 +75,7 @@ where
     /// The nodes that will process the input in parallel.
     pub nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
     /// The function to process the output of the nodes.
-    pub function: Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O>> + Send + Sync>,
+    pub function: CombinationFunction<O>,
 }
 
 impl<I, O> ParallelNode<I, O>
@@ -106,7 +113,7 @@ where
     /// }
     pub fn new(
         nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
-        function: Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O>> + Send + Sync>,
+        function: CombinationFunction<O>,
     ) -> Self {
         ParallelNode { nodes, function }
     }
@@ -132,9 +139,7 @@ where
         });
 
         let results = try_join_all(futures).await?;
-        (self.function)(results)
-            .await
-            .map_err(AnchorChainError::ParallelNodeError)
+        (self.function)(results).await
     }
 }
 
@@ -158,9 +163,9 @@ where
 /// converts it into a boxed future.
 pub fn to_boxed_future<T, F>(
     f: F,
-) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String>> + Send + Sync>
+) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String, AnchorChainError>> + Send + Sync>
 where
-    F: Fn(T) -> Result<String> + Send + Sync + Clone + 'static,
+    F: Fn(T) -> Result<String, AnchorChainError> + Send + Sync + Clone + 'static,
     T: Send + 'static,
 {
     Box::new(move |input| {
