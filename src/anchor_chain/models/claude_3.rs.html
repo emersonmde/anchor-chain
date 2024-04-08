@@ -185,11 +185,11 @@
 
 </span><span class="kw">use </span>std::fmt;
 
-<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>aws_sdk_bedrockruntime::{primitives::Blob, Client};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 
 <span class="doccomment">/// Represents a source of an image to be processed by Claude 3, encapsulating the necessary

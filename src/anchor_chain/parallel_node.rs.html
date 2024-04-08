@@ -222,12 +222,12 @@
 //! }
 //! ```
 
-</span><span class="kw">use </span>futures::{future::BoxFuture, FutureExt};
+</span><span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>futures::future::try_join_all;
+<span class="kw">use </span>futures::{future::BoxFuture, FutureExt};
 
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
-<span class="kw">use </span>async_trait::async_trait;
-<span class="kw">use </span>futures::future::try_join_all;
 
 <span class="doccomment">/// A function that combines the output of multiple nodes.
 ///

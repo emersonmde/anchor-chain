@@ -128,15 +128,17 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
+</span><span class="kw">use </span>std::marker::PhantomData;
+
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use crate</span>::{link::Link, node::Node};
-<span class="kw">use </span>std::marker::PhantomData;
 
 <span class="doccomment">/// Represents a chain of nodes that can asynchronously process data.
 ///

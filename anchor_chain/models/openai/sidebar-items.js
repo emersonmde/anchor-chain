@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["OpenAIModel"],"struct":["OpenAIChatModel","OpenAIInstructModel"]};
+window.SIDEBAR_ITEMS = {"enum":["OpenAIModel"],"struct":["OpenAIChatModel","OpenAIEmbeddingModel","OpenAIInstructModel"]};

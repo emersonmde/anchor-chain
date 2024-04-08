@@ -69,9 +69,9 @@
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
-<span class="kw">use </span>async_trait::async_trait;
+</span><span class="kw">use </span>async_trait::async_trait;
 
+<span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 
 <span class="doccomment">/// A link in a processing chain that connects one `Node` to another.

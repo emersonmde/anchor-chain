@@ -30,6 +30,16 @@
 <a href="#28" id="28">28</a>
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
@@ -56,8 +66,18 @@
     </span><span class="attr">#[error(<span class="string">"no response returned from the model"</span>)]
     </span>EmptyResponseError,
 
-    <span class="doccomment">/// Generic error that occurs when processing a request.
+    <span class="doccomment">/// Generic error that occurs when serializing or deserializing a request.
     </span><span class="attr">#[error(<span class="string">"error processing request: {0}"</span>)]
     </span>RequestError(<span class="attr">#[from] </span>serde_json::Error),
+
+    <span class="doccomment">/// Error when configuring or using OpenSearch.
+    </span><span class="attr">#[error(<span class="string">"OpenSearch error: {0}"</span>)]
+    </span>OpenSearchError(<span class="attr">#[from] </span>opensearch::Error),
+
+    <span class="attr">#[error(<span class="string">"Error parsing input: {0}"</span>)]
+    </span>ParseError(String),
+
+    <span class="attr">#[error(<span class="string">"invalid input: {0}"</span>)]
+    </span>InvalidInputError(String),
 }
 </code></pre></div></section></main></body></html>

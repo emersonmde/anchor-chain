@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["chain","error","link","message","models","node","parallel_node","prompt"]};
+window.SIDEBAR_ITEMS = {"mod":["chain","error","link","message","models","node","parallel_node","prompt","retrievers"]};
