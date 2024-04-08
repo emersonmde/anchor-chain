@@ -5,8 +5,9 @@
 
 use std::marker::PhantomData;
 
-use crate::error::AnchorChainError;
 use async_trait::async_trait;
+
+use crate::error::AnchorChainError;
 
 /// Represents a node that can process an input to produce an output.
 ///

@@ -5,14 +5,15 @@
 
 use std::fmt;
 
-use crate::error::AnchorChainError;
 use async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
-    CreateCompletionRequestArgs, Prompt,
+    CreateCompletionRequestArgs, CreateEmbeddingRequestArgs, Prompt,
 };
 use async_trait::async_trait;
 
+use crate::error::AnchorChainError;
+use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
 
 /// OpenAI model types supported by the `OpenAI` node
@@ -111,13 +112,11 @@ impl<T> OpenAIChatModel<T> {
     /// tts-1-hd-1106
     /// tts-1-hd
     /// gpt-4-vision-preview
-    /// text-embedding-3-large
     /// gpt-3.5-turbo-0125
     /// gpt-4-turbo-preview
     /// gpt-3.5-turbo-0301
     /// gpt-4-1106-preview
     /// gpt-3.5-turbo
-    /// gpt-3.5-turbo-instruct-0914
     /// gpt-4-0613
     /// gpt-4-1106-vision-preview
     /// tts-1
@@ -126,10 +125,7 @@ impl<T> OpenAIChatModel<T> {
     /// tts-1-1106
     /// gpt-4
     /// gpt-4-0125-preview
-    /// text-embedding-3-small
     /// gpt-3.5-turbo-0613
-    /// text-embedding-ada-002
-    /// gpt-3.5-turbo-instruct
     /// gpt-3.5-turbo-16k-0613
     async fn new(system_prompt: String, model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
@@ -232,6 +228,11 @@ where
     /// Constructs a new `OpenAI` node with the default API configuration.
     ///
     /// The model specified must support the instruct API.
+    ///
+    /// Possible Model Types:
+    /// gpt-3.5-turbo-instruct
+    /// gpt-3.5-turbo-instruct-0914
+    #[allow(dead_code)]
     async fn new(model: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new();
         let client = async_openai::Client::with_config(config);
@@ -245,6 +246,7 @@ where
     /// Constructs a new `OpenAI` processor with a specified API key.
     ///
     /// The model specified must support the instruct API.
+    #[allow(dead_code)]
     pub async fn new_with_key(model: String, api_key: String) -> Self {
         let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
         let client = async_openai::Client::with_config(config);
@@ -293,6 +295,92 @@ impl<T> fmt::Debug for OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OpenAI").finish()
+    }
+}
+
+/// Node for making requests to OpenAI embedding models.
+pub struct OpenAIEmbeddingModel {
+    /// The name of the instruct model.
+    model: String,
+    /// The OpenAI API client.
+    client: async_openai::Client<async_openai::config::OpenAIConfig>,
+}
+
+impl Default for OpenAIEmbeddingModel {
+    fn default() -> Self {
+        OpenAIEmbeddingModel {
+            model: "text-embedding-3-large".to_string(),
+            client: async_openai::Client::with_config(async_openai::config::OpenAIConfig::new()),
+        }
+    }
+}
+
+impl OpenAIEmbeddingModel {
+    /// Constructs a new `OpenAI` node with the default API configuration.
+    ///
+    /// The model specified must support the instruct API.
+    ///
+    /// Possible Model Types:
+    /// text-embedding-3-large
+    /// text-embedding-3-small
+    /// text-embedding-ada-002
+    #[allow(dead_code)]
+    async fn new(model: String) -> Self {
+        let config = async_openai::config::OpenAIConfig::new();
+        let client = async_openai::Client::with_config(config);
+        OpenAIEmbeddingModel { client, model }
+    }
+
+    /// Constructs a new `OpenAI` processor with a specified API key.
+    ///
+    /// The model specified must support the embedding API.
+    #[allow(dead_code)]
+    async fn new_with_key(model: String, api_key: String) -> Self {
+        let config = async_openai::config::OpenAIConfig::new().with_api_key(api_key);
+        let client = async_openai::Client::with_config(config);
+        OpenAIEmbeddingModel { client, model }
+    }
+}
+
+#[async_trait]
+impl Node for OpenAIEmbeddingModel {
+    type Input = Vec<String>;
+    type Output = Vec<Vec<f32>>;
+
+    /// Sends the input to the OpenAI API and processes the response.
+    ///
+    /// Constructs a request based on the input and the system prompt, then parses
+    /// the model's response to extract and return the processed content.
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
+        let request = CreateEmbeddingRequestArgs::default()
+            .model(&self.model)
+            .input(input)
+            .build()?;
+
+        let response = self.client.embeddings().create(request).await?;
+
+        Ok(response
+            .data
+            .iter()
+            .map(|data| data.embedding.clone())
+            .collect())
+    }
+}
+
+#[async_trait]
+impl EmbeddingModel for OpenAIEmbeddingModel {
+    async fn embed(&self, input: String) -> Result<Vec<f32>, AnchorChainError> {
+        self.process(vec![input])
+            .await?
+            .first()
+            .ok_or(AnchorChainError::EmptyResponseError)
+            .cloned()
+    }
+}
+
+impl fmt::Debug for OpenAIEmbeddingModel {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OpenAI").finish()
     }

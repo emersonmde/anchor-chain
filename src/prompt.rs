@@ -9,10 +9,11 @@
 
 use std::{collections::HashMap, marker::PhantomData};
 
-use crate::error::AnchorChainError;
-use crate::node::Node;
 use async_trait::async_trait;
 use tera::{Context, Tera};
+
+use crate::error::AnchorChainError;
+use crate::node::Node;
 
 /// A processor for handling text prompts within a processing chain.
 ///

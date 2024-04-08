@@ -4,9 +4,10 @@
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
+use std::marker::PhantomData;
+
 use crate::error::AnchorChainError;
 use crate::{link::Link, node::Node};
-use std::marker::PhantomData;
 
 /// Represents a chain of nodes that can asynchronously process data.
 ///

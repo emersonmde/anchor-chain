@@ -46,12 +46,12 @@
 //! }
 //! ```
 
+use async_trait::async_trait;
+use futures::future::try_join_all;
 use futures::{future::BoxFuture, FutureExt};
 
 use crate::error::AnchorChainError;
 use crate::node::Node;
-use async_trait::async_trait;
-use futures::future::try_join_all;
 
 /// A function that combines the output of multiple nodes.
 ///

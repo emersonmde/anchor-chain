@@ -3,9 +3,9 @@
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
-use crate::error::AnchorChainError;
 use async_trait::async_trait;
 
+use crate::error::AnchorChainError;
 use crate::node::Node;
 
 /// A link in a processing chain that connects one `Node` to another.

@@ -24,7 +24,17 @@ pub enum AnchorChainError {
     #[error("no response returned from the model")]
     EmptyResponseError,
 
-    /// Generic error that occurs when processing a request.
+    /// Generic error that occurs when serializing or deserializing a request.
     #[error("error processing request: {0}")]
     RequestError(#[from] serde_json::Error),
+
+    /// Error when configuring or using OpenSearch.
+    #[error("OpenSearch error: {0}")]
+    OpenSearchError(#[from] opensearch::Error),
+
+    #[error("Error parsing input: {0}")]
+    ParseError(String),
+
+    #[error("invalid input: {0}")]
+    InvalidInputError(String),
 }
