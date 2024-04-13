@@ -53,6 +53,10 @@ backward compatibility is not guaranteed for versions prior to 1.0.
   execution of multiple nodes, leveraging concurrency to improve overall chain
   performance.
 
+- **Tracing Support**: Anchor Chain integrates with the `tracing` crate to
+  provide detailed logs and diagnostics, helping developers understand the
+  execution flow of their chains.
+
 ## Supported Models
 
 Currently, Anchor chain supports OpenAI's GPT3.5 Turbo, GPT4 Turbo, and GPT3.5
@@ -139,7 +143,6 @@ list of future features that are planned for the 1.0 release:
 - Support for Mistral through AWS Bedrock
 - Support for Ollama REST API
 - Add error handling strategy that will use a backup model if the primary fails
-- Add OpenTelemetry support
 
 Other potential features for future releases:
 
