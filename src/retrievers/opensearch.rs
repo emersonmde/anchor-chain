@@ -8,6 +8,8 @@ use opensearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
 use opensearch::http::Url;
 use opensearch::{OpenSearch, SearchParts};
 use serde_json::json;
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
@@ -22,7 +24,7 @@ pub struct OpenSearchRetriever<M: EmbeddingModel> {
     top_k: usize,
 }
 
-impl<M: EmbeddingModel> OpenSearchRetriever<M> {
+impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
     pub async fn new(
         embedding_model: M,
         base_url: &str,
@@ -98,6 +100,7 @@ impl<M: EmbeddingModel> OpenSearchRetriever<M> {
         })
     }
 
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     pub async fn vector_query(
         &self,
         indexes: &[String],
@@ -128,6 +131,7 @@ impl<M: EmbeddingModel> OpenSearchRetriever<M> {
         Ok(response.json::<serde_json::Value>().await?)
     }
 
+    #[cfg_attr(feature = "tracing", instrument)]
     pub async fn retrieve(&self, input: &str) -> Result<serde_json::Value, AnchorChainError> {
         let embedding = self.embedding_model.embed(input.to_string()).await?;
         let response = self

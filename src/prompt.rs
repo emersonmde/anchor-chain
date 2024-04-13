@@ -11,6 +11,8 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use async_trait::async_trait;
 use tera::{Context, Tera};
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 use crate::node::Node;
@@ -59,6 +61,7 @@ impl<'a> Node for Prompt<'a> {
     type Output = String;
 
     /// Processes the input HashMap and returns the rendered template.
+    #[cfg_attr(feature = "tracing", instrument)]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let context = Context::from_serialize(input)?;
         Ok(self.tera.render("prompt", &context)?.to_string())

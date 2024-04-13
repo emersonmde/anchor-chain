@@ -41,6 +41,7 @@ dependencies = [
  "tera",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

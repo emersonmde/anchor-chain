@@ -49,6 +49,8 @@
 use async_trait::async_trait;
 use futures::future::try_join_all;
 use futures::{future::BoxFuture, FutureExt};
+#[cfg(feature = "tracing")]
+use tracing::{instrument, Instrument};
 
 use crate::error::AnchorChainError;
 use crate::node::Node;
@@ -131,14 +133,27 @@ where
     ///
     /// The input is processed by each node in parallel, and the results are combined
     /// using the provided function to produce the final output.
+    #[cfg_attr(feature = "tracing", instrument)]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let futures = self.nodes.iter().map(|node| {
             let input_clone = input.clone();
             async move { node.process(input_clone).await }
         });
 
-        let results = try_join_all(futures).await?;
-        (self.function)(results).await
+        let results = try_join_all(futures);
+
+        #[cfg(feature = "tracing")]
+        let results = results.instrument(tracing::info_span!("Joining parallel node futures"));
+
+        let results = results.await?;
+
+        let combined_results = (self.function)(results);
+
+        #[cfg(feature = "tracing")]
+        let combined_results =
+            combined_results.instrument(tracing::info_span!("Combining parallel node outputs"));
+
+        combined_results.await
     }
 }
 

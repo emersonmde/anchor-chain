@@ -11,6 +11,8 @@ use async_openai::types::{
     CreateCompletionRequestArgs, CreateEmbeddingRequestArgs, Prompt,
 };
 use async_trait::async_trait;
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
@@ -157,7 +159,7 @@ impl<T> OpenAIChatModel<T> {
 #[async_trait]
 impl<T> Node for OpenAIChatModel<T>
 where
-    T: Into<ChatCompletionRequestUserMessageContent> + Send + Sync,
+    T: Into<ChatCompletionRequestUserMessageContent> + fmt::Debug + Send + Sync,
 {
     type Input = T;
     type Output = String;
@@ -166,6 +168,7 @@ where
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return final output.
+    #[cfg_attr(feature = "tracing", instrument(skip(self), fields(model = self.model.as_str(), system_prompt = self.system_prompt.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
             .content(self.system_prompt.clone())
@@ -261,7 +264,7 @@ where
 #[async_trait]
 impl<T> Node for OpenAIInstructModel<T>
 where
-    T: Into<Prompt> + Send + Sync,
+    T: Into<Prompt> + fmt::Debug + Send + Sync,
 {
     type Input = T;
     type Output = String;
@@ -270,6 +273,7 @@ where
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
+    #[cfg_attr(feature = "tracing", instrument(skip(self), fields(model = self.model.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let request = CreateCompletionRequestArgs::default()
             .model(&self.model)
@@ -353,6 +357,7 @@ impl Node for OpenAIEmbeddingModel {
     ///
     /// Constructs a request based on the input and the system prompt, then parses
     /// the model's response to extract and return the processed content.
+    #[cfg_attr(feature = "tracing", instrument(skip(self), fields(model = self.model.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let request = CreateEmbeddingRequestArgs::default()
             .model(&self.model)
@@ -371,6 +376,7 @@ impl Node for OpenAIEmbeddingModel {
 
 #[async_trait]
 impl EmbeddingModel for OpenAIEmbeddingModel {
+    #[cfg_attr(feature = "tracing", instrument(skip(self), fields(model = self.model.as_str())))]
     async fn embed(&self, input: String) -> Result<Vec<f32>, AnchorChainError> {
         self.process(vec![input])
             .await?

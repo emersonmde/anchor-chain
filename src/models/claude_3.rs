@@ -10,6 +10,8 @@ use std::fmt;
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 use crate::node::Node;
@@ -124,6 +126,7 @@ impl Node for Claude3Bedrock {
     ///
     /// Constructs a request to the Claude 3 model with the provided input, sends it via
     /// AWS Bedrock, and extracts the text content from the response.
+    #[cfg_attr(feature = "tracing", instrument(fields(system_prompt = self.system_prompt.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         let request = ClaudeMessagesRequest {
             anthropic_version: "bedrock-2023-05-31".to_string(),

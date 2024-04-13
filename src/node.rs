@@ -6,6 +6,8 @@
 use std::marker::PhantomData;
 
 use async_trait::async_trait;
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 
@@ -59,6 +61,7 @@ where
     type Output = T;
 
     /// Returns the input unchanged.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         Ok(input)
     }
