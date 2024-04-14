@@ -104,4 +104,4 @@ pub mod parallel_node;
 pub mod prompt;
 
 pub mod models;
-pub mod retrievers;
+pub mod vector;

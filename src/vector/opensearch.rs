@@ -18,7 +18,7 @@ use tracing::instrument;
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
-use crate::retrievers::document::Document;
+use crate::vector::document::Document;
 
 #[derive(Debug)]
 pub struct OpenSearchRetriever<M: EmbeddingModel> {
