@@ -44,6 +44,10 @@
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
@@ -77,6 +81,10 @@
     <span class="doccomment">/// Error when configuring or using OpenSearch.
     </span><span class="attr">#[error(<span class="string">"OpenSearch error: {0}"</span>)]
     </span>OpenSearchError(<span class="attr">#[from] </span>opensearch::Error),
+
+    <span class="doccomment">/// Error that occurs when calling OpenSearch APIs.
+    </span><span class="attr">#[error(<span class="string">"OpenSearch returned error: {0}"</span>)]
+    </span>OpenSearchInternalError(String),
 
     <span class="attr">#[error(<span class="string">"Error parsing input: {0}"</span>)]
     </span>ParseError(String),

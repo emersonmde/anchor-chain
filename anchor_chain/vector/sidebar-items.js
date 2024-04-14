@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["opensearch"]};
+window.SIDEBAR_ITEMS = {"mod":["opensearch_retriever"]};
