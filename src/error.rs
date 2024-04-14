@@ -37,4 +37,8 @@ pub enum AnchorChainError {
 
     #[error("invalid input: {0}")]
     InvalidInputError(String),
+
+    /// Generic error calling a model.
+    #[error("error processing model response: {0}")]
+    ModelError(String),
 }

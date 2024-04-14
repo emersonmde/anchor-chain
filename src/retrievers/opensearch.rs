@@ -1,12 +1,16 @@
 #![allow(dead_code)]
+
 use std::fmt;
 
 use async_trait::async_trait;
 use aws_config::meta::region::RegionProviderChain;
 use aws_config::SdkConfig;
+use opensearch::auth::Credentials;
+use opensearch::http::request::JsonBody;
 use opensearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
 use opensearch::http::Url;
-use opensearch::{OpenSearch, SearchParts};
+use opensearch::indices::IndicesCreateParts;
+use opensearch::{BulkParts, IndexParts, OpenSearch, SearchParts};
 use serde_json::json;
 #[cfg(feature = "tracing")]
 use tracing::instrument;
@@ -14,6 +18,7 @@ use tracing::instrument;
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
+use crate::retrievers::document::Document;
 
 #[derive(Debug)]
 pub struct OpenSearchRetriever<M: EmbeddingModel> {
@@ -32,18 +37,39 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         vector_field: &str,
         top_k: usize,
     ) -> Result<Self, AnchorChainError> {
-        let url = Url::parse(base_url).map_err(|e| AnchorChainError::ParseError(e.to_string()))?;
-        let service_name = "es";
-        let conn_pool = SingleNodeConnectionPool::new(url);
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let aws_config = aws_config::from_env()
             .region(region_provider)
             .load()
             .await
             .clone();
+        Self::new_with_aws_config(
+            embedding_model,
+            base_url,
+            indexes,
+            vector_field,
+            top_k,
+            aws_config,
+        )
+        .await
+    }
+
+    pub async fn new_with_basic_auth(
+        embedding_model: M,
+        base_url: &str,
+        username: &str,
+        password: &str,
+        indexes: &[&str],
+        vector_field: &str,
+        top_k: usize,
+    ) -> Result<Self, AnchorChainError> {
+        let url = Url::parse(base_url).map_err(|e| AnchorChainError::ParseError(e.to_string()))?;
+        let conn_pool = SingleNodeConnectionPool::new(url);
         let transport = TransportBuilder::new(conn_pool)
-            .auth(aws_config.clone().try_into()?)
-            .service_name(service_name)
+            .auth(Credentials::Basic(
+                username.to_string(),
+                password.to_string(),
+            ))
             .build()
             .map_err(|e| AnchorChainError::OpenSearchError(e.into()))?;
         let client = OpenSearch::new(transport);
@@ -138,6 +164,108 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
             .vector_query(&self.indexes, &self.vector_field, self.top_k, embedding)
             .await?;
         Ok(response)
+    }
+
+    pub async fn create_index(&self, index: &str) -> Result<(), AnchorChainError> {
+        let body = json!({
+            "settings": {
+                "index.knn": true
+            },
+            "mappings": {
+                "properties": {
+                    index: {
+                        "type": "knn_vector",
+                        "dimension": self.embedding_model.dimensions(),
+                        "method": {
+                            "name": "hnsw",
+                            "space_type": "cosinesimil",
+                            "engine": "nmslib",
+                            "parameters": {
+                                "ef_construction": 128,
+                                "m": 16
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        self.client
+            .indices()
+            .create(IndicesCreateParts::Index("my_knn_index"))
+            .body(body)
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    pub async fn index_docs(
+        &self,
+        index: &str,
+        docs: Vec<serde_json::Value>,
+    ) -> Result<(), AnchorChainError> {
+        let mut body = String::new();
+        for doc in docs {
+            body.push_str(&serde_json::to_string(&doc)?);
+            body.push('\n');
+        }
+        self.client
+            .index(IndexParts::Index(index))
+            .body(body)
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    /// Automatically indexes a list of documents. It embeds the text into a vector if not already done,
+    /// then indexes the entire document into OpenSearch.
+    pub async fn index_documents(
+        &self,
+        mut docs: Vec<Document>,
+        index: &str,
+    ) -> Result<(), AnchorChainError> {
+        let mut operations: Vec<JsonBody<_>> = Vec::new();
+
+        for doc in &mut docs {
+            // Only compute the embedding if it's not already present
+            if doc.embedding.is_none() {
+                doc.embedding = Some(
+                    self.embedding_model
+                        .embed(doc.text.clone())
+                        .await
+                        .map_err(|e| AnchorChainError::ModelError(e.to_string()))?,
+                );
+            }
+
+            // Serialize the Document into JSON
+            let doc_json = serde_json::to_value(&doc).map_err(AnchorChainError::RequestError)?;
+
+            operations.push(
+                json!({
+                    "index": {
+                        "_id": doc.id,
+                    }
+                })
+                .into(),
+            );
+            operations.push(doc_json.into());
+        }
+
+        // Execute the bulk indexing operation
+        let response = self
+            .client
+            .bulk(BulkParts::Index(index))
+            .body(operations)
+            .send()
+            .await
+            .map_err(AnchorChainError::OpenSearchError)?;
+
+        // Check the response status
+        if response.status_code().is_success() {
+            Ok(())
+        } else {
+            Err(AnchorChainError::ParseError(response.text().await?))
+        }
     }
 }
 

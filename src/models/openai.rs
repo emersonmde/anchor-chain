@@ -384,6 +384,10 @@ impl EmbeddingModel for OpenAIEmbeddingModel {
             .ok_or(AnchorChainError::EmptyResponseError)
             .cloned()
     }
+
+    fn dimensions(&self) -> usize {
+        3072
+    }
 }
 
 impl fmt::Debug for OpenAIEmbeddingModel {

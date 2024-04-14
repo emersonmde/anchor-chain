@@ -8,4 +8,6 @@ use crate::error::AnchorChainError;
 pub trait EmbeddingModel {
     /// Embeds the given input text and returns the resulting vector.
     async fn embed(&self, input: String) -> Result<Vec<f32>, AnchorChainError>;
+
+    fn dimensions(&self) -> usize;
 }
