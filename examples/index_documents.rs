@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use anchor_chain::models::openai::OpenAIEmbeddingModel;
-use anchor_chain::vector::opensearch::OpenSearchRetriever;
+use anchor_chain::vector::opensearch_retriever::OpenSearchRetriever;
 use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, prompt::Prompt};
 
 #[tokio::main]

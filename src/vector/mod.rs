@@ -1,2 +1,3 @@
 mod document;
-pub mod opensearch;
+mod opensearch_indexer;
+pub mod opensearch_retriever;

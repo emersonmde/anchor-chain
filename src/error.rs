@@ -32,6 +32,10 @@ pub enum AnchorChainError {
     #[error("OpenSearch error: {0}")]
     OpenSearchError(#[from] opensearch::Error),
 
+    /// Error that occurs when calling OpenSearch APIs.
+    #[error("OpenSearch returned error: {0}")]
+    OpenSearchInternalError(String),
+
     #[error("Error parsing input: {0}")]
     ParseError(String),
 

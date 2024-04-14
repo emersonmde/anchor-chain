@@ -22,6 +22,7 @@ impl Document {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_with_id(id: String, text: String) -> Self {
         Self {
             id: Some(id),
@@ -32,6 +33,7 @@ impl Document {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_with_embedding(text: String, embedding: Vec<f32>, embedding_name: String) -> Self {
         Self {
             id: None,
