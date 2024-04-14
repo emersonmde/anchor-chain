@@ -160,7 +160,7 @@ mod tests {
             "metadata": {"key": "value", "embedding_field_name": "embedding"}
         }"#;
 
-        let deserialized: super::Document = serde_json::from_str(&serialized).unwrap();
+        let deserialized: super::Document = serde_json::from_str(serialized).unwrap();
 
         assert_eq!(deserialized.id, Some("1".to_string()));
         assert_eq!(deserialized.text, "hello");
