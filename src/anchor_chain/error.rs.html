@@ -40,6 +40,10 @@
 <a href="#38" id="38">38</a>
 <a href="#39" id="39">39</a>
 <a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
@@ -79,5 +83,9 @@
 
     <span class="attr">#[error(<span class="string">"invalid input: {0}"</span>)]
     </span>InvalidInputError(String),
+
+    <span class="doccomment">/// Generic error calling a model.
+    </span><span class="attr">#[error(<span class="string">"error processing model response: {0}"</span>)]
+    </span>ModelError(String),
 }
 </code></pre></div></section></main></body></html>
