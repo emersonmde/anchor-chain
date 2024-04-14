@@ -30,6 +30,7 @@ pub struct OpenSearchRetriever<M: EmbeddingModel> {
 }
 
 impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
+    /// Creates a new OpenSearchRetrieverBuilder using default AWS credentials from the environment.
     pub async fn new(
         embedding_model: M,
         base_url: &str,
@@ -54,6 +55,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         .await
     }
 
+    /// Creates a new OpenSearchRetriever by creating a new OpenSearch client using basic auth.
     pub async fn new_with_basic_auth(
         embedding_model: M,
         base_url: &str,
@@ -82,6 +84,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         })
     }
 
+    /// Creates a new OpenSearchRetriever by creating a new OpenSearch client using AWS credentials.
     #[allow(dead_code)]
     pub async fn new_with_aws_config(
         embedding_model: M,
@@ -109,6 +112,8 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         })
     }
 
+    /// Creates a new OpenSearchRetriever with the specified embedding model, OpenSearch client,
+    /// indexes, vector field, and top k value.
     #[allow(dead_code)]
     pub async fn new_with_client(
         embedding_model: M,
@@ -126,6 +131,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         })
     }
 
+    /// Queries OpenSearch for the top k documents that are most similar to the input vector.
     #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     pub async fn vector_query(
         &self,
@@ -157,6 +163,10 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         Ok(response.json::<serde_json::Value>().await?)
     }
 
+    /// Retrieves the top k documents from OpenSearch that are most similar to the input text.
+    ///
+    /// Uses the embedding model to embed the input text into a vector, then queries OpenSearch
+    /// using the vector.
     #[cfg_attr(feature = "tracing", instrument)]
     pub async fn retrieve(&self, input: &str) -> Result<serde_json::Value, AnchorChainError> {
         let embedding = self.embedding_model.embed(input.to_string()).await?;
@@ -166,6 +176,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         Ok(response)
     }
 
+    /// Creates a vector index in OpenSearch with the specified name using default settings.
     pub async fn create_index(&self, index: &str) -> Result<(), AnchorChainError> {
         let body = json!({
             "settings": {
@@ -227,7 +238,6 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
         let mut operations: Vec<JsonBody<_>> = Vec::new();
 
         for doc in &mut docs {
-            // Only compute the embedding if it's not already present
             if doc.embedding.is_none() {
                 doc.embedding = Some(
                     self.embedding_model
@@ -237,7 +247,6 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
                 );
             }
 
-            // Serialize the Document into JSON
             let doc_json = serde_json::to_value(&doc).map_err(AnchorChainError::RequestError)?;
 
             operations.push(
@@ -251,7 +260,6 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
             operations.push(doc_json.into());
         }
 
-        // Execute the bulk indexing operation
         let response = self
             .client
             .bulk(BulkParts::Index(index))
@@ -260,7 +268,6 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
             .await
             .map_err(AnchorChainError::OpenSearchError)?;
 
-        // Check the response status
         if response.status_code().is_success() {
             Ok(())
         } else {
