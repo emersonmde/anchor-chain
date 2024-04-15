@@ -1,10 +1,14 @@
+use base64::prelude::BASE64_URL_SAFE_NO_PAD;
+use base64::Engine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt;
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 const DEFAULT_EMBEDDING_NAME: &str = "embedding";
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Document {
-    pub id: Option<String>,
+    pub id: String,
     pub text: String,
     pub embedding: Option<Vec<f32>>,
     pub embedding_name: Option<String>,
@@ -12,9 +16,15 @@ pub struct Document {
 }
 
 impl Document {
+    fn hash_text(text: &str) -> String {
+        let mut hasher = DefaultHasher::new();
+        text.hash(&mut hasher);
+        let hash = hasher.finish();
+        BASE64_URL_SAFE_NO_PAD.encode(hash.to_be_bytes())
+    }
     pub fn new(text: String) -> Self {
         Self {
-            id: None,
+            id: Self::hash_text(&text),
             text,
             embedding: None,
             embedding_name: None,
@@ -25,7 +35,7 @@ impl Document {
     #[allow(dead_code)]
     pub fn new_with_id(id: String, text: String) -> Self {
         Self {
-            id: Some(id),
+            id,
             text,
             embedding: None,
             embedding_name: None,
@@ -36,7 +46,7 @@ impl Document {
     #[allow(dead_code)]
     pub fn new_with_embedding(text: String, embedding: Vec<f32>, embedding_name: String) -> Self {
         Self {
-            id: None,
+            id: Self::hash_text(&text),
             text,
             embedding: Some(embedding),
             embedding_name: Some(embedding_name),
@@ -51,6 +61,61 @@ impl From<String> for Document {
     }
 }
 
+impl fmt::Debug for Document {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let embedding_preview = match &self.embedding {
+            Some(vec) if !vec.is_empty() => {
+                let preview = vec.iter().take(2).collect::<Vec<_>>();
+                // Output [preview[0], preview[1], ... (n more)]
+                let mut preview_str = format!("[{}", preview[0]);
+                if vec.len() > 1 {
+                    preview_str.push_str(&format!(", {}", preview[1]));
+                }
+                if vec.len() > 2 {
+                    preview_str.push_str(&format!(", ...({} more)", vec.len() - 2));
+                }
+                preview_str.push(']');
+                preview_str
+            }
+            Some(_) => "[]".to_string(),
+            None => "None".to_string(),
+        };
+
+        write!(
+            f,
+            "Document {{ id: {:?}, text: {:?}, embedding: {}, embedding_name: {:?}, metadata: {:?} }}",
+            self.id, self.text, embedding_preview, self.embedding_name, self.metadata
+        )
+    }
+}
+
+#[allow(dead_code)]
+pub struct DocCollection {
+    documents: Vec<Document>,
+}
+
+impl<T: Into<Document>> FromIterator<T> for DocCollection {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self {
+            documents: iter.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<Vec<String>> for DocCollection {
+    fn from(texts: Vec<String>) -> Self {
+        Self {
+            documents: texts.into_iter().map(Document::from).collect(),
+        }
+    }
+}
+
+impl From<DocCollection> for Vec<Document> {
+    fn from(docs: DocCollection) -> Self {
+        docs.documents
+    }
+}
+
 impl Serialize for Document {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -60,9 +125,7 @@ impl Serialize for Document {
             "text": self.text,
         });
 
-        if let Some(id) = &self.id {
-            doc["_id"] = serde_json::json!(id);
-        }
+        doc["id"] = serde_json::json!(self.id);
 
         if let Some(embedding) = &self.embedding {
             let embedding_field_name = self
@@ -90,7 +153,7 @@ impl<'de> Deserialize<'de> for Document {
         let doc = serde_json::Value::deserialize(deserializer)?;
 
         let id = doc
-            .get("_id")
+            .get("id")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string());
 
@@ -100,6 +163,7 @@ impl<'de> Deserialize<'de> for Document {
             .map(|s| s.to_string())
             .ok_or_else(|| serde::de::Error::missing_field("text"))?;
 
+        let id = id.unwrap_or_else(|| Document::hash_text(&text));
         let metadata = doc.get("metadata").cloned();
 
         let embedding_name = metadata
@@ -130,7 +194,7 @@ mod tests {
     #[test]
     fn test_document_serialization() {
         let doc = super::Document {
-            id: Some("1".to_string()),
+            id: "1".to_string(),
             text: "hello".to_string(),
             embedding: Some(vec![1.0, 2.0, 3.0]),
             embedding_name: Some("embedding".to_string()),
@@ -156,7 +220,7 @@ mod tests {
     #[test]
     fn test_document_deserialization() {
         let serialized = r#"{
-            "_id": "1",
+            "id": "1",
             "text": "hello",
             "embedding": [1.0, 2.0, 3.0],
             "metadata": {"key": "value", "embedding_field_name": "embedding"}
@@ -164,7 +228,7 @@ mod tests {
 
         let deserialized: super::Document = serde_json::from_str(serialized).unwrap();
 
-        assert_eq!(deserialized.id, Some("1".to_string()));
+        assert_eq!(deserialized.id, "1".to_string());
         assert_eq!(deserialized.text, "hello");
         assert_eq!(deserialized.embedding, Some(vec![1.0, 2.0, 3.0]));
         assert_eq!(deserialized.embedding_name, Some("embedding".to_string()));

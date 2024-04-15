@@ -4,8 +4,6 @@ use std::fmt;
 
 use async_trait::async_trait;
 use aws_config::meta::region::RegionProviderChain;
-use aws_config::SdkConfig;
-use opensearch::auth::Credentials;
 use opensearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
 use opensearch::http::Url;
 use opensearch::{OpenSearch, SearchParts};
@@ -29,103 +27,19 @@ pub struct OpenSearchRetriever<M: EmbeddingModel> {
 impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
     /// Creates a new OpenSearchRetrieverBuilder using default AWS credentials from the environment.
     pub async fn new(
-        embedding_model: M,
-        base_url: &str,
-        indexes: &[&str],
-        vector_field: &str,
-        top_k: usize,
-    ) -> Result<Self, AnchorChainError> {
-        let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
-        let aws_config = aws_config::from_env()
-            .region(region_provider)
-            .load()
-            .await
-            .clone();
-        Self::new_with_aws_config(
-            embedding_model,
-            base_url,
-            indexes,
-            vector_field,
-            top_k,
-            aws_config,
-        )
-        .await
-    }
-
-    /// Creates a new OpenSearchRetriever by creating a new OpenSearch client using basic auth.
-    pub async fn new_with_basic_auth(
-        embedding_model: M,
-        base_url: &str,
-        username: &str,
-        password: &str,
-        indexes: &[&str],
-        vector_field: &str,
-        top_k: usize,
-    ) -> Result<Self, AnchorChainError> {
-        let url = Url::parse(base_url).map_err(|e| AnchorChainError::ParseError(e.to_string()))?;
-        let conn_pool = SingleNodeConnectionPool::new(url);
-        let transport = TransportBuilder::new(conn_pool)
-            .auth(Credentials::Basic(
-                username.to_string(),
-                password.to_string(),
-            ))
-            .build()
-            .map_err(|e| AnchorChainError::OpenSearchError(e.into()))?;
-        let client = OpenSearch::new(transport);
-        Ok(Self {
-            client,
-            embedding_model,
-            indexes: indexes.iter().map(|s| s.to_string()).collect(),
-            vector_field: vector_field.to_string(),
-            top_k,
-        })
-    }
-
-    /// Creates a new OpenSearchRetriever by creating a new OpenSearch client using AWS credentials.
-    #[allow(dead_code)]
-    pub async fn new_with_aws_config(
-        embedding_model: M,
-        base_url: &str,
-        indexes: &[&str],
-        vector_field: &str,
-        top_k: usize,
-        aws_config: SdkConfig,
-    ) -> Result<Self, AnchorChainError> {
-        let url = Url::parse(base_url).map_err(|e| AnchorChainError::ParseError(e.to_string()))?;
-        let service_name = "es";
-        let conn_pool = SingleNodeConnectionPool::new(url);
-        let transport = TransportBuilder::new(conn_pool)
-            .auth(aws_config.try_into()?)
-            .service_name(service_name)
-            .build()
-            .map_err(|e| AnchorChainError::OpenSearchError(e.into()))?;
-        let client = OpenSearch::new(transport);
-        Ok(Self {
-            client,
-            embedding_model,
-            indexes: indexes.iter().map(|s| s.to_string()).collect(),
-            vector_field: vector_field.to_string(),
-            top_k,
-        })
-    }
-
-    /// Creates a new OpenSearchRetriever with the specified embedding model, OpenSearch client,
-    /// indexes, vector field, and top k value.
-    #[allow(dead_code)]
-    pub async fn new_with_client(
-        embedding_model: M,
         client: OpenSearch,
+        embedding_model: M,
         indexes: &[&str],
         vector_field: &str,
         top_k: usize,
-    ) -> Result<Self, AnchorChainError> {
-        Ok(Self {
+    ) -> Self {
+        Self {
             client,
             embedding_model,
             indexes: indexes.iter().map(|s| s.to_string()).collect(),
             vector_field: vector_field.to_string(),
             top_k,
-        })
+        }
     }
 
     /// Queries OpenSearch for the top k documents that are most similar to the input vector.

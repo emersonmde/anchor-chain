@@ -21,17 +21,12 @@ pub struct OpenSearchIndexer<M: EmbeddingModel> {
 
 impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
     #[allow(dead_code)]
-    pub fn new(
-        client: OpenSearch,
-        embedding_model: M,
-        index: String,
-        vector_field: String,
-    ) -> Self {
+    pub fn new(client: OpenSearch, embedding_model: M, index: &str, vector_field: &str) -> Self {
         Self {
             client,
             embedding_model,
-            index,
-            vector_field,
+            index: index.to_string(),
+            vector_field: vector_field.to_string(),
         }
     }
 
@@ -97,7 +92,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
         &self,
         mut docs: Vec<Document>,
         index: &str,
-    ) -> Result<(), AnchorChainError> {
+    ) -> Result<Vec<Document>, AnchorChainError> {
         let mut operations: Vec<JsonBody<_>> = Vec::new();
 
         for doc in &mut docs {
@@ -110,19 +105,15 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
                 );
             }
 
-            if let Some(id) = &doc.id {
-                operations.push(
-                    json!({
-                        "index": {
-                            "_index": index,
-                            "_id": id,
-                        }
-                    })
-                    .into(),
-                );
-            } else {
-                operations.push(json!({ "index": { "_index": index } }).into());
-            }
+            operations.push(
+                json!({
+                    "index": {
+                        "_index": index,
+                        "_id": doc.id,
+                    }
+                })
+                .into(),
+            );
 
             let doc_json = serde_json::to_value(&doc)?;
             operations.push(doc_json.into());
@@ -137,7 +128,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
             .map_err(AnchorChainError::OpenSearchError)?;
 
         if response.status_code().is_success() {
-            Ok(())
+            Ok(docs)
         } else {
             Err(AnchorChainError::OpenSearchInternalError(
                 response.text().await?,
@@ -149,7 +140,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
 #[async_trait]
 impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchIndexer<M> {
     type Input = Vec<Document>;
-    type Output = ();
+    type Output = Vec<Document>;
 
     /// Indexes a list of documents into OpenSearch.
     ///

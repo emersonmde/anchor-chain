@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use anchor_chain::models::openai::OpenAIEmbeddingModel;
+use anchor_chain::vector::opensearch_client_builder::OpenSearchClientBuilder;
 use anchor_chain::vector::opensearch_retriever::OpenSearchRetriever;
 use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, prompt::Prompt};
 
@@ -10,14 +11,17 @@ async fn main() {
 
     let embedding_model = OpenAIEmbeddingModel::default();
     let opensearch_retriever = OpenSearchRetriever::new(
+        OpenSearchClientBuilder::new()
+            .with_local_connection("http://localhost:9200", "username", "password")
+            .build()
+            .await
+            .expect("Failed to create OpenSearchClient"),
         embedding_model,
-        "https://opensearch.co/api/v1/search",
         &["test_index"],
-        "vector_field",
+        "embedding",
         5usize,
     )
-    .await
-    .expect("Failed to create OpenSearchRetriever");
+    .await;
 
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))

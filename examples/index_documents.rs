@@ -1,36 +1,37 @@
-use std::collections::HashMap;
-
+use anchor_chain::chain::ChainBuilder;
 use anchor_chain::models::openai::OpenAIEmbeddingModel;
-use anchor_chain::vector::opensearch_retriever::OpenSearchRetriever;
-use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, prompt::Prompt};
+use anchor_chain::vector::document::Document;
+use anchor_chain::vector::opensearch_client_builder::OpenSearchClientBuilder;
+use anchor_chain::vector::opensearch_indexer::OpenSearchIndexer;
+use std::env;
 
 #[tokio::main]
 async fn main() {
-    let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
-
     let embedding_model = OpenAIEmbeddingModel::default();
-    let opensearch_retriever = OpenSearchRetriever::new(
+    let open_search_indexer = OpenSearchIndexer::new(
+        OpenSearchClientBuilder::new()
+            .with_local_connection_without_cert_validation(
+                "https://localhost:9200",
+                &env::var("OPENSEARCH_USERNAME").expect("OPENSEARCH_USERNAME not set"),
+                &env::var("OPENSEARCH_PASSWORD").expect("OPENSEARCH_PASSWORD not set"),
+            )
+            .build()
+            .await
+            .expect("Failed to create OpenSearchClient client"),
         embedding_model,
-        "https://opensearch.co/api/v1/search",
-        &["test_index"],
+        "test_index",
         "vector_field",
-        5usize,
-    )
-    .await
-    .expect("Failed to create OpenSearchRetriever");
+    );
 
-    let chain = ChainBuilder::new()
-        .link(Prompt::new("{{ input }}"))
-        .link(opensearch_retriever)
-        .link(llm)
-        .build();
+    let chain = ChainBuilder::new().link(open_search_indexer).build();
 
-    let output = chain
-        .process(HashMap::from([(
-            "input",
-            "Write a hello world program in Rust",
-        )]))
-        .await
-        .expect("Failed to process chain");
-    println!("Output:\n{}", output);
+    let docs = vec!["Hello, world!", "Goodbye, world!", "Hello, universe!"];
+    let docs: Vec<Document> = docs
+        .into_iter()
+        .map(|doc| doc.to_string())
+        .map(Document::from)
+        .collect();
+
+    let result = chain.process(docs).await;
+    println!("Output: {:?}", result.expect("Failed to process chain"));
 }
