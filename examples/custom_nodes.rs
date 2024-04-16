@@ -5,7 +5,7 @@ use anchor_chain::{
     chain::ChainBuilder,
     models::openai::OpenAIModel,
     node::{NoOpNode, Node},
-    prompt::Prompt,
+    nodes::prompt::Prompt,
 };
 use async_trait::async_trait;
 

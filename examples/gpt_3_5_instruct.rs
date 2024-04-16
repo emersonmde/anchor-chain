@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, prompt::Prompt};
+use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel, nodes::prompt::Prompt};
 
 #[tokio::main]
 async fn main() {

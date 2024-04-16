@@ -36,7 +36,7 @@ impl Prompt {
     ///
     /// # Examples
     /// ```rust
-    /// use anchor_chain::prompt::Prompt;
+    /// use anchor_chain::nodes::prompt::Prompt;
     ///
     /// let prompt = Prompt::new("Create a {{ language }} program that prints 'Hello, World!'");
     /// ```

@@ -14,7 +14,7 @@
 //!     chain::ChainBuilder,
 //!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
 //!     parallel_node::{ParallelNode, to_boxed_future},
-//!     prompt::Prompt,
+//!     nodes::prompt::Prompt,
 //! };
 //!
 //! #[tokio::main]

@@ -101,7 +101,7 @@ Then, you can create chains using the `ChainBuilder` and invoke them with the
 ```rust,no_run
 use anchor_chain::{
     chain::ChainBuilder,
-    prompt::Prompt,
+    nodes::prompt::Prompt,
     models::openai::OpenAIModel,
 };
 use std::collections::HashMap;
