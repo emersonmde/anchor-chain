@@ -1,11 +1,11 @@
 [package]
 name = "anchor-chain"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 description = "A statically typed async framework for building LLM-based applications."
 license = "MIT"
 repository = "https://github.com/emersonmde/anchor-chain"
-documentation = "https://errorsignal.dev/anchor-chain/anchor_chain/"
+documentation = "https://docs.rs/anchor-chain/latest/anchor_chain/"
 readme = "README.md"
 keywords = ["llm", "langchain", "rag", "openai", "claude"]
 categories = ["development-tools", "api-bindings", "asynchronous", "concurrency"]

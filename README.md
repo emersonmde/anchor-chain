@@ -57,6 +57,10 @@ backward compatibility is not guaranteed for versions prior to 1.0.
   provide detailed logs and diagnostics, helping developers understand the
   execution flow of their chains.
 
+- **OpenSearch Integration**: Anchor Chain supports indexing and searching
+  documents with OpenSearch vector indexes, enabling Retrieval-Augmented 
+  Generation (RAG) workflows.
+
 ## Supported Models
 
 Currently, Anchor chain supports OpenAI's GPT3.5 Turbo, GPT4 Turbo, and GPT3.5
@@ -139,7 +143,6 @@ open an issue or submit a pull request on the
 While Anchor Chain is usable today, it's still a work in progress. Below are a
 list of future features that are planned for the 1.0 release:
 
-- Add OpenSearch document retriever
 - Support for Mistral through AWS Bedrock
 - Support for Ollama REST API
 - Add error handling strategy that will use a backup model if the primary fails
