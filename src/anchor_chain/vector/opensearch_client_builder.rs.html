@@ -129,7 +129,24 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! OpenSearch client builder module.
+//!
+//! This module provides the `OpenSearchClientBuilder` struct for building OpenSearch clients
+//! with various connection types.
+</span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span>aws_config::SdkConfig;
 <span class="kw">use </span>opensearch::auth::Credentials;
 <span class="kw">use </span>opensearch::cert::CertificateValidation;
@@ -137,7 +154,8 @@
 <span class="kw">use </span>opensearch::http::Url;
 <span class="kw">use </span>opensearch::{http::transport::TransportBuilder, OpenSearch};
 
-<span class="kw">enum </span>ConnectionType&lt;<span class="lifetime">'a</span>&gt; {
+<span class="doccomment">/// Enum for specifying the type of connection to OpenSearch.
+</span><span class="kw">enum </span>ConnectionType&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Local connection to OpenSearch using url, username, and password.
     </span>Local(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
     <span class="doccomment">/// Local connection to OpenSearch using url, username, and password with self-signed certificate.
@@ -148,18 +166,21 @@
     </span>AwsOpenSearchServerless(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, SdkConfig),
 }
 
-<span class="kw">pub struct </span>OpenSearchClientBuilder&lt;<span class="lifetime">'a</span>&gt; {
+<span class="doccomment">/// Builder for creating OpenSearch clients with various connection types.
+</span><span class="kw">pub struct </span>OpenSearchClientBuilder&lt;<span class="lifetime">'a</span>&gt; {
     connection_type: <span class="prelude-ty">Option</span>&lt;ConnectionType&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OpenSearchClientBuilder&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new `OpenSearchClientBuilder`.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         OpenSearchClientBuilder {
             connection_type: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub fn </span>with_local_connection(
+    <span class="doccomment">/// Set the connection type to a local connection using the specified url, username, and password.
+    </span><span class="kw">pub fn </span>with_local_connection(
         <span class="kw-2">mut </span><span class="self">self</span>,
         url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         username: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
@@ -169,7 +190,9 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>with_local_connection_without_cert_validation(
+    <span class="doccomment">/// Set the connection type to a local connection using the specified url, username, and password
+    /// but without TLS certificate validation.
+    </span><span class="kw">pub fn </span>with_local_connection_without_cert_validation(
         <span class="kw-2">mut </span><span class="self">self</span>,
         url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         username: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
@@ -181,12 +204,14 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>with_aws_opensearch_connection(<span class="kw-2">mut </span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, aws_config: SdkConfig) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Set the connection type to an AWS OpenSearch connection using the specified url and AWS SDK config.
+    </span><span class="kw">pub fn </span>with_aws_opensearch_connection(<span class="kw-2">mut </span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, aws_config: SdkConfig) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.connection_type = <span class="prelude-val">Some</span>(ConnectionType::AwsOpenSearch(url, aws_config));
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>with_aws_opensearch_serverless_connection(
+    <span class="doccomment">/// Set the connection type to an AWS OpenSearch serverless connection using the specified url and AWS SDK config.
+    </span><span class="kw">pub fn </span>with_aws_opensearch_serverless_connection(
         <span class="kw-2">mut </span><span class="self">self</span>,
         url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         aws_config: SdkConfig,
@@ -195,7 +220,8 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">pub async fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;OpenSearch, AnchorChainError&gt; {
+    <span class="doccomment">/// Build an OpenSearch client with the specified connection type.
+    </span><span class="kw">pub async fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;OpenSearch, AnchorChainError&gt; {
         <span class="kw">match </span><span class="self">self</span>.connection_type {
             <span class="prelude-val">Some</span>(ConnectionType::Local(url, username, password)) =&gt; {
                 <span class="kw">let </span>url =
