@@ -1,3 +1,9 @@
+//! OpenSearchRetriever is a Node that retrieves documents from OpenSearch based on input text.
+//!
+//! The OpenSearchRetriever struct is a Node that retrieves documents from OpenSearch based on
+//! input text. It uses an embedding model to embed the input text into a vector, then queries
+//! OpenSearch using the vector. The top k documents that are most similar to the input text are
+//! returned.
 #![allow(dead_code)]
 
 use std::fmt;
@@ -16,6 +22,7 @@ use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
 use crate::vector::document::Document;
 
+/// A Node that retrieves documents from OpenSearch based on input text.
 #[derive(Debug)]
 pub struct OpenSearchRetriever<M: EmbeddingModel> {
     client: OpenSearch,
@@ -100,11 +107,13 @@ impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchRetriever<
     type Input = String;
     type Output = Vec<Document>;
 
+    /// Retrieves the top k documents from OpenSearch that are most similar to the input text.
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         self.retrieve(&input).await
     }
 }
 
+/// A builder struct for creating an OpenSearchRetriever.
 struct OpenSearchRetrieverBuilder<M: EmbeddingModel> {
     client: Option<OpenSearch>,
     embedding_model: Option<M>,
@@ -114,6 +123,7 @@ struct OpenSearchRetrieverBuilder<M: EmbeddingModel> {
 }
 
 impl<M: EmbeddingModel> OpenSearchRetrieverBuilder<M> {
+    /// Creates a new OpenSearchRetrieverBuilder.
     pub fn new() -> Self {
         Self {
             client: None,
@@ -124,31 +134,37 @@ impl<M: EmbeddingModel> OpenSearchRetrieverBuilder<M> {
         }
     }
 
+    /// Sets the embedding model for the OpenSearchRetriever.
     pub fn with_embedding_model(mut self, embedding_model: M) -> Self {
         self.embedding_model = Some(embedding_model);
         self
     }
 
+    /// Sets the vector field for the OpenSearchRetriever.
     pub fn with_vector_field(mut self, vector_field: String) -> Self {
         self.vector_field = Some(vector_field);
         self
     }
 
+    /// Sets the indexes for the OpenSearchRetriever.
     pub fn with_indexes(mut self, indexes: Vec<String>) -> Self {
         self.indexes = Some(indexes);
         self
     }
 
+    /// Sets the top k for the OpenSearchRetriever.
     pub fn with_top_k(mut self, top_k: usize) -> Self {
         self.top_k = top_k;
         self
     }
 
+    /// Sets the OpenSearch client for the OpenSearchRetriever.
     pub fn with_client(mut self, client: OpenSearch) -> Self {
         self.client = Some(client);
         self
     }
 
+    /// Builds an OpenSearchRetriever from the provided configuration.
     pub async fn build(self, base_url: &str) -> Result<OpenSearchRetriever<M>, AnchorChainError> {
         let embedding_model = self
             .embedding_model

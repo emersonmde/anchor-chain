@@ -1,3 +1,7 @@
+//! A node for indexing documents into OpenSearch.
+//!
+//! This node indexes a list of documents into OpenSearch. If the index doesn't exist, it is created
+//! with the default settings. Otherwise, the documents are indexed into the existing index.
 use std::fmt;
 
 use async_trait::async_trait;
@@ -11,6 +15,7 @@ use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
 use crate::vector::document::Document;
 
+/// A node for indexing documents into OpenSearch.
 #[derive(Debug, Clone)]
 pub struct OpenSearchIndexer<M: EmbeddingModel> {
     client: OpenSearch,
@@ -20,6 +25,7 @@ pub struct OpenSearchIndexer<M: EmbeddingModel> {
 }
 
 impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
+    /// Creates a new `OpenSearchIndexer` with the specified OpenSearch client, embedding model,
     #[allow(dead_code)]
     pub fn new(client: OpenSearch, embedding_model: M, index: &str, vector_field: &str) -> Self {
         Self {
@@ -30,6 +36,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
         }
     }
 
+    /// Checks if an index with the specified name exists in OpenSearch.
     async fn does_index_exist(&self, index: &str) -> Result<bool, AnchorChainError> {
         let response = self
             .client

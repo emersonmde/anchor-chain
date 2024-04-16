@@ -1,3 +1,7 @@
+//! OpenSearch client builder module.
+//!
+//! This module provides the `OpenSearchClientBuilder` struct for building OpenSearch clients
+//! with various connection types.
 use crate::error::AnchorChainError;
 use aws_config::SdkConfig;
 use opensearch::auth::Credentials;
@@ -6,6 +10,7 @@ use opensearch::http::transport::SingleNodeConnectionPool;
 use opensearch::http::Url;
 use opensearch::{http::transport::TransportBuilder, OpenSearch};
 
+/// Enum for specifying the type of connection to OpenSearch.
 enum ConnectionType<'a> {
     /// Local connection to OpenSearch using url, username, and password.
     Local(&'a str, &'a str, &'a str),
@@ -17,17 +22,20 @@ enum ConnectionType<'a> {
     AwsOpenSearchServerless(&'a str, SdkConfig),
 }
 
+/// Builder for creating OpenSearch clients with various connection types.
 pub struct OpenSearchClientBuilder<'a> {
     connection_type: Option<ConnectionType<'a>>,
 }
 
 impl<'a> OpenSearchClientBuilder<'a> {
+    /// Create a new `OpenSearchClientBuilder`.
     pub fn new() -> Self {
         OpenSearchClientBuilder {
             connection_type: None,
         }
     }
 
+    /// Set the connection type to a local connection using the specified url, username, and password.
     pub fn with_local_connection(
         mut self,
         url: &'a str,
@@ -38,6 +46,8 @@ impl<'a> OpenSearchClientBuilder<'a> {
         self
     }
 
+    /// Set the connection type to a local connection using the specified url, username, and password
+    /// but without TLS certificate validation.
     pub fn with_local_connection_without_cert_validation(
         mut self,
         url: &'a str,
@@ -50,11 +60,13 @@ impl<'a> OpenSearchClientBuilder<'a> {
         self
     }
 
+    /// Set the connection type to an AWS OpenSearch connection using the specified url and AWS SDK config.
     pub fn with_aws_opensearch_connection(mut self, url: &'a str, aws_config: SdkConfig) -> Self {
         self.connection_type = Some(ConnectionType::AwsOpenSearch(url, aws_config));
         self
     }
 
+    /// Set the connection type to an AWS OpenSearch serverless connection using the specified url and AWS SDK config.
     pub fn with_aws_opensearch_serverless_connection(
         mut self,
         url: &'a str,
@@ -64,6 +76,7 @@ impl<'a> OpenSearchClientBuilder<'a> {
         self
     }
 
+    /// Build an OpenSearch client with the specified connection type.
     pub async fn build(self) -> Result<OpenSearch, AnchorChainError> {
         match self.connection_type {
             Some(ConnectionType::Local(url, username, password)) => {

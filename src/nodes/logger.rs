@@ -1,6 +1,10 @@
+//! A simple input logging node.
+//!
+//! This node logs the input to the console and passes it through unchanged.
 use crate::error::AnchorChainError;
 use crate::node::Node;
 
+/// A simple input logging node
 #[derive(Debug)]
 pub struct Logger<T> {
     prefix: String,
@@ -8,6 +12,9 @@ pub struct Logger<T> {
 }
 
 impl<T> Logger<T> {
+    /// Create a new Logger node with the given prefix.
+    ///
+    /// The prefix is prepended to the input in the format `prefix: input`.
     pub fn new(prefix: String) -> Self {
         Self {
             prefix,
@@ -24,6 +31,7 @@ where
     type Input = T;
     type Output = T;
 
+    /// Log the input and pass it through unchanged.
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         println!("{}: {:?}", self.prefix, input);
         Ok(input)

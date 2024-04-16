@@ -1,3 +1,8 @@
+//! Structures for managing documents in vector databases.
+//!
+//! This module provides the `Document` and `DocCollection` structs for handling and managing
+//! documents in vector databases.
+
 use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 use base64::Engine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -6,6 +11,14 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 
 const DEFAULT_EMBEDDING_NAME: &str = "embedding";
 
+/// Document structure for serializing and deserializing when working with vector databases.
+///
+/// The `id` field is a unique identifier for the document. If not provided, it will be generated
+/// using a hash of the `text` field. The `text` field is the main content of the document. The
+/// `embedding` field is an optional field that can be used to store a vector embedding of the
+/// document. The `embedding_name` field is the name of the field that the embedding is stored in.
+/// The `metadata` field is an optional field that can be used to store additional metadata about
+/// the document.
 #[derive(Clone)]
 pub struct Document {
     pub id: String,
@@ -16,12 +29,15 @@ pub struct Document {
 }
 
 impl Document {
+    /// Generate a unique identifier for a document based on its text.
     fn hash_text(text: &str) -> String {
         let mut hasher = DefaultHasher::new();
         text.hash(&mut hasher);
         let hash = hasher.finish();
         BASE64_URL_SAFE_NO_PAD.encode(hash.to_be_bytes())
     }
+
+    /// Create a new document with the given text.
     pub fn new(text: String) -> Self {
         Self {
             id: Self::hash_text(&text),
@@ -32,6 +48,7 @@ impl Document {
         }
     }
 
+    /// Create a new document with the given id and text.
     #[allow(dead_code)]
     pub fn new_with_id(id: String, text: String) -> Self {
         Self {
@@ -43,6 +60,7 @@ impl Document {
         }
     }
 
+    /// Create a new document with the given text and embedding.
     #[allow(dead_code)]
     pub fn new_with_embedding(text: String, embedding: Vec<f32>, embedding_name: String) -> Self {
         Self {
@@ -89,6 +107,7 @@ impl fmt::Debug for Document {
     }
 }
 
+/// A struct representing a collection of documents.
 #[allow(dead_code)]
 pub struct DocCollection {
     documents: Vec<Document>,
