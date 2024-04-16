@@ -4,6 +4,8 @@
 //! operations where each operation is represented by a `Node`. These chains
 //! facilitate asynchronous processing of data from an initial input to a final output.
 
+use async_trait::async_trait;
+use std::fmt;
 use std::marker::PhantomData;
 
 use crate::error::AnchorChainError;
@@ -48,6 +50,21 @@ where
     /// the error is returned.
     pub async fn process(&self, input: I) -> Result<O, AnchorChainError> {
         self.link.process(input).await
+    }
+}
+
+#[async_trait]
+impl<I, O, L> Node for Chain<I, O, L>
+where
+    L: Node<Input = I, Output = O> + Send + Sync + fmt::Debug,
+    I: fmt::Debug + Send + Sync,
+    O: fmt::Debug + Send + Sync,
+{
+    type Input = I;
+    type Output = O;
+
+    async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
+        self.process(input).await
     }
 }
 

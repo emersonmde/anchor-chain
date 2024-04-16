@@ -39,7 +39,7 @@
 //!         .build();
 //!
 //!     let output = chain
-//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
+//!         .process(HashMap::from([("input".to_string(), "Write a hello world program in Rust".to_string())]))
 //!         .await
 //!         .expect("Error processing chain");
 //!     println!("{}", output);
@@ -49,6 +49,7 @@
 use async_trait::async_trait;
 use futures::future::try_join_all;
 use futures::{future::BoxFuture, FutureExt};
+use std::fmt;
 #[cfg(feature = "tracing")]
 use tracing::{instrument, Instrument};
 
@@ -60,29 +61,31 @@ use crate::node::Node;
 /// The function takes a vector of outputs from multiple nodes and returns a
 /// `Result` containing the final output. The BoxFuture can be created using
 /// the `to_boxed_future` helper function.
-type CombinationFunction<O> =
-    Box<dyn Fn(Vec<O>) -> BoxFuture<'static, Result<O, AnchorChainError>> + Send + Sync>;
+type CombinationFunction<I, O> =
+    Box<dyn Fn(Vec<I>) -> BoxFuture<'static, Result<O, AnchorChainError>> + Send + Sync>;
 
 /// A node that processes input through multiple nodes in parallel.
 ///
 /// The `ParallelNode` struct represents a node that processes input through
 /// multiple nodes in parallel. The output of each node is then combined using
 /// a provided function to produce the final output.
-pub struct ParallelNode<I, O>
+pub struct ParallelNode<I, O, C>
 where
     I: Clone + Send + Sync,
     O: Send + Sync,
+    C: Send + Sync,
 {
     /// The nodes that will process the input in parallel.
     pub nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
     /// The function to process the output of the nodes.
-    pub function: CombinationFunction<O>,
+    pub function: CombinationFunction<O, C>,
 }
 
-impl<I, O> ParallelNode<I, O>
+impl<I, O, C> ParallelNode<I, O, C>
 where
     I: Clone + Send + Sync,
     O: Send + Sync,
+    C: Send + Sync,
 {
     /// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.
@@ -114,20 +117,21 @@ where
     /// }
     pub fn new(
         nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
-        function: CombinationFunction<O>,
+        function: CombinationFunction<O, C>,
     ) -> Self {
         ParallelNode { nodes, function }
     }
 }
 
 #[async_trait]
-impl<I, O> Node for ParallelNode<I, O>
+impl<I, O, C> Node for ParallelNode<I, O, C>
 where
-    I: Clone + Send + Sync + std::fmt::Debug,
-    O: Send + Sync + std::fmt::Debug,
+    I: Clone + Send + Sync + fmt::Debug,
+    O: Send + Sync + fmt::Debug,
+    C: Send + Sync + fmt::Debug,
 {
     type Input = I;
-    type Output = O;
+    type Output = C;
 
     /// Processes the given input through nodes in parallel.
     ///
@@ -157,12 +161,13 @@ where
     }
 }
 
-impl<I, O> std::fmt::Debug for ParallelNode<I, O>
+impl<I, O, C> fmt::Debug for ParallelNode<I, O, C>
 where
-    I: std::fmt::Debug + Clone + Send + Sync,
-    O: std::fmt::Debug + Send + Sync,
+    I: fmt::Debug + Clone + Send + Sync,
+    O: fmt::Debug + Send + Sync,
+    C: fmt::Debug + Send + Sync,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ParallelNode")
             .field("nodes", &self.nodes)
             // Unable to debug print closures
@@ -175,12 +180,12 @@ where
 ///
 /// This function takes a function that processes input and returns a `Result` and
 /// converts it into a boxed future.
-pub fn to_boxed_future<T, F>(
+pub fn to_boxed_future<F, I, O>(
     f: F,
-) -> Box<dyn Fn(T) -> BoxFuture<'static, Result<String, AnchorChainError>> + Send + Sync>
+) -> Box<dyn Fn(I) -> BoxFuture<'static, Result<O, AnchorChainError>> + Send + Sync>
 where
-    F: Fn(T) -> Result<String, AnchorChainError> + Send + Sync + Clone + 'static,
-    T: Send + 'static,
+    F: Fn(I) -> Result<O, AnchorChainError> + Send + Sync + Clone + 'static,
+    I: Send + 'static,
 {
     Box::new(move |input| {
         let f_clone = f.clone();

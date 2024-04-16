@@ -20,7 +20,7 @@ async fn main() {
             .expect("Failed to create OpenSearchClient client"),
         embedding_model,
         "test_index",
-        "vector_field",
+        "embedding",
     );
 
     let chain = ChainBuilder::new().link(open_search_indexer).build();

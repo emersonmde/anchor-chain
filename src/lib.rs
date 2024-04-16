@@ -80,7 +80,7 @@
 //!         .build();
 //!
 //!     let result = chain
-//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
+//!         .process(HashMap::from([("input".to_string(), "Write a hello world program in Rust".to_string())]))
 //!         .await
 //!         .expect("Error processing chain");
 //!
@@ -103,5 +103,6 @@ pub mod node;
 pub mod parallel_node;
 pub mod prompt;
 
+pub mod logger;
 pub mod models;
 pub mod vector;

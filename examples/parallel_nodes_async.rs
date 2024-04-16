@@ -32,8 +32,8 @@ async fn main() {
                 .build();
             decision_chain
                 .process(HashMap::from([(
-                    "input",
-                    labeled_outputs.join("\n\n").as_str(),
+                    "input".to_string(),
+                    labeled_outputs.join("\n\n"),
                 )]))
                 .await
         })
@@ -46,8 +46,8 @@ async fn main() {
 
     let output = chain
         .process(HashMap::from([(
-            "input",
-            "Write a hello world program in Rust",
+            "input".to_string(),
+            "Write a hello world program in Rust".to_string(),
         )]))
         .await
         .expect("Error processing chain");

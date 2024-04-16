@@ -7,7 +7,7 @@
 //! a similar syntax to Jinja2. For more information on Tera, see the
 //! [Tera documentation](https://keats.github.io/tera/docs/#templates).
 
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 use async_trait::async_trait;
 use tera::{Context, Tera};
@@ -22,13 +22,12 @@ use crate::node::Node;
 /// The `Prompt` struct is a processor for handling text prompts within a
 /// processing chain using Tera templating.
 #[derive(Debug)]
-pub struct Prompt<'a> {
+pub struct Prompt {
     /// The Tera template used to process the prompt text.
     tera: Tera,
-    _marker: PhantomData<&'a str>,
 }
 
-impl<'a> Prompt<'a> {
+impl Prompt {
     /// Creates a new `Prompt` processor with the specified template.
     ///
     /// Templates need to be specified using the Tera syntax which is based on
@@ -45,18 +44,15 @@ impl<'a> Prompt<'a> {
         let mut tera = Tera::default();
         tera.add_raw_template("prompt", template)
             .expect("Error creating template");
-        Prompt {
-            tera,
-            _marker: PhantomData,
-        }
+        Prompt { tera }
     }
 }
 
 /// Implements the `Node` trait for the `Prompt` struct.
 #[async_trait]
-impl<'a> Node for Prompt<'a> {
+impl Node for Prompt {
     /// Input HashMap that will be converted to the tera::Context.
-    type Input = HashMap<&'a str, &'a str>;
+    type Input = HashMap<String, String>;
     /// Output string from the rendered template.
     type Output = String;
 

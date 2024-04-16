@@ -14,6 +14,7 @@ use tracing::instrument;
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
+use crate::vector::document::Document;
 
 #[derive(Debug)]
 pub struct OpenSearchRetriever<M: EmbeddingModel> {
@@ -70,7 +71,6 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
             .send()
             .await?;
 
-        dbg!(&response);
         Ok(response.json::<serde_json::Value>().await?)
     }
 
@@ -79,23 +79,29 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
     /// Uses the embedding model to embed the input text into a vector, then queries OpenSearch
     /// using the vector.
     #[cfg_attr(feature = "tracing", instrument)]
-    pub async fn retrieve(&self, input: &str) -> Result<serde_json::Value, AnchorChainError> {
+    pub async fn retrieve(&self, input: &str) -> Result<Vec<Document>, AnchorChainError> {
         let embedding = self.embedding_model.embed(input.to_string()).await?;
         let response = self
             .vector_query(&self.indexes, &self.vector_field, self.top_k, embedding)
             .await?;
-        Ok(response)
+        let empty_vec = Vec::new();
+        let hits = response["hits"]["hits"].as_array().unwrap_or(&empty_vec);
+        let docs = hits
+            .iter()
+            .filter_map(|doc| serde_json::from_value(doc["_source"].clone()).ok())
+            .collect();
+
+        Ok(docs)
     }
 }
 
 #[async_trait]
 impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchRetriever<M> {
     type Input = String;
-    type Output = String;
+    type Output = Vec<Document>;
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        // TODO: Implement pulling docs from OpenSearch
-        self.retrieve(&input).await.map(|v| v.to_string())
+        self.retrieve(&input).await
     }
 }
 
