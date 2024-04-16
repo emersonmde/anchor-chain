@@ -107,6 +107,7 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
 //! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
@@ -189,7 +190,7 @@
 //!         .build();
 //!
 //!     let result = chain
-//!         .process(HashMap::from([("input", "Write a hello world program in Rust")]))
+//!         .process(HashMap::from([("input".to_string(), "Write a hello world program in Rust".to_string())]))
 //!         .await
 //!         .expect("Error processing chain");
 //!
@@ -212,6 +213,7 @@
 <span class="kw">pub mod </span>parallel_node;
 <span class="kw">pub mod </span>prompt;
 
+<span class="kw">pub mod </span>logger;
 <span class="kw">pub mod </span>models;
 <span class="kw">pub mod </span>vector;
 </code></pre></div></section></main></body></html>

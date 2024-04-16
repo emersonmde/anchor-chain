@@ -185,6 +185,12 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>std::fmt;
@@ -201,6 +207,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::models::embedding_model::EmbeddingModel;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
+<span class="kw">use </span><span class="kw">crate</span>::vector::document::Document;
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>OpenSearchRetriever&lt;M: EmbeddingModel&gt; {
@@ -257,7 +264,6 @@
             .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="macro">dbg!</span>(<span class="kw-2">&amp;</span>response);
         <span class="prelude-val">Ok</span>(response.json::&lt;serde_json::Value&gt;().<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
@@ -266,24 +272,30 @@
     /// Uses the embedding model to embed the input text into a vector, then queries OpenSearch
     /// using the vector.
     </span><span class="attr">#[cfg_attr(feature = <span class="string">"tracing"</span>, instrument)]
-    </span><span class="kw">pub async fn </span>retrieve(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;serde_json::Value, AnchorChainError&gt; {
+    </span><span class="kw">pub async fn </span>retrieve(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Document&gt;, AnchorChainError&gt; {
         <span class="kw">let </span>embedding = <span class="self">self</span>.embedding_model.embed(input.to_string()).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>response = <span class="self">self
             </span>.vector_query(<span class="kw-2">&amp;</span><span class="self">self</span>.indexes, <span class="kw-2">&amp;</span><span class="self">self</span>.vector_field, <span class="self">self</span>.top_k, embedding)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(response)
+        <span class="kw">let </span>empty_vec = Vec::new();
+        <span class="kw">let </span>hits = response[<span class="string">"hits"</span>][<span class="string">"hits"</span>].as_array().unwrap_or(<span class="kw-2">&amp;</span>empty_vec);
+        <span class="kw">let </span>docs = hits
+            .iter()
+            .filter_map(|doc| serde_json::from_value(doc[<span class="string">"_source"</span>].clone()).ok())
+            .collect();
+
+        <span class="prelude-val">Ok</span>(docs)
     }
 }
 
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;M: EmbeddingModel + fmt::Debug + Send + Sync&gt; Node <span class="kw">for </span>OpenSearchRetriever&lt;M&gt; {
     <span class="kw">type </span>Input = String;
-    <span class="kw">type </span>Output = String;
+    <span class="kw">type </span>Output = Vec&lt;Document&gt;;
 
     <span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
-        <span class="comment">// TODO: Implement pulling docs from OpenSearch
-        </span><span class="self">self</span>.retrieve(<span class="kw-2">&amp;</span>input).<span class="kw">await</span>.map(|v| v.to_string())
-    }
+        <span class="self">self</span>.retrieve(<span class="kw-2">&amp;</span>input).<span class="kw">await
+    </span>}
 }
 
 <span class="kw">struct </span>OpenSearchRetrieverBuilder&lt;M: EmbeddingModel&gt; {
