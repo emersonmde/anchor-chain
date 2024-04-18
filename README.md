@@ -152,6 +152,7 @@ Other potential features for future releases:
 - Add feature flag for Askama to support statically typed prompts
 - Create a node to categorize and log input for better input observability
 - Output validation node that can attempt to fix unexpected or incomplete outputs
+- Support for [rustformers/llm](https://github.com/rustformers/llm) to utilize local models
 
 ## License
 
