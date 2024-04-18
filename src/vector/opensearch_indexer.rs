@@ -9,6 +9,8 @@ use opensearch::http::request::JsonBody;
 use opensearch::indices::{IndicesCreateParts, IndicesExistsParts};
 use opensearch::{BulkParts, OpenSearch};
 use serde_json::json;
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 use crate::error::AnchorChainError;
 use crate::models::embedding_model::EmbeddingModel;
@@ -37,6 +39,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
     }
 
     /// Checks if an index with the specified name exists in OpenSearch.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn does_index_exist(&self, index: &str) -> Result<bool, AnchorChainError> {
         let response = self
             .client
@@ -48,6 +51,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
     }
 
     /// Creates a vector index in OpenSearch with the specified name using default settings.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     pub async fn create_index(
         &self,
         index: &str,
@@ -95,6 +99,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
 
     /// Automatically indexes a list of documents. It embeds the text into a vector if not already done,
     /// then indexes the entire document into OpenSearch.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     pub async fn index_documents(
         &self,
         mut docs: Vec<Document>,
@@ -153,6 +158,8 @@ impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchIndexer<M>
     ///
     /// If the index doesn't exist, it is created with the default settings. Otherwise,
     /// the documents are indexed into the existing index.
+
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         if !self.does_index_exist(&self.index).await? {
             self.create_index(&self.index, &self.vector_field).await?;

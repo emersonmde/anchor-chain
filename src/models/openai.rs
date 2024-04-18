@@ -76,6 +76,7 @@ where
     type Output = String;
 
     /// Sends the prompt to the OpenAI model and processes the response.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         match self {
             OpenAIModel::GPT3_5Turbo(model) => model.process(input).await,

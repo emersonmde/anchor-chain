@@ -108,6 +108,7 @@ impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchRetriever<
     type Output = Vec<Document>;
 
     /// Retrieves the top k documents from OpenSearch that are most similar to the input text.
+    #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         self.retrieve(&input).await
     }

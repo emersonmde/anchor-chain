@@ -3,6 +3,8 @@
 //! This node logs the input to the console and passes it through unchanged.
 use crate::error::AnchorChainError;
 use crate::node::Node;
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 /// A simple input logging node
 #[derive(Debug)]
@@ -32,6 +34,7 @@ where
     type Output = T;
 
     /// Log the input and pass it through unchanged.
+    #[cfg_attr(feature = "tracing", instrument)]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         println!("{}: {:?}", self.prefix, input);
         Ok(input)
