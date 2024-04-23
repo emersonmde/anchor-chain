@@ -96,11 +96,32 @@
 struct _README;
 
 pub mod chain;
-pub mod error;
-pub mod link;
+mod error;
+mod link;
 pub mod message;
 pub mod models;
 pub mod node;
 pub mod nodes;
 pub mod parallel_node;
 pub mod vector;
+
+pub use error::AnchorChainError;
+pub use link::Link;
+
+pub use crate::models::claude_3::Claude3Bedrock;
+pub use crate::models::openai::OpenAIModel;
+pub use crate::node::NoOpNode;
+pub use crate::node::Node;
+pub use crate::nodes::logger::Logger;
+pub use crate::nodes::prompt::Prompt;
+pub use crate::parallel_node::to_boxed_future;
+pub use crate::parallel_node::ParallelNode;
+pub use crate::vector::document::Document;
+pub use chain::ChainBuilder;
+
+pub use crate::models::openai::OpenAIChatModel;
+pub use crate::models::openai::OpenAIEmbeddingModel;
+pub use crate::models::openai::OpenAIInstructModel;
+pub use crate::vector::opensearch_client_builder::OpenSearchClientBuilder;
+pub use crate::vector::opensearch_indexer::OpenSearchIndexer;
+pub use crate::vector::opensearch_retriever::OpenSearchRetriever;

@@ -1,8 +1,6 @@
-use anchor_chain::chain::ChainBuilder;
-use anchor_chain::models::openai::OpenAIEmbeddingModel;
-use anchor_chain::vector::document::Document;
-use anchor_chain::vector::opensearch_client_builder::OpenSearchClientBuilder;
-use anchor_chain::vector::opensearch_indexer::OpenSearchIndexer;
+use anchor_chain::{
+    ChainBuilder, Document, OpenAIEmbeddingModel, OpenSearchClientBuilder, OpenSearchIndexer,
+};
 use std::env;
 
 #[tokio::main]

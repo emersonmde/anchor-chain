@@ -105,7 +105,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
         mut docs: Vec<Document>,
         index: &str,
     ) -> Result<Vec<Document>, AnchorChainError> {
-        let mut operations: Vec<JsonBody<_>> = Vec::new();
+        let mut operations: Vec<JsonBody<_>> = Vec::with_capacity(docs.len() * 2);
 
         for doc in &mut docs {
             if doc.embedding.is_none() {

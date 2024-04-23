@@ -2,10 +2,7 @@ use futures::future::BoxFuture;
 use std::collections::HashMap;
 
 use anchor_chain::{
-    chain::ChainBuilder,
-    models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
-    nodes::prompt::Prompt,
-    parallel_node::ParallelNode,
+    nodes::prompt::Prompt, parallel_node::ParallelNode, ChainBuilder, Claude3Bedrock, OpenAIModel,
 };
 
 #[tokio::main]

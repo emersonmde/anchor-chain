@@ -1,15 +1,11 @@
 use std::collections::HashMap;
 use std::env;
 
-use anchor_chain::error::AnchorChainError;
-use anchor_chain::models::openai::OpenAIEmbeddingModel;
-use anchor_chain::node::{NoOpNode, Node};
-use anchor_chain::nodes::{logger::Logger, prompt::Prompt};
-use anchor_chain::parallel_node::{to_boxed_future, ParallelNode};
-use anchor_chain::vector::document::Document;
-use anchor_chain::vector::opensearch_client_builder::OpenSearchClientBuilder;
-use anchor_chain::vector::opensearch_retriever::OpenSearchRetriever;
-use anchor_chain::{chain::ChainBuilder, models::openai::OpenAIModel};
+use anchor_chain::{
+    to_boxed_future, AnchorChainError, ChainBuilder, Document, Logger, NoOpNode, Node,
+    OpenAIEmbeddingModel, OpenAIModel, OpenSearchClientBuilder, OpenSearchRetriever, ParallelNode,
+    Prompt,
+};
 
 #[derive(Debug)]
 struct DocumentFormatter {}

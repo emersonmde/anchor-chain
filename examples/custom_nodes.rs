@@ -1,26 +1,15 @@
 use std::collections::HashMap;
 
-use anchor_chain::error::AnchorChainError;
-use anchor_chain::{
-    chain::ChainBuilder,
-    models::openai::OpenAIModel,
-    node::{NoOpNode, Node},
-    nodes::prompt::Prompt,
-};
+use anchor_chain::AnchorChainError;
+use anchor_chain::{ChainBuilder, NoOpNode, Node, OpenAIModel, Prompt};
 use async_trait::async_trait;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct LineCounter;
 
 impl LineCounter {
     pub fn new() -> Self {
         LineCounter
-    }
-}
-
-impl Default for LineCounter {
-    fn default() -> Self {
-        LineCounter::new()
     }
 }
 
@@ -34,18 +23,12 @@ impl Node for LineCounter {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct AsteriskGenerator;
 
 impl AsteriskGenerator {
     pub fn new() -> Self {
         AsteriskGenerator
-    }
-}
-
-impl Default for AsteriskGenerator {
-    fn default() -> Self {
-        AsteriskGenerator::new()
     }
 }
 
