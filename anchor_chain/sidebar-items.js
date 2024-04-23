@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["chain","error","link","message","models","node","nodes","parallel_node","vector"]};
+window.SIDEBAR_ITEMS = {"enum":["AnchorChainError"],"mod":["chain","message","models","node","nodes","parallel_node","vector"],"struct":["Link"]};

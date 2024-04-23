@@ -106,6 +106,27 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
 //! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
@@ -204,12 +225,33 @@
 </span><span class="kw">struct </span>_README;
 
 <span class="kw">pub mod </span>chain;
-<span class="kw">pub mod </span>error;
-<span class="kw">pub mod </span>link;
+<span class="kw">mod </span>error;
+<span class="kw">mod </span>link;
 <span class="kw">pub mod </span>message;
 <span class="kw">pub mod </span>models;
 <span class="kw">pub mod </span>node;
 <span class="kw">pub mod </span>nodes;
 <span class="kw">pub mod </span>parallel_node;
 <span class="kw">pub mod </span>vector;
+
+<span class="kw">pub use </span>error::AnchorChainError;
+<span class="kw">pub use </span>link::Link;
+
+<span class="kw">pub use </span><span class="kw">crate</span>::models::claude_3::Claude3Bedrock;
+<span class="kw">pub use </span><span class="kw">crate</span>::models::openai::OpenAIModel;
+<span class="kw">pub use </span><span class="kw">crate</span>::node::NoOpNode;
+<span class="kw">pub use </span><span class="kw">crate</span>::node::Node;
+<span class="kw">pub use </span><span class="kw">crate</span>::nodes::logger::Logger;
+<span class="kw">pub use </span><span class="kw">crate</span>::nodes::prompt::Prompt;
+<span class="kw">pub use </span><span class="kw">crate</span>::parallel_node::to_boxed_future;
+<span class="kw">pub use </span><span class="kw">crate</span>::parallel_node::ParallelNode;
+<span class="kw">pub use </span><span class="kw">crate</span>::vector::document::Document;
+<span class="kw">pub use </span>chain::ChainBuilder;
+
+<span class="kw">pub use </span><span class="kw">crate</span>::models::openai::OpenAIChatModel;
+<span class="kw">pub use </span><span class="kw">crate</span>::models::openai::OpenAIEmbeddingModel;
+<span class="kw">pub use </span><span class="kw">crate</span>::models::openai::OpenAIInstructModel;
+<span class="kw">pub use </span><span class="kw">crate</span>::vector::opensearch_client_builder::OpenSearchClientBuilder;
+<span class="kw">pub use </span><span class="kw">crate</span>::vector::opensearch_indexer::OpenSearchIndexer;
+<span class="kw">pub use </span><span class="kw">crate</span>::vector::opensearch_retriever::OpenSearchRetriever;
 </code></pre></div></section></main></body></html>

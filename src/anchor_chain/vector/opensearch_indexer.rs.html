@@ -277,7 +277,7 @@
         <span class="kw-2">mut </span>docs: Vec&lt;Document&gt;,
         index: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Document&gt;, AnchorChainError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>operations: Vec&lt;JsonBody&lt;<span class="kw">_</span>&gt;&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>operations: Vec&lt;JsonBody&lt;<span class="kw">_</span>&gt;&gt; = Vec::with_capacity(docs.len() * <span class="number">2</span>);
 
         <span class="kw">for </span>doc <span class="kw">in </span><span class="kw-2">&amp;mut </span>docs {
             <span class="kw">if </span>doc.embedding.is_none() {
