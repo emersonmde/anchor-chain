@@ -45,4 +45,8 @@ pub enum AnchorChainError {
     /// Generic error calling a model.
     #[error("error processing model response: {0}")]
     ModelError(String),
+
+    // Reqwest error
+    #[error("reqwest error: {0}")]
+    ReqwestError(#[from] reqwest::Error),
 }

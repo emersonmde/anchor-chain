@@ -27,3 +27,4 @@ tracing = { version = "0.1.40", optional = true }
 # TODO: add a feature flag for OpenSearch
 opensearch = { version = "2.2.0", features = ["aws-auth"] }
 base64 = "0.22.0"
+reqwest = "0.12.4"

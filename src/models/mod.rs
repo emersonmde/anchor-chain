@@ -7,4 +7,5 @@
 
 pub mod claude_3;
 pub mod embedding_model;
+pub mod ollama;
 pub mod openai;
