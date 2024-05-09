@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["claude_3","embedding_model","openai"]};
+window.SIDEBAR_ITEMS = {"mod":["claude_3","embedding_model","ollama","openai"]};
