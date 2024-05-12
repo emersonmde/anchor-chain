@@ -12,6 +12,10 @@ categories = ["development-tools", "api-bindings", "asynchronous", "concurrency"
 authors = ["Matthew Emerson <emersonmde@protonmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dev-dependencies]
+tracing-subscriber = {  version = "0.3.18", features = ["env-filter"] }
+tracing = "0.1.40"
+
 [dependencies]
 async-openai = "0.20.0"
 async-trait = "0.1.79"

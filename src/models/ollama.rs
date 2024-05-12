@@ -42,7 +42,6 @@ impl Node for Ollama {
         let body = serde_json::json!({
             "model": self.model,
             "prompt": input,
-            "format": "json",
         });
         let response = self
             .client
