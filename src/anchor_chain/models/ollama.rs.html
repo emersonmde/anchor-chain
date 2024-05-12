@@ -68,7 +68,6 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{AnchorChainError, Node};
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>reqwest;
@@ -113,7 +112,6 @@
         <span class="kw">let </span>body = <span class="macro">serde_json::json!</span>({
             <span class="string">"model"</span>: <span class="self">self</span>.model,
             <span class="string">"prompt"</span>: input,
-            <span class="string">"format"</span>: <span class="string">"json"</span>,
         });
         <span class="kw">let </span>response = <span class="self">self
             </span>.client
