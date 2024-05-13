@@ -5,7 +5,7 @@ use anchor_chain::{ChainBuilder, Prompt};
 
 #[tokio::main]
 async fn main() {
-    let ollama = Ollama::new("dolphin-mixtral:latest".to_string()).await;
+    let ollama = Ollama::new_with_defaults("llama3");
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))
         .link(ollama)

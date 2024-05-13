@@ -1,3 +1,8 @@
+//! Module for interfacing with Ollama models via the Ollama API.
+//!
+//! Provides the functionality to construct and send requests to Ollama via the
+//! Ollama API. Ollama is a tool for managing and running local LLMs. For more
+//! information on how to install and run Ollama, see [https://ollama.com](https://ollama.com/).
 use crate::{AnchorChainError, Node};
 use async_trait::async_trait;
 use reqwest;
@@ -5,19 +10,42 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::io::{BufRead, BufReader};
 
+/// Struct for interfacing with Ollama models via the Ollama API.
 #[derive(Debug, Clone)]
 pub struct Ollama {
+    /// The model tag of the installed Ollama model to use.
     model: String,
+    /// The base URL of the Ollama API.
+    url: String,
+    /// HTTP client for sending requests to the Ollama API.
     client: reqwest::Client,
 }
 
 impl Ollama {
-    pub async fn new(model: String) -> Self {
+    /// Creates a new Ollama instance with the specified model.
+    ///
+    /// The model must already be present in the Ollama instance otherwise
+    /// a `missing field \`model\`` error will be returned. For a list of
+    /// available models, see [Ollama Models](https://ollama.com/library).
+    /// To download a model use `ollama pull <model_tag>`.
+    pub fn new(model: &str, host: &str, port: &str) -> Self {
+        let model = model.to_string();
         let client = reqwest::Client::new();
-        Ollama { model, client }
+        Ollama {
+            model,
+            url: format!("http://{}:{}/api/generate", host, port),
+            client,
+        }
+    }
+
+    /// Creates a new Ollama instance with the specified model and the default
+    /// Ollama API URL `http://localhost:11434/api/generate`.
+    pub fn new_with_defaults(model: &str) -> Self {
+        Self::new(model, "localhost", "11434")
     }
 }
 
+/// Struct representing the response from the Ollama chat completion API
 #[derive(Debug, Serialize, Deserialize)]
 struct OllamaResponse {
     model: String,
@@ -37,15 +65,15 @@ impl Node for Ollama {
     type Input = String;
     type Output = String;
 
+    /// Processes the input through the Ollama model, returning the model's output.
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        let url = "http://localhost:11434/api/generate";
         let body = serde_json::json!({
             "model": self.model,
             "prompt": input,
         });
         let response = self
             .client
-            .post(url)
+            .post(&self.url)
             .json(&body)
             .send()
             .await
