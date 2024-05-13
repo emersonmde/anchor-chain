@@ -68,27 +68,83 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{AnchorChainError, Node};
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Module for interfacing with Ollama models via the Ollama API.
+//!
+//! Provides the functionality to construct and send requests to Ollama via the
+//! Ollama API. Ollama is a tool for managing and running local LLMs. For more
+//! information on how to install and run Ollama, see [https://ollama.com](https://ollama.com/).
+</span><span class="kw">use crate</span>::{AnchorChainError, Node};
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>reqwest;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::io::{BufRead, BufReader};
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="doccomment">/// Struct for interfacing with Ollama models via the Ollama API.
+</span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Ollama {
-    model: String,
-    client: reqwest::Client,
+    <span class="doccomment">/// The model tag of the installed Ollama model to use.
+    </span>model: String,
+    <span class="doccomment">/// The base URL of the Ollama API.
+    </span>url: String,
+    <span class="doccomment">/// HTTP client for sending requests to the Ollama API.
+    </span>client: reqwest::Client,
 }
 
 <span class="kw">impl </span>Ollama {
-    <span class="kw">pub async fn </span>new(model: String) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Creates a new Ollama instance with the specified model.
+    ///
+    /// The model must already be present in the Ollama instance otherwise
+    /// a `missing field \`model\`` error will be returned. For a list of
+    /// available models, see [Ollama Models](https://ollama.com/library).
+    /// To download a model use `ollama pull &lt;model_tag&gt;`.
+    </span><span class="kw">pub fn </span>new(model: <span class="kw-2">&amp;</span>str, host: <span class="kw-2">&amp;</span>str, port: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>model = model.to_string();
         <span class="kw">let </span>client = reqwest::Client::new();
-        Ollama { model, client }
+        Ollama {
+            model,
+            url: <span class="macro">format!</span>(<span class="string">"http://{}:{}/api/generate"</span>, host, port),
+            client,
+        }
+    }
+
+    <span class="doccomment">/// Creates a new Ollama instance with the specified model and the default
+    /// Ollama API URL `http://localhost:11434/api/generate`.
+    </span><span class="kw">pub fn </span>new_with_defaults(model: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(model, <span class="string">"localhost"</span>, <span class="string">"11434"</span>)
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+<span class="doccomment">/// Struct representing the response from the Ollama chat completion API
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize)]
 </span><span class="kw">struct </span>OllamaResponse {
     model: String,
     created_at: String,
@@ -107,15 +163,15 @@
     <span class="kw">type </span>Input = String;
     <span class="kw">type </span>Output = String;
 
-    <span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
-        <span class="kw">let </span>url = <span class="string">"http://localhost:11434/api/generate"</span>;
+    <span class="doccomment">/// Processes the input through the Ollama model, returning the model's output.
+    </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>body = <span class="macro">serde_json::json!</span>({
             <span class="string">"model"</span>: <span class="self">self</span>.model,
             <span class="string">"prompt"</span>: input,
         });
         <span class="kw">let </span>response = <span class="self">self
             </span>.client
-            .post(url)
+            .post(<span class="kw-2">&amp;</span><span class="self">self</span>.url)
             .json(<span class="kw-2">&amp;</span>body)
             .send()
             .<span class="kw">await
