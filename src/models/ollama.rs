@@ -25,7 +25,7 @@ impl Ollama {
     /// Creates a new Ollama instance with the specified model.
     ///
     /// The model must already be present in the Ollama instance otherwise
-    /// a `missing field \`model\`` error will be returned. For a list of
+    /// a `missing field 'model'` error will be returned. For a list of
     /// available models, see [Ollama Models](https://ollama.com/library).
     /// To download a model use `ollama pull <model_tag>`.
     pub fn new(model: &str, host: &str, port: &str) -> Self {
