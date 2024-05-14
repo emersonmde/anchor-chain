@@ -7,9 +7,8 @@ use anchor_chain::{
 
 #[tokio::main]
 async fn main() {
-    let gpt3 =
-        Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant".to_string()).await);
-    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant".to_string()).await);
+    let gpt3 = Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant").await);
+    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant").await);
 
     let select_output_fn = Box::new(|outputs: Vec<String>| -> BoxFuture<Result<String, _>> {
         Box::pin(async move {

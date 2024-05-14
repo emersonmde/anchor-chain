@@ -24,11 +24,7 @@ async fn main() {
     let chain = ChainBuilder::new().link(open_search_indexer).build();
 
     let docs = vec!["Hello, world!", "Goodbye, world!", "Hello, universe!"];
-    let docs: Vec<Document> = docs
-        .into_iter()
-        .map(|doc| doc.to_string())
-        .map(Document::from)
-        .collect();
+    let docs: Vec<Document> = docs.into_iter().map(Document::from).collect();
 
     let result = chain.process(docs).await;
     println!("Output: {:?}", result.expect("Failed to process chain"));

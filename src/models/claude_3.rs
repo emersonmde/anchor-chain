@@ -107,12 +107,12 @@ impl Claude3Bedrock {
     /// Constructs a new `Claude3Bedrock` processor with the specified system prompt.
     ///
     /// Initializes the AWS Bedrock client using the environment's AWS configuration.
-    pub async fn new(system_prompt: String) -> Self {
+    pub async fn new(system_prompt: &str) -> Self {
         let config = aws_config::load_from_env().await;
         let client = Client::new(&config);
         Claude3Bedrock {
             client,
-            system_prompt,
+            system_prompt: system_prompt.to_string(),
         }
     }
 }

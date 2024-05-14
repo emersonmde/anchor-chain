@@ -44,7 +44,7 @@ impl Node for AsteriskGenerator {
 
 #[tokio::main]
 async fn main() {
-    let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await;
+    let llm = OpenAIModel::new_gpt4_turbo("You are a helpful assistant").await;
 
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))

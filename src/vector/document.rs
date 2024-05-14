@@ -79,6 +79,12 @@ impl From<String> for Document {
     }
 }
 
+impl From<&str> for Document {
+    fn from(text: &str) -> Self {
+        Self::new(text.to_string())
+    }
+}
+
 impl fmt::Debug for Document {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let embedding_preview = match &self.embedding {

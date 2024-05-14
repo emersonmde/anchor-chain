@@ -114,13 +114,13 @@ use std::collections::HashMap;
 async fn main() {
     let chain = ChainBuilder::new()
         .link(Prompt::new("{{ input }}"))
-        .link(OpenAIModel::new_gpt4_turbo("You are a helpful assistant".to_string()).await)
+        .link(OpenAIModel::new_gpt4_turbo("You are a helpful assistant").await)
         .build();
 
     let output = chain
         .process(HashMap::from([(
-            "input".to_string(),
-            "Write a hello world program in Rust".to_string(),
+            "input",
+            "Write a hello world program in Rust",
         )]))
         .await
         .expect("Error processing chain");

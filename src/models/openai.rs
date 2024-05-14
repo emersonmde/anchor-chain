@@ -40,9 +40,10 @@ where
     ///
     /// The system prompt is passed in as the first message in the conversation
     /// using `ChatCompletionRequestSystemMessage`.
-    pub async fn new_gpt4_turbo(system_prompt: String) -> Self {
+    pub async fn new_gpt4_turbo(system_prompt: &str) -> Self {
         OpenAIModel::GPT3_5Turbo(
-            OpenAIChatModel::new(system_prompt, "gpt-4-turbo-preview".to_string()).await,
+            OpenAIChatModel::new(system_prompt.to_string(), "gpt-4-turbo-preview".to_string())
+                .await,
         )
     }
 
@@ -50,9 +51,9 @@ where
     ///
     /// The system prompt is passed in as the first message in the conversation
     /// using `ChatCompletionRequestSystemMessage`.
-    pub async fn new_gpt3_5_turbo(system_prompt: String) -> Self {
+    pub async fn new_gpt3_5_turbo(system_prompt: &str) -> Self {
         OpenAIModel::GPT4Turbo(
-            OpenAIChatModel::new(system_prompt, "gpt-3.5-turbo".to_string()).await,
+            OpenAIChatModel::new(system_prompt.to_string(), "gpt-3.5-turbo".to_string()).await,
         )
     }
 

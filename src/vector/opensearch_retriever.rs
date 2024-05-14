@@ -24,15 +24,16 @@ use crate::vector::document::Document;
 
 /// A Node that retrieves documents from OpenSearch based on input text.
 #[derive(Debug)]
-pub struct OpenSearchRetriever<M: EmbeddingModel> {
+pub struct OpenSearchRetriever<'a, M: EmbeddingModel> {
     client: OpenSearch,
     embedding_model: M,
     indexes: Vec<String>,
     vector_field: String,
     top_k: usize,
+    _marker: std::marker::PhantomData<&'a ()>,
 }
 
-impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
+impl<'a, M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<'a, M> {
     /// Creates a new OpenSearchRetrieverBuilder using default AWS credentials from the environment.
     pub async fn new(
         client: OpenSearch,
@@ -47,6 +48,7 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
             indexes: indexes.iter().map(|s| s.to_string()).collect(),
             vector_field: vector_field.to_string(),
             top_k,
+            _marker: std::marker::PhantomData,
         }
     }
 
@@ -103,14 +105,14 @@ impl<M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<M> {
 }
 
 #[async_trait]
-impl<M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchRetriever<M> {
-    type Input = String;
+impl<'a, M: EmbeddingModel + fmt::Debug + Send + Sync> Node for OpenSearchRetriever<'a, M> {
+    type Input = &'a str;
     type Output = Vec<Document>;
 
     /// Retrieves the top k documents from OpenSearch that are most similar to the input text.
     #[cfg_attr(feature = "tracing", instrument(skip(self)))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        self.retrieve(&input).await
+        self.retrieve(input).await
     }
 }
 
@@ -203,6 +205,7 @@ impl<M: EmbeddingModel> OpenSearchRetrieverBuilder<M> {
             vector_field,
             indexes,
             top_k: self.top_k,
+            _marker: std::marker::PhantomData,
         })
     }
 }

@@ -17,9 +17,9 @@ impl<T> Logger<T> {
     /// Create a new Logger node with the given prefix.
     ///
     /// The prefix is prepended to the input in the format `prefix: input`.
-    pub fn new(prefix: String) -> Self {
+    pub fn new(prefix: &str) -> Self {
         Self {
-            prefix,
+            prefix: prefix.to_string(),
             _marker: std::marker::PhantomData,
         }
     }
