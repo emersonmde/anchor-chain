@@ -22,12 +22,13 @@ use crate::node::Node;
 /// The `Prompt` struct is a processor for handling text prompts within a
 /// processing chain using Tera templating.
 #[derive(Debug)]
-pub struct Prompt {
+pub struct Prompt<'a> {
     /// The Tera template used to process the prompt text.
     tera: Tera,
+    _marker: std::marker::PhantomData<&'a ()>,
 }
 
-impl Prompt {
+impl<'a> Prompt<'a> {
     /// Creates a new `Prompt` processor with the specified template.
     ///
     /// Templates need to be specified using the Tera syntax which is based on
@@ -44,15 +45,18 @@ impl Prompt {
         let mut tera = Tera::default();
         tera.add_raw_template("prompt", template)
             .expect("Error creating template");
-        Prompt { tera }
+        Prompt {
+            tera,
+            _marker: std::marker::PhantomData,
+        }
     }
 }
 
 /// Implements the `Node` trait for the `Prompt` struct.
 #[async_trait]
-impl Node for Prompt {
+impl<'a> Node for Prompt<'a> {
     /// Input HashMap that will be converted to the tera::Context.
-    type Input = HashMap<String, String>;
+    type Input = HashMap<&'a str, &'a str>;
     /// Output string from the rendered template.
     type Output = String;
 

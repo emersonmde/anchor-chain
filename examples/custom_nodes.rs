@@ -57,8 +57,8 @@ async fn main() {
 
     let output = chain
         .process(HashMap::from([(
-            "input".to_string(),
-            "Write a hello world program in Rust".to_string(),
+            "input",
+            "Write a hello world program in Rust",
         )]))
         .await
         .expect("Failed to process chain");

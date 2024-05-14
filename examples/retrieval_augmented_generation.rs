@@ -52,10 +52,10 @@ async fn main() {
         .link(DocumentFormatter {})
         .build();
 
-    let concat_fn = to_boxed_future(|outputs: Vec<String>| {
-        let mut map = HashMap::new();
-        map.insert("docs".to_string(), outputs[0].clone());
-        map.insert("input".to_string(), outputs[1].clone());
+    let concat_fn = to_boxed_future(|outputs: Vec<&str>| {
+        let mut map: HashMap<&str, &str> = HashMap::new();
+        map.insert("docs", outputs[0]);
+        map.insert("input", outputs[1]);
         Ok(map)
     });
 
