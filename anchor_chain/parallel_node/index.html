@@ -19,8 +19,8 @@ a provided function to produce the final output.</p>
 <span class="attr">#[tokio::main]
 </span><span class="kw">async fn </span>main() {
     <span class="kw">let </span>gpt3 =
-        Box::new(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
-    <span class="kw">let </span>claude3 = Box::new(Claude3Bedrock::new(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>);
+        Box::new(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>);
+    <span class="kw">let </span>claude3 = Box::new(Claude3Bedrock::new(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>);
 
     <span class="kw">let </span>concat_fn = to_boxed_future(|outputs: Vec&lt;String&gt;| {
         <span class="prelude-val">Ok</span>(outputs
@@ -38,7 +38,7 @@ a provided function to produce the final output.</p>
         .build();
 
     <span class="kw">let </span>output = chain
-        .process(HashMap::from([(<span class="string">"input"</span>.to_string(), <span class="string">"Write a hello world program in Rust"</span>.to_string())]))
+        .process(HashMap::from([(<span class="string">"input"</span>, <span class="string">"Write a hello world program in Rust"</span>)]))
         .<span class="kw">await
         </span>.expect(<span class="string">"Error processing chain"</span>);
     <span class="macro">println!</span>(<span class="string">"{}"</span>, output);

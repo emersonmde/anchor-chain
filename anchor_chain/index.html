@@ -47,7 +47,7 @@ will execute the node in the order it was added.</p>
     };
 
     <span class="kw">let </span>chain = ChainBuilder::new()
-        .link(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>)
+        .link(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>)
         .build();
 
     <span class="kw">let </span>result = chain
@@ -74,11 +74,11 @@ templates. Context variables are passed to the prompt using a HashMap.</p>
 
     <span class="kw">let </span>chain = ChainBuilder::new()
         .link(Prompt::new(<span class="string">"{{ input }}"</span>))
-        .link(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>.to_string()).<span class="kw">await</span>)
+        .link(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>)
         .build();
 
     <span class="kw">let </span>result = chain
-        .process(HashMap::from([(<span class="string">"input"</span>.to_string(), <span class="string">"Write a hello world program in Rust"</span>.to_string())]))
+        .process(HashMap::from([(<span class="string">"input"</span>, <span class="string">"Write a hello world program in Rust"</span>)]))
         .<span class="kw">await
         </span>.expect(<span class="string">"Error processing chain"</span>);
 

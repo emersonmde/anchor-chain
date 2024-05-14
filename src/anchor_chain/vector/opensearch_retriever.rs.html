@@ -208,6 +208,9 @@
 <a href="#206" id="206">206</a>
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! OpenSearchRetriever is a Node that retrieves documents from OpenSearch based on input text.
 //!
 //! The OpenSearchRetriever struct is a Node that retrieves documents from OpenSearch based on
@@ -234,15 +237,16 @@
 
 <span class="doccomment">/// A Node that retrieves documents from OpenSearch based on input text.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>OpenSearchRetriever&lt;M: EmbeddingModel&gt; {
+</span><span class="kw">pub struct </span>OpenSearchRetriever&lt;<span class="lifetime">'a</span>, M: EmbeddingModel&gt; {
     client: OpenSearch,
     embedding_model: M,
     indexes: Vec&lt;String&gt;,
     vector_field: String,
     top_k: usize,
+    _marker: std::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
 }
 
-<span class="kw">impl</span>&lt;M: EmbeddingModel + fmt::Debug&gt; OpenSearchRetriever&lt;M&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: EmbeddingModel + fmt::Debug&gt; OpenSearchRetriever&lt;<span class="lifetime">'a</span>, M&gt; {
     <span class="doccomment">/// Creates a new OpenSearchRetrieverBuilder using default AWS credentials from the environment.
     </span><span class="kw">pub async fn </span>new(
         client: OpenSearch,
@@ -257,6 +261,7 @@
             indexes: indexes.iter().map(|s| s.to_string()).collect(),
             vector_field: vector_field.to_string(),
             top_k,
+            _marker: std::marker::PhantomData,
         }
     }
 
@@ -313,14 +318,14 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;M: EmbeddingModel + fmt::Debug + Send + Sync&gt; Node <span class="kw">for </span>OpenSearchRetriever&lt;M&gt; {
-    <span class="kw">type </span>Input = String;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: EmbeddingModel + fmt::Debug + Send + Sync&gt; Node <span class="kw">for </span>OpenSearchRetriever&lt;<span class="lifetime">'a</span>, M&gt; {
+    <span class="kw">type </span>Input = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str;
     <span class="kw">type </span>Output = Vec&lt;Document&gt;;
 
     <span class="doccomment">/// Retrieves the top k documents from OpenSearch that are most similar to the input text.
     </span><span class="attr">#[cfg_attr(feature = <span class="string">"tracing"</span>, instrument(skip(<span class="self">self</span>)))]
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
-        <span class="self">self</span>.retrieve(<span class="kw-2">&amp;</span>input).<span class="kw">await
+        <span class="self">self</span>.retrieve(input).<span class="kw">await
     </span>}
 }
 
@@ -413,6 +418,7 @@
             vector_field,
             indexes,
             top_k: <span class="self">self</span>.top_k,
+            _marker: std::marker::PhantomData,
         })
     }
 }

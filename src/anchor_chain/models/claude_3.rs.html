@@ -288,12 +288,12 @@
     <span class="doccomment">/// Constructs a new `Claude3Bedrock` processor with the specified system prompt.
     ///
     /// Initializes the AWS Bedrock client using the environment's AWS configuration.
-    </span><span class="kw">pub async fn </span>new(system_prompt: String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub async fn </span>new(system_prompt: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>config = aws_config::load_from_env().<span class="kw">await</span>;
         <span class="kw">let </span>client = Client::new(<span class="kw-2">&amp;</span>config);
         Claude3Bedrock {
             client,
-            system_prompt,
+            system_prompt: system_prompt.to_string(),
         }
     }
 }

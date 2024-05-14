@@ -70,9 +70,9 @@
     <span class="doccomment">/// Create a new Logger node with the given prefix.
     ///
     /// The prefix is prepended to the input in the format `prefix: input`.
-    </span><span class="kw">pub fn </span>new(prefix: String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(prefix: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            prefix,
+            prefix: prefix.to_string(),
             _marker: std::marker::PhantomData,
         }
     }

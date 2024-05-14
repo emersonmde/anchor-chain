@@ -398,6 +398,7 @@
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating OpenAI models.
 //!
 //! Facilitates the construction and execution of requests to OpenAI models,
@@ -440,9 +441,10 @@
     ///
     /// The system prompt is passed in as the first message in the conversation
     /// using `ChatCompletionRequestSystemMessage`.
-    </span><span class="kw">pub async fn </span>new_gpt4_turbo(system_prompt: String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub async fn </span>new_gpt4_turbo(system_prompt: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         OpenAIModel::GPT3_5Turbo(
-            OpenAIChatModel::new(system_prompt, <span class="string">"gpt-4-turbo-preview"</span>.to_string()).<span class="kw">await</span>,
+            OpenAIChatModel::new(system_prompt.to_string(), <span class="string">"gpt-4-turbo-preview"</span>.to_string())
+                .<span class="kw">await</span>,
         )
     }
 
@@ -450,9 +452,9 @@
     ///
     /// The system prompt is passed in as the first message in the conversation
     /// using `ChatCompletionRequestSystemMessage`.
-    </span><span class="kw">pub async fn </span>new_gpt3_5_turbo(system_prompt: String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub async fn </span>new_gpt3_5_turbo(system_prompt: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         OpenAIModel::GPT4Turbo(
-            OpenAIChatModel::new(system_prompt, <span class="string">"gpt-3.5-turbo"</span>.to_string()).<span class="kw">await</span>,
+            OpenAIChatModel::new(system_prompt.to_string(), <span class="string">"gpt-3.5-turbo"</span>.to_string()).<span class="kw">await</span>,
         )
     }
 
