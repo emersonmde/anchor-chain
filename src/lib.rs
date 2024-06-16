@@ -95,6 +95,7 @@
 #[doc = include_str!("../README.md")]
 struct _README;
 
+mod agents;
 pub mod chain;
 mod error;
 mod link;
@@ -108,20 +109,25 @@ pub mod vector;
 pub use error::AnchorChainError;
 pub use link::Link;
 
-pub use crate::models::claude_3::Claude3Bedrock;
-pub use crate::models::openai::OpenAIModel;
-pub use crate::node::NoOpNode;
-pub use crate::node::Node;
-pub use crate::nodes::logger::Logger;
-pub use crate::nodes::prompt::Prompt;
-pub use crate::parallel_node::to_boxed_future;
-pub use crate::parallel_node::ParallelNode;
-pub use crate::vector::document::Document;
-pub use chain::ChainBuilder;
+pub use models::claude_3::Claude3Bedrock;
+pub use models::openai::OpenAIChatModel;
+pub use models::openai::OpenAIEmbeddingModel;
+pub use models::openai::OpenAIInstructModel;
+pub use models::openai::OpenAIModel;
 
-pub use crate::models::openai::OpenAIChatModel;
-pub use crate::models::openai::OpenAIEmbeddingModel;
-pub use crate::models::openai::OpenAIInstructModel;
-pub use crate::vector::opensearch_client_builder::OpenSearchClientBuilder;
-pub use crate::vector::opensearch_indexer::OpenSearchIndexer;
-pub use crate::vector::opensearch_retriever::OpenSearchRetriever;
+pub use chain::ChainBuilder;
+pub use node::NoOpNode;
+pub use node::Node;
+pub use nodes::logger::Logger;
+pub use nodes::prompt::Prompt;
+pub use parallel_node::to_boxed_future;
+pub use parallel_node::ParallelNode;
+
+pub use vector::document::Document;
+pub use vector::opensearch_client_builder::OpenSearchClientBuilder;
+pub use vector::opensearch_indexer::OpenSearchIndexer;
+pub use vector::opensearch_retriever::OpenSearchRetriever;
+
+pub use agents::tool_registry::ToolRegistry;
+
+pub use ctor;
