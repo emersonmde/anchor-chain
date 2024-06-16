@@ -87,6 +87,8 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
     let fn_name = input.sig.ident.clone();
     let struct_name = format_ident!("{}__AnchorChainTool", fn_name);
     let register_fn_name = format_ident!("register_{}__anchor_chain_tool", fn_name);
+
+    // TODO: Move execute method to a stand alone function
     let expanded = quote! {
         #input
 
@@ -101,10 +103,6 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
                 )*
                 let result = #fn_name(#(#param_names),*);
                 serde_json::to_value(result).unwrap()
-            }
-
-            pub fn metadata() -> (&'static str, fn(Value) -> Value, &'static str) {
-                (stringify!(#fn_name), Self::execute, #schema_string)
             }
         }
 
