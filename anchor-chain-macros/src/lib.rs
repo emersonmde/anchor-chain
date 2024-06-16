@@ -130,6 +130,7 @@ fn extract_type(ty: &Type) -> Result<Value> {
             "bool" => Ok(json!({ "type": "boolean" })),
             _ => {
                 // Check if it is a reference to &str
+                // TODO: Fix lifetime issue when deserializing &str
                 if type_name == "str" {
                     if let PathArguments::AngleBracketed(args) = &type_segment.arguments {
                         if args.args.is_empty() {
