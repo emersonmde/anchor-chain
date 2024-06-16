@@ -98,7 +98,6 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
             pub fn execute(params: Value) -> Value {
                 #(
                     let #param_names: #rust_types = serde_json::from_value(params[stringify!(#param_names)].clone()).unwrap();
-                    // let #param_names: #rust_types = params[stringify!(#param_names)];
                 )*
                 let result = #fn_name(#(#param_names),*);
                 serde_json::to_value(result).unwrap()
