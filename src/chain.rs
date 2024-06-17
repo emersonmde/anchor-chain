@@ -25,9 +25,9 @@ pub struct Chain<I, O, L> {
 
 impl<I, O, L> Chain<I, O, L>
 where
-    L: Node<Input = I, Output = O> + Send + Sync + std::fmt::Debug,
-    I: std::fmt::Debug,
-    O: std::fmt::Debug,
+    L: Node<Input = I, Output = O> + Send + Sync + fmt::Debug,
+    I: fmt::Debug,
+    O: fmt::Debug,
 {
     /// Creates a new `Chain` from the provided initial link.
     ///
@@ -84,7 +84,7 @@ impl ChainBuilder {
     /// Adds the first node to the chain.
     pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
     where
-        N: Node<Input = I> + Send + Sync + std::fmt::Debug,
+        N: Node<Input = I> + Send + Sync + fmt::Debug,
         I: Send,
     {
         LinkedChainBuilder {
@@ -112,13 +112,13 @@ pub struct LinkedChainBuilder<I, L> {
 
 impl<I, L> LinkedChainBuilder<I, L>
 where
-    L: Node<Input = I> + Send + Sync + std::fmt::Debug,
+    L: Node<Input = I> + Send + Sync + fmt::Debug,
     I: Send,
 {
     /// Adds a new node to the chain, linking it to the previous node.
     pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
-        N: Node<Input = L::Output> + Send + Sync + std::fmt::Debug,
+        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
     {
@@ -126,6 +126,7 @@ where
             link: Link {
                 node: self.link,
                 next,
+                memory: None,
             },
             _input: PhantomData,
         }

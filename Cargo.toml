@@ -14,6 +14,11 @@ keywords = ["llm", "langchain", "rag", "openai", "claude"]
 categories = ["development-tools", "api-bindings", "asynchronous", "concurrency"]
 authors = ["Matthew Emerson <emersonmde@protonmail.com>"]
 
+[features]
+default = ["macros"]
+macros = ["anchor-chain-macros", "ctor"]
+full = ["macros", "tracing"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dev-dependencies]
 tracing-subscriber = {  version = "0.3.18", features = ["env-filter"] }
@@ -39,5 +44,5 @@ reqwest = "0.12.4"
 
 #TODO: add a feature flag for proc macros then put ctor and serde_json exports in lib.rs
 #   behind feature flags
-anchor-chain-macros = { path = "anchor-chain-macros" }
-ctor = "0.2.8"
+anchor-chain-macros = { path = "anchor-chain-macros", optional = true}
+ctor = { version = "0.2.8", optional = true }

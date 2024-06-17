@@ -99,6 +99,7 @@ mod agents;
 pub mod chain;
 mod error;
 mod link;
+mod memory_manager;
 pub mod message;
 pub mod models;
 pub mod node;
@@ -130,4 +131,5 @@ pub use vector::opensearch_retriever::OpenSearchRetriever;
 
 pub use agents::tool_registry::ToolRegistry;
 
+#[cfg(feature = "macros")]
 pub use ctor;

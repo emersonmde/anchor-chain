@@ -110,10 +110,8 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
         #[allow(non_snake_case)]
         #[doc(hidden)]
         fn #register_fn_name() {
-            tokio::task::block_in_place(|| {
-                let schema_value: Value = serde_json::from_str(#schema_string).unwrap();
-                #registry_name.blocking_write().register_tool(stringify!(#fn_name), #struct_name::execute, schema_value);
-            });
+            let schema_value: Value = serde_json::from_str(#schema_string).unwrap();
+            #registry_name.blocking_write().register_tool(stringify!(#fn_name), #struct_name::execute, schema_value);
         }
     };
 

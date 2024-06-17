@@ -6,6 +6,7 @@
 use async_trait::async_trait;
 
 use crate::error::AnchorChainError;
+use crate::memory_manager::MemoryManager;
 use crate::node::Node;
 
 /// A link in a processing chain that connects one `Node` to another.
@@ -22,6 +23,7 @@ where
     pub node: C,
     /// The next node or link in the chain.
     pub next: N,
+    pub memory: Option<MemoryManager<String>>,
 }
 
 impl<C, N> Link<C, N>
@@ -34,8 +36,8 @@ where
     /// The `node` is linked with the `next` node in the chain. Output from the
     /// `node` is passed as input to the `next` node. Either node can also be
     /// a `Link` forming a nested linked list of nodes.
-    pub fn new(node: C, next: N) -> Self {
-        Link { node, next }
+    pub fn new(node: C, next: N, memory: Option<MemoryManager<String>>) -> Self {
+        Link { node, next, memory }
     }
 }
 

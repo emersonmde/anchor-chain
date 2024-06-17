@@ -54,7 +54,6 @@ dependencies = [
 name = "anchor-chain-macros"
 version = "0.1.0"
 dependencies = [
- "ctor",
  "quote",
  "serde_json",
  "syn",
