@@ -131,6 +131,8 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
 //! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
@@ -232,6 +234,7 @@
 <span class="kw">pub mod </span>chain;
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>link;
+<span class="kw">mod </span>memory_manager;
 <span class="kw">pub mod </span>message;
 <span class="kw">pub mod </span>models;
 <span class="kw">pub mod </span>node;
@@ -263,5 +266,6 @@
 
 <span class="kw">pub use </span>agents::tool_registry::ToolRegistry;
 
-<span class="kw">pub use </span>ctor;
+<span class="attr">#[cfg(feature = <span class="string">"macros"</span>)]
+</span><span class="kw">pub use </span>ctor;
 </code></pre></div></section></main></body></html>

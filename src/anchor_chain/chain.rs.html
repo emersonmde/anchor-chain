@@ -144,6 +144,7 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides structures for creating and executing chains.
 //!
 //! This module defines `Chain` and `ChainBuilder` structures for building chains of
@@ -171,9 +172,9 @@
 
 <span class="kw">impl</span>&lt;I, O, L&gt; Chain&lt;I, O, L&gt;
 <span class="kw">where
-    </span>L: Node&lt;Input = I, Output = O&gt; + Send + Sync + std::fmt::Debug,
-    I: std::fmt::Debug,
-    O: std::fmt::Debug,
+    </span>L: Node&lt;Input = I, Output = O&gt; + Send + Sync + fmt::Debug,
+    I: fmt::Debug,
+    O: fmt::Debug,
 {
     <span class="doccomment">/// Creates a new `Chain` from the provided initial link.
     ///
@@ -230,7 +231,7 @@
     <span class="doccomment">/// Adds the first node to the chain.
     </span><span class="kw">pub fn </span>link&lt;I, N&gt;(<span class="self">self</span>, node: N) -&gt; LinkedChainBuilder&lt;I, N&gt;
     <span class="kw">where
-        </span>N: Node&lt;Input = I&gt; + Send + Sync + std::fmt::Debug,
+        </span>N: Node&lt;Input = I&gt; + Send + Sync + fmt::Debug,
         I: Send,
     {
         LinkedChainBuilder {
@@ -258,13 +259,13 @@
 
 <span class="kw">impl</span>&lt;I, L&gt; LinkedChainBuilder&lt;I, L&gt;
 <span class="kw">where
-    </span>L: Node&lt;Input = I&gt; + Send + Sync + std::fmt::Debug,
+    </span>L: Node&lt;Input = I&gt; + Send + Sync + fmt::Debug,
     I: Send,
 {
     <span class="doccomment">/// Adds a new node to the chain, linking it to the previous node.
     </span><span class="kw">pub fn </span>link&lt;N&gt;(<span class="self">self</span>, next: N) -&gt; LinkedChainBuilder&lt;I, Link&lt;L, N&gt;&gt;
     <span class="kw">where
-        </span>N: Node&lt;Input = L::Output&gt; + Send + Sync + std::fmt::Debug,
+        </span>N: Node&lt;Input = L::Output&gt; + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link&lt;L, N&gt;: Node&lt;Input = I&gt;,
     {
@@ -272,6 +273,7 @@
             link: Link {
                 node: <span class="self">self</span>.link,
                 next,
+                memory: <span class="prelude-val">None</span>,
             },
             _input: PhantomData,
         }
