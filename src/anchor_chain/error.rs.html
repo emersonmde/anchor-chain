@@ -50,22 +50,35 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
+</span><span class="attr">#[cfg(feature = <span class="string">"openai"</span>)]
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
-<span class="kw">use </span>aws_sdk_bedrockruntime::error::SdkError;
-<span class="kw">use </span>aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
+<span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
+</span><span class="kw">use </span>aws_sdk_bedrockruntime::error::SdkError;
+<span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
+</span><span class="kw">use </span>aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 
 <span class="doccomment">/// Defines errors types for Anchor Chain
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
 </span><span class="kw">pub enum </span>AnchorChainError {
     <span class="doccomment">/// Occurs when failing to construct OpenAI prompts, messages or when invoking
     /// the model fails.
-    </span><span class="attr">#[error(<span class="string">"OpenAI error: {0}"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"openai"</span>)]
+    #[error(<span class="string">"OpenAI error: {0}"</span>)]
     </span>OpenAIError(<span class="attr">#[from] </span>OpenAIError),
 
     <span class="doccomment">/// Occurs when failing to construct or invoke a model in Bedrock.
-    </span><span class="attr">#[error(<span class="string">"Bedrock error: {0}"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
+    #[error(<span class="string">"Bedrock error: {0}"</span>)]
     </span>BedrockError(<span class="attr">#[from] </span>SdkError&lt;InvokeModelError&gt;),
 
     <span class="doccomment">/// Error constructing or rendering Tera templates.
@@ -81,11 +94,13 @@
     </span>RequestError(<span class="attr">#[from] </span>serde_json::Error),
 
     <span class="doccomment">/// Error when configuring or using OpenSearch.
-    </span><span class="attr">#[error(<span class="string">"OpenSearch error: {0}"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"opensearch"</span>)]
+    #[error(<span class="string">"OpenSearch error: {0}"</span>)]
     </span>OpenSearchError(<span class="attr">#[from] </span>opensearch::Error),
 
     <span class="doccomment">/// Error that occurs when calling OpenSearch APIs.
-    </span><span class="attr">#[error(<span class="string">"OpenSearch returned error: {0}"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"opensearch"</span>)]
+    #[error(<span class="string">"OpenSearch returned error: {0}"</span>)]
     </span>OpenSearchInternalError(String),
 
     <span class="attr">#[error(<span class="string">"Error parsing input: {0}"</span>)]
@@ -99,7 +114,8 @@
     </span>ModelError(String),
 
     <span class="comment">// Reqwest error
-    </span><span class="attr">#[error(<span class="string">"reqwest error: {0}"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ollama"</span>)]
+    #[error(<span class="string">"reqwest error: {0}"</span>)]
     </span>ReqwestError(<span class="attr">#[from] </span>reqwest::Error),
 }
 </code></pre></div></section></main></body></html>

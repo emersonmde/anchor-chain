@@ -9,6 +9,9 @@
 <a href="#9" id="9">9</a>
 <a href="#10" id="10">10</a>
 <a href="#11" id="11">11</a>
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contains nodes that are designed to work with various LLM models.
 //!
 //! The nodes in this module are designed to work with specific LLM models and
@@ -16,8 +19,11 @@
 //! to easily integrate different models into their processing chains without
 //! having to worry about the specific details of each model's API.
 
+</span><span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
 </span><span class="kw">pub mod </span>claude_3;
 <span class="kw">pub mod </span>embedding_model;
-<span class="kw">pub mod </span>ollama;
-<span class="kw">pub mod </span>openai;
+<span class="attr">#[cfg(feature = <span class="string">"ollama"</span>)]
+</span><span class="kw">pub mod </span>ollama;
+<span class="attr">#[cfg(feature = <span class="string">"openai"</span>)]
+</span><span class="kw">pub mod </span>openai;
 </code></pre></div></section></main></body></html>

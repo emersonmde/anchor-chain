@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["document","opensearch_client_builder","opensearch_indexer","opensearch_retriever"]};
+window.SIDEBAR_ITEMS = {"mod":["document"]};

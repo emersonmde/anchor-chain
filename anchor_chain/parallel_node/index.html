@@ -10,7 +10,7 @@ a provided function to produce the final output.</p>
 
 <span class="kw">use </span>anchor_chain::{
     chain::ChainBuilder,
-    models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
+    models::openai::OpenAIModel,
     parallel_node::{ParallelNode, to_boxed_future},
     nodes::prompt::Prompt,
 };
@@ -19,7 +19,7 @@ a provided function to produce the final output.</p>
 </span><span class="kw">async fn </span>main() {
     <span class="kw">let </span>gpt3 =
         Box::new(OpenAIModel::new_gpt3_5_turbo(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>);
-    <span class="kw">let </span>claude3 = Box::new(Claude3Bedrock::new(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>);
+    <span class="kw">let </span>gpt4 = Box::new(OpenAIModel::new_gpt4_turbo(<span class="string">"You are a helpful assistant"</span>).<span class="kw">await</span>);
 
     <span class="kw">let </span>concat_fn = to_boxed_future(|outputs: Vec&lt;String&gt;| {
         <span class="prelude-val">Ok</span>(outputs
@@ -33,7 +33,7 @@ a provided function to produce the final output.</p>
 
     <span class="kw">let </span>chain = ChainBuilder::new()
         .link(Prompt::new(<span class="string">"{{ input }}"</span>))
-        .link(ParallelNode::new(<span class="macro">vec!</span>[gpt3, claude3], concat_fn))
+        .link(ParallelNode::new(<span class="macro">vec!</span>[gpt3, gpt4], concat_fn))
         .build();
 
     <span class="kw">let </span>output = chain
