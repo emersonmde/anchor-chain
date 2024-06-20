@@ -110,6 +110,15 @@ pub mod parallel_node;
 pub mod vector;
 
 pub use error::AnchorChainError;
+pub use chain::ChainBuilder;
+pub use link::Link;
+pub use node::NoOpNode;
+pub use node::Node;
+pub use nodes::logger::Logger;
+pub use nodes::prompt::Prompt;
+pub use parallel_node::to_boxed_future;
+pub use parallel_node::ParallelNode;
+pub use agents::tool_registry::ToolRegistry;
 
 #[cfg(feature = "bedrock")]
 pub use models::claude_3::Claude3Bedrock;
@@ -124,15 +133,6 @@ pub use models::openai::OpenAIInstructModel;
 #[cfg(feature = "openai")]
 pub use models::openai::OpenAIModel;
 
-pub use chain::ChainBuilder;
-pub use link::Link;
-pub use node::NoOpNode;
-pub use node::Node;
-pub use nodes::logger::Logger;
-pub use nodes::prompt::Prompt;
-pub use parallel_node::to_boxed_future;
-pub use parallel_node::ParallelNode;
-
 pub use vector::document::Document;
 #[cfg(feature = "opensearch")]
 pub use vector::opensearch_client_builder::OpenSearchClientBuilder;
@@ -140,8 +140,6 @@ pub use vector::opensearch_client_builder::OpenSearchClientBuilder;
 pub use vector::opensearch_indexer::OpenSearchIndexer;
 #[cfg(feature = "opensearch")]
 pub use vector::opensearch_retriever::OpenSearchRetriever;
-
-pub use agents::tool_registry::ToolRegistry;
 
 #[cfg(feature = "macros")]
 pub use ctor;

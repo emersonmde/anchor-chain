@@ -31,7 +31,6 @@ tracing = "0.1.40"
 once_cell = "1.19.0"
 
 [dependencies]
-async-openai = { version = "0.23.2", optional = true }
 async-trait = "0.1.80"
 futures = "0.3.30"
 serde = { version = "1.0.197", features = ["derive"] }
@@ -40,21 +39,12 @@ tera = "1.20.0"
 thiserror = "1.0.58"
 tokio = { version = "1.36.0", features = ["full"] }
 base64 = "0.22.0"
-
-# Tracing
+async-openai = { version = "0.23.2", optional = true }
 tracing = { version = "0.1.40", optional = true }
-
-# Ollama
 reqwest = { version = "0.12.4", optional = true }
-
-# Bedrock
 aws-config = { version = "1.5.1", features = ["behavior-version-latest"], optional = true }
 aws-sdk-bedrockruntime = { version = "1.34.0", optional = true }
-
-# OpenSearch
 opensearch = { version = "2.2.0", features = ["aws-auth"], optional = true }
-
-# Macros
 anchor-chain-macros = { path = "anchor-chain-macros", optional = true}
 ctor = { version = "0.2.8", optional = true }
 
@@ -93,4 +83,4 @@ required-features = ["opensearch", "openai"]
 
 [[example]]
 name = "tool_usage"
-required-features = ["openai", "bedrock"]
+required-features = ["bedrock"]
