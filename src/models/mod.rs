@@ -5,7 +5,10 @@
 //! to easily integrate different models into their processing chains without
 //! having to worry about the specific details of each model's API.
 
+#[cfg(feature = "bedrock")]
 pub mod claude_3;
 pub mod embedding_model;
+#[cfg(feature = "ollama")]
 pub mod ollama;
+#[cfg(feature = "openai")]
 pub mod openai;

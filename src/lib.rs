@@ -100,6 +100,8 @@ pub mod chain;
 mod error;
 mod link;
 mod memory_manager;
+// TODO: Add impls for Ollama
+#[cfg(any(feature = "bedrock", feature = "bedrock"))]
 pub mod message;
 pub mod models;
 pub mod node;
@@ -108,15 +110,22 @@ pub mod parallel_node;
 pub mod vector;
 
 pub use error::AnchorChainError;
-pub use link::Link;
 
+#[cfg(feature = "bedrock")]
 pub use models::claude_3::Claude3Bedrock;
+#[cfg(feature = "ollama")]
+pub use models::ollama::Ollama;
+#[cfg(feature = "openai")]
 pub use models::openai::OpenAIChatModel;
+#[cfg(feature = "openai")]
 pub use models::openai::OpenAIEmbeddingModel;
+#[cfg(feature = "openai")]
 pub use models::openai::OpenAIInstructModel;
+#[cfg(feature = "openai")]
 pub use models::openai::OpenAIModel;
 
 pub use chain::ChainBuilder;
+pub use link::Link;
 pub use node::NoOpNode;
 pub use node::Node;
 pub use nodes::logger::Logger;
@@ -125,8 +134,11 @@ pub use parallel_node::to_boxed_future;
 pub use parallel_node::ParallelNode;
 
 pub use vector::document::Document;
+#[cfg(feature = "opensearch")]
 pub use vector::opensearch_client_builder::OpenSearchClientBuilder;
+#[cfg(feature = "opensearch")]
 pub use vector::opensearch_indexer::OpenSearchIndexer;
+#[cfg(feature = "opensearch")]
 pub use vector::opensearch_retriever::OpenSearchRetriever;
 
 pub use agents::tool_registry::ToolRegistry;

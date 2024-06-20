@@ -12,7 +12,7 @@
 //!
 //! use anchor_chain::{
 //!     chain::ChainBuilder,
-//!     models::{claude_3::Claude3Bedrock, openai::OpenAIModel},
+//!     models::openai::OpenAIModel,
 //!     parallel_node::{ParallelNode, to_boxed_future},
 //!     nodes::prompt::Prompt,
 //! };
@@ -21,7 +21,7 @@
 //! async fn main() {
 //!     let gpt3 =
 //!         Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant").await);
-//!     let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant").await);
+//!     let gpt4 = Box::new(OpenAIModel::new_gpt4_turbo("You are a helpful assistant").await);
 //!
 //!     let concat_fn = to_boxed_future(|outputs: Vec<String>| {
 //!         Ok(outputs
@@ -35,7 +35,7 @@
 //!
 //!     let chain = ChainBuilder::new()
 //!         .link(Prompt::new("{{ input }}"))
-//!         .link(ParallelNode::new(vec![gpt3, claude3], concat_fn))
+//!         .link(ParallelNode::new(vec![gpt3, gpt4], concat_fn))
 //!         .build();
 //!
 //!     let output = chain

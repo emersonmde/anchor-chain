@@ -6,11 +6,13 @@
 //! traits to convert these generic message types into model-specific message
 //! types for use with specific LLM models.
 
+#[cfg(feature = "openai")]
 use async_openai::types::{
     ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
     ChatCompletionRequestUserMessageArgs,
 };
 
+#[cfg(feature = "bedrock")]
 use crate::models::claude_3::{ClaudeMessage, ClaudeMessageContent};
 
 pub enum ChatMessage {
@@ -36,6 +38,7 @@ struct ChatMessageVec {
     messages: Vec<ChatMessage>,
 }
 
+#[cfg(feature = "openai")]
 impl From<ChatMessage> for ChatCompletionRequestMessage {
     fn from(message: ChatMessage) -> ChatCompletionRequestMessage {
         match message {
@@ -45,6 +48,7 @@ impl From<ChatMessage> for ChatCompletionRequestMessage {
     }
 }
 
+#[cfg(feature = "bedrock")]
 impl From<ChatMessage> for ClaudeMessage {
     fn from(message: ChatMessage) -> ClaudeMessage {
         match message {
@@ -54,6 +58,7 @@ impl From<ChatMessage> for ClaudeMessage {
     }
 }
 
+#[cfg(feature = "openai")]
 impl From<UserChatMessage> for ChatCompletionRequestMessage {
     fn from(message: UserChatMessage) -> ChatCompletionRequestMessage {
         match message.content {
@@ -67,6 +72,7 @@ impl From<UserChatMessage> for ChatCompletionRequestMessage {
     }
 }
 
+#[cfg(feature = "bedrock")]
 impl From<UserChatMessage> for ClaudeMessage {
     fn from(message: UserChatMessage) -> ClaudeMessage {
         match message.content {
@@ -83,6 +89,7 @@ impl From<UserChatMessage> for ClaudeMessage {
     }
 }
 
+#[cfg(feature = "openai")]
 impl From<AssistantChatMessage> for ChatCompletionRequestMessage {
     fn from(message: AssistantChatMessage) -> ChatCompletionRequestMessage {
         match message.content {
@@ -96,6 +103,7 @@ impl From<AssistantChatMessage> for ChatCompletionRequestMessage {
     }
 }
 
+#[cfg(feature = "bedrock")]
 impl From<AssistantChatMessage> for ClaudeMessage {
     fn from(message: AssistantChatMessage) -> ClaudeMessage {
         match message.content {
@@ -118,6 +126,7 @@ impl From<Vec<ChatMessage>> for ChatMessageVec {
     }
 }
 
+#[cfg(feature = "openai")]
 impl From<ChatMessageVec> for Vec<ChatCompletionRequestMessage> {
     fn from(messages: ChatMessageVec) -> Vec<ChatCompletionRequestMessage> {
         messages.messages.into_iter().map(|m| m.into()).collect()

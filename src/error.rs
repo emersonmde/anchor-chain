@@ -1,7 +1,10 @@
 //! Defines error types for Anchor Chain.
 
+#[cfg(feature = "openai")]
 use async_openai::error::OpenAIError;
+#[cfg(feature = "bedrock")]
 use aws_sdk_bedrockruntime::error::SdkError;
+#[cfg(feature = "bedrock")]
 use aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 
 /// Defines errors types for Anchor Chain
@@ -9,10 +12,12 @@ use aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 pub enum AnchorChainError {
     /// Occurs when failing to construct OpenAI prompts, messages or when invoking
     /// the model fails.
+    #[cfg(feature = "openai")]
     #[error("OpenAI error: {0}")]
     OpenAIError(#[from] OpenAIError),
 
     /// Occurs when failing to construct or invoke a model in Bedrock.
+    #[cfg(feature = "bedrock")]
     #[error("Bedrock error: {0}")]
     BedrockError(#[from] SdkError<InvokeModelError>),
 
@@ -29,10 +34,12 @@ pub enum AnchorChainError {
     RequestError(#[from] serde_json::Error),
 
     /// Error when configuring or using OpenSearch.
+    #[cfg(feature = "opensearch")]
     #[error("OpenSearch error: {0}")]
     OpenSearchError(#[from] opensearch::Error),
 
     /// Error that occurs when calling OpenSearch APIs.
+    #[cfg(feature = "opensearch")]
     #[error("OpenSearch returned error: {0}")]
     OpenSearchInternalError(String),
 
@@ -47,6 +54,7 @@ pub enum AnchorChainError {
     ModelError(String),
 
     // Reqwest error
+    #[cfg(feature = "ollama")]
     #[error("reqwest error: {0}")]
     ReqwestError(#[from] reqwest::Error),
 }
