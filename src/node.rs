@@ -10,6 +10,7 @@ use async_trait::async_trait;
 use tracing::instrument;
 
 use crate::error::AnchorChainError;
+use crate::state_manager::StateManager;
 
 /// Represents a node that can process an input to produce an output.
 ///
@@ -27,6 +28,11 @@ pub trait Node: std::fmt::Debug {
     /// chained together the output type of one node must match the input of
     /// the next node in the chain.
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError>;
+}
+
+#[async_trait]
+pub trait NodeState<M>: Node {
+    async fn set_state(&mut self, state: StateManager<M>);
 }
 
 /// A no-op node that passes input through unchanged.

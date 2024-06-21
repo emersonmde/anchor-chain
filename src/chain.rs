@@ -9,6 +9,9 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::error::AnchorChainError;
+use crate::link::StatefulLink;
+use crate::node::NodeState;
+use crate::state_manager::StateManager;
 use crate::{link::Link, node::Node};
 
 /// Represents a chain of nodes that can asynchronously process data.
@@ -92,6 +95,19 @@ impl ChainBuilder {
             _input: PhantomData,
         }
     }
+
+    pub fn link_with_state<I, N, M>(self, node: N) -> StatefulLinkedChainBuilder<I, N, M>
+    where
+        N: Node<Input = I> + Send + Sync + fmt::Debug,
+        I: Send,
+        M: Clone,
+    {
+        StatefulLinkedChainBuilder {
+            link: node,
+            state: StateManager::new(),
+            _input: PhantomData,
+        }
+    }
 }
 
 impl Default for ChainBuilder {
@@ -123,11 +139,81 @@ where
         Link<L, N>: Node<Input = I>,
     {
         LinkedChainBuilder {
-            link: Link {
-                node: self.link,
-                next,
-                memory: None,
-            },
+            link: Link::new(self.link, next),
+            _input: PhantomData,
+        }
+    }
+
+    pub fn link_with_state<N, M>(
+        self,
+        next: N,
+    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
+    where
+        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
+        L::Output: Send,
+        Link<L, N>: Node<Input = I>,
+        M: Clone + Sync + Send + fmt::Debug,
+    {
+        let state = StateManager::new();
+        StatefulLinkedChainBuilder {
+            link: StatefulLink::new(self.link, next, state.clone()),
+            state,
+            _input: PhantomData,
+        }
+    }
+
+    /// Finalizes the construction of the chain, returning a `Chain` instance
+    /// ready for processing.
+    pub fn build(self) -> Chain<I, L::Output, L>
+    where
+        L: Node,
+    {
+        Chain {
+            link: self.link,
+            _input: PhantomData,
+            _output: PhantomData,
+        }
+    }
+}
+
+pub struct StatefulLinkedChainBuilder<I, L, M> {
+    link: L,
+    state: StateManager<M>,
+    _input: PhantomData<I>,
+}
+
+impl<I, L, M> StatefulLinkedChainBuilder<I, L, M>
+where
+    L: Node<Input = I> + Send + Sync + fmt::Debug,
+    I: Send,
+    M: Clone + Send + Sync + fmt::Debug,
+{
+    /// Adds a new node to the chain, linking it to the previous node.
+    pub fn link<N>(self, next: N) -> StatefulLinkedChainBuilder<I, Link<L, N>, M>
+    where
+        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
+        L::Output: Send,
+        Link<L, N>: Node<Input = I>,
+    {
+        StatefulLinkedChainBuilder {
+            link: Link::new(self.link, next),
+            state: self.state,
+            _input: PhantomData,
+        }
+    }
+
+    pub fn link_with_state<N>(
+        self,
+        next: N,
+    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
+    where
+        N: NodeState<M, Input = L::Output> + Send + Sync + fmt::Debug,
+        L::Output: Send,
+        StatefulLink<L, N, String>: Node<Input = I>,
+    {
+        StatefulLinkedChainBuilder {
+            link: StatefulLink::new(self.link, next, self.state.clone()),
+            state: self.state,
             _input: PhantomData,
         }
     }

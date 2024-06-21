@@ -99,7 +99,7 @@ mod agents;
 pub mod chain;
 mod error;
 mod link;
-mod memory_manager;
+mod state_manager;
 // TODO: Add impls for Ollama
 #[cfg(any(feature = "bedrock", feature = "bedrock"))]
 pub mod message;
@@ -119,6 +119,7 @@ pub use nodes::logger::Logger;
 pub use nodes::prompt::Prompt;
 pub use parallel_node::to_boxed_future;
 pub use parallel_node::ParallelNode;
+pub use state_manager::StateManager;
 
 #[cfg(feature = "bedrock")]
 pub use models::claude_3::Claude3Bedrock;

@@ -2,11 +2,11 @@ use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Debug, Clone)]
-pub struct MemoryManager<T> {
+pub struct StateManager<T> {
     inner: Arc<RwLock<Vec<T>>>,
 }
 
-impl<T: Clone> MemoryManager<T> {
+impl<T: Clone> StateManager<T> {
     pub fn new() -> Self {
         Self {
             inner: Arc::new(RwLock::new(Vec::new())),
@@ -46,8 +46,8 @@ impl<T: Clone> MemoryManager<T> {
     }
 }
 
-impl<T: Clone> Default for MemoryManager<T> {
+impl<T: Clone> Default for StateManager<T> {
     fn default() -> Self {
-        MemoryManager::<T>::new()
+        StateManager::<T>::new()
     }
 }

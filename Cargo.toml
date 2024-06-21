@@ -84,3 +84,7 @@ required-features = ["opensearch", "openai"]
 [[example]]
 name = "tool_usage"
 required-features = ["bedrock"]
+
+[[example]]
+name = "stateful_chain"
+required-features = ["tracing"]
