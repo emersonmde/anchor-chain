@@ -1,28 +1,30 @@
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Debug, Clone)]
-pub struct StateManager<T> {
-    inner: Arc<RwLock<Vec<T>>>,
+pub struct StateManager<K, V> {
+    inner: Arc<RwLock<HashMap<K, V>>>,
 }
 
-impl<T: Clone> StateManager<T> {
+impl<K: Eq + Hash + Clone, V: Clone> StateManager<K, V> {
     pub fn new() -> Self {
         Self {
-            inner: Arc::new(RwLock::new(Vec::new())),
+            inner: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
-    pub async fn get(&self, index: usize) -> Option<T> {
-        self.inner.read().await.get(index).cloned()
+    pub async fn get(&self, key: &K) -> Option<V> {
+        self.inner.read().await.get(key).cloned()
     }
 
-    pub async fn push(&self, value: T) {
-        self.inner.write().await.push(value)
+    pub async fn insert(&self, key: K, value: V) {
+        self.inner.write().await.insert(key, value);
     }
 
-    pub async fn remove(&self, index: usize) -> T {
-        self.inner.write().await.remove(index)
+    pub async fn remove(&self, key: &K) -> Option<V> {
+        self.inner.write().await.remove(key)
     }
 
     pub async fn len(&self) -> usize {
@@ -37,17 +39,29 @@ impl<T: Clone> StateManager<T> {
         self.inner.write().await.clear()
     }
 
-    pub async fn read(&self) -> RwLockReadGuard<Vec<T>> {
+    pub async fn contains_key(&self, key: &K) -> bool {
+        self.inner.read().await.contains_key(key)
+    }
+
+    pub async fn keys(&self) -> Vec<K> {
+        self.inner.read().await.keys().cloned().collect()
+    }
+
+    pub async fn values(&self) -> Vec<V> {
+        self.inner.read().await.values().cloned().collect()
+    }
+
+    pub async fn read(&self) -> RwLockReadGuard<HashMap<K, V>> {
         self.inner.read().await
     }
 
-    pub async fn write(&self) -> RwLockWriteGuard<Vec<T>> {
+    pub async fn write(&self) -> RwLockWriteGuard<HashMap<K, V>> {
         self.inner.write().await
     }
 }
 
-impl<T: Clone> Default for StateManager<T> {
+impl<K: Eq + Hash + Clone, V: Clone> Default for StateManager<K, V> {
     fn default() -> Self {
-        StateManager::<T>::new()
+        StateManager::<K, V>::new()
     }
 }

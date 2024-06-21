@@ -91,12 +91,13 @@ attractive choice for performance-critical applications.
 
 ## Getting Started
 
-To get started with Anchor Chain, add the following dependency to your
+To get started with Anchor Chain, add `anchor-chain` and `tokio` to your
 `Cargo.toml` file:
 
 ```toml
 [dependencies]
 anchor-chain = "0.1.1"
+tokio = "1.38.0"
 ```
 
 Then, you can create chains using the `ChainBuilder` and invoke them with the
@@ -137,22 +138,6 @@ Contributions to Anchor Chain are welcome! If you encounter any issues, have
 suggestions for improvements, or would like to contribute new features, please
 open an issue or submit a pull request on the
 [GitHub repository](https://github.com/emersonmde/anchor-chain).
-
-## TODO
-
-While Anchor Chain is usable today, it's still a work in progress. Below are a
-list of future features that are planned for the 1.0 release:
-
-- Support for Mistral through AWS Bedrock
-- Support for Ollama REST API
-- Add error handling strategy that will use a backup model if the primary fails
-
-Other potential features for future releases:
-
-- Add feature flag for Askama to support statically typed prompts
-- Create a node to categorize and log input for better input observability
-- Output validation node that can attempt to fix unexpected or incomplete outputs
-- Support for [rustformers/llm](https://github.com/rustformers/llm) to utilize local models
 
 ## License
 

@@ -2,92 +2,84 @@ use std::collections::HashMap;
 
 use anchor_chain::node::Stateful;
 use anchor_chain::{AnchorChainError, StateManager};
-use anchor_chain::{ChainBuilder, NoOpNode, Node, Prompt};
+use anchor_chain::{ChainBuilder, Node, Prompt};
 use async_trait::async_trait;
 
 #[derive(Debug, Default)]
-pub struct LineCounter {
-    state: Option<StateManager<String>>,
+pub struct UpperCaseConverter {
+    state: Option<StateManager<String, String>>,
 }
 
-impl LineCounter {
+impl UpperCaseConverter {
     pub fn new() -> Self {
-        LineCounter::default()
+        UpperCaseConverter::default()
     }
 }
 
 #[async_trait]
-impl Node for LineCounter {
+impl Node for UpperCaseConverter {
     type Input = String;
-    type Output = usize;
+    type Output = String;
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        println!("Process called on LineCounter");
-        let state = self.state.as_ref().expect("Node state set");
-        state.push("Foo".to_string()).await;
-        Ok(input.lines().count())
+        let state = self.state.as_ref().expect("Node state was not set");
+        state.insert("original".to_string(), input.clone()).await;
+        Ok(input.to_uppercase())
     }
 }
 
 #[async_trait]
-impl Stateful<String> for LineCounter {
-    async fn set_state(&mut self, state: StateManager<String>) {
-        println!("Process_with_state called on LineCounter");
+impl Stateful<String, String> for UpperCaseConverter {
+    async fn set_state(&mut self, state: StateManager<String, String>) {
         self.state = Some(state);
     }
 }
 
 #[derive(Debug, Default)]
-pub struct AsteriskGenerator {
-    state: Option<StateManager<String>>,
+pub struct Reverser {
+    state: Option<StateManager<String, String>>,
 }
 
-impl AsteriskGenerator {
+impl Reverser {
     pub fn new() -> Self {
-        AsteriskGenerator::default()
+        Reverser::default()
     }
 }
 
 #[async_trait]
-impl Node for AsteriskGenerator {
-    type Input = usize;
+impl Node for Reverser {
+    type Input = String;
     type Output = String;
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        println!("Process called on AsteriskGenerator");
-        let state = self.state.as_ref().expect("Node state set");
-        let value = state.get(0).await.expect("State value should exist");
-        println!("Found {:?}", value);
-        Ok("*".repeat(input))
+        let state = self.state.as_ref().expect("Node state was not set");
+        let original = state
+            .get(&"original".to_string())
+            .await
+            .expect("State value should exist");
+        println!("Original input was: {:?}", original);
+        Ok(input.chars().rev().collect())
     }
 }
 
 #[async_trait]
-impl Stateful<String> for AsteriskGenerator {
-    async fn set_state(&mut self, state: StateManager<String>) {
+impl Stateful<String, String> for Reverser {
+    async fn set_state(&mut self, state: StateManager<String, String>) {
         self.state = Some(state);
-        println!("Process_with_state called on AsteriskGenerator");
     }
 }
 
 #[tokio::main]
 async fn main() {
     let chain = ChainBuilder::new()
-        .link(Prompt::new("{{ input }}"))
-        .link(NoOpNode::new())
-        .link_with_state(LineCounter::new())
-        .link(NoOpNode::new())
-        .link_with_state(AsteriskGenerator::new())
+        .link(Prompt::new("Hello, {{ input }}!"))
+        .link_with_state(UpperCaseConverter::new())
+        .link_with_state(Reverser::new())
         .build();
 
-    println!("Chain: {:?}\n\n", chain);
-
     let output = chain
-        .process(HashMap::from([(
-            "input",
-            "Write a hello world program in Rust",
-        )]))
+        .process(HashMap::from([("input", "world")]))
         .await
         .expect("Failed to process chain");
-    println!("Output:\n{}", output);
+    println!("Final output: {}", output);
 }

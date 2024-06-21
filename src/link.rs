@@ -4,6 +4,8 @@
 //! where the output of the first node is fed as the input to the next.
 
 use async_trait::async_trait;
+use std::fmt::Debug;
+use std::hash::Hash;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -18,8 +20,8 @@ use crate::state_manager::StateManager;
 #[derive(Debug)]
 pub struct Link<C, N>
 where
-    C: std::fmt::Debug,
-    N: std::fmt::Debug,
+    C: Debug,
+    N: Debug,
 {
     /// The first node in the chain.
     pub node: C,
@@ -29,8 +31,8 @@ where
 
 impl<C, N> Link<C, N>
 where
-    C: std::fmt::Debug,
-    N: std::fmt::Debug,
+    C: Debug,
+    N: Debug,
 {
     /// Creates a new `Link` connecting the specified nodes.
     ///
@@ -45,10 +47,10 @@ where
 #[async_trait]
 impl<C, N> Node for Link<C, N>
 where
-    C: Node + Send + Sync + std::fmt::Debug,
+    C: Node + Send + Sync + Debug,
     C::Output: Send + 'static,
     C::Input: Send,
-    N: Node<Input = C::Output> + Send + Sync + std::fmt::Debug,
+    N: Node<Input = C::Output> + Send + Sync + Debug,
     N::Output: Send,
 {
     /// The input type for the current node
@@ -66,25 +68,32 @@ where
     }
 }
 
+/// A stateful link in a processing chain that connects one `Node` to another.
+///
+/// `StatefulLink` serves as a container for chaining two `Node` instances together,
+/// where the output of the first node is fed as the input to the next. The chain's
+/// `StateManager` is passed to each stateful node before processing.
 #[derive(Debug)]
-pub struct StatefulLink<C, N, M>
+pub struct StatefulLink<C, N, K, V>
 where
-    C: std::fmt::Debug,
-    N: std::fmt::Debug,
-    M: std::fmt::Debug + Send,
+    C: Debug,
+    N: Debug,
+    K: Debug + Send,
+    V: Debug + Send,
 {
     pub node: C,
     pub next: Arc<Mutex<N>>,
-    pub state: StateManager<M>,
+    pub state: StateManager<K, V>,
 }
 
-impl<C, N, M> StatefulLink<C, N, M>
+impl<C, N, K, V> StatefulLink<C, N, K, V>
 where
-    C: std::fmt::Debug,
-    N: std::fmt::Debug,
-    M: std::fmt::Debug + Send,
+    C: Debug,
+    N: Debug,
+    K: Debug + Send,
+    V: Debug + Send,
 {
-    pub fn new(node: C, next: N, memory: StateManager<M>) -> Self {
+    pub fn new(node: C, next: N, memory: StateManager<K, V>) -> Self {
         Self {
             node,
             next: Arc::new(Mutex::new(next)),
@@ -94,14 +103,15 @@ where
 }
 
 #[async_trait]
-impl<C, N, M> Node for StatefulLink<C, N, M>
+impl<C, N, K, V> Node for StatefulLink<C, N, K, V>
 where
-    C: Node + Send + Sync + std::fmt::Debug,
+    C: Node + Send + Sync + Debug,
     C::Output: Send + 'static,
     C::Input: Send,
-    N: Node<Input = C::Output> + Stateful<M> + Send + Sync + std::fmt::Debug,
+    N: Node<Input = C::Output> + Stateful<K, V> + Send + Sync + Debug,
     N::Output: Send,
-    M: Send + Sync + std::fmt::Debug + Clone,
+    K: Eq + Hash + Clone + Send + Sync + Debug,
+    V: Clone + Send + Sync + Debug,
 {
     type Input = C::Input;
     type Output = <N as Node>::Output;

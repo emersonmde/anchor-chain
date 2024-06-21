@@ -87,4 +87,4 @@ required-features = ["bedrock"]
 
 [[example]]
 name = "stateful_chain"
-required-features = ["tracing"]
+required-features = []

@@ -35,8 +35,8 @@ pub trait Node: std::fmt::Debug {
 pub trait Stateless: Node {}
 
 #[async_trait]
-pub trait Stateful<M>: Node {
-    async fn set_state(&mut self, state: StateManager<M>);
+pub trait Stateful<K, V>: Node {
+    async fn set_state(&mut self, state: StateManager<K, V>);
 }
 
 /// A no-op node that passes input through unchanged.

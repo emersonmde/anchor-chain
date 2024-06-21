@@ -6,6 +6,7 @@
 
 use async_trait::async_trait;
 use std::fmt;
+use std::hash::Hash;
 use std::marker::PhantomData;
 
 use crate::error::AnchorChainError;
@@ -96,11 +97,12 @@ impl ChainBuilder {
         }
     }
 
-    pub fn link_with_state<I, N, M>(self, node: N) -> StatefulLinkedChainBuilder<I, N, M>
+    pub fn link_with_state<I, N, K, V>(self, node: N) -> StatefulLinkedChainBuilder<I, N, K, V>
     where
-        N: Node<Input = I> + Stateful<M> + Send + Sync + fmt::Debug,
+        N: Node<Input = I> + Stateful<K, V> + Send + Sync + fmt::Debug,
         I: Send,
-        M: Clone,
+        K: Eq + Hash + Clone,
+        V: Clone,
     {
         StatefulLinkedChainBuilder {
             link: node,
@@ -144,17 +146,21 @@ where
         }
     }
 
-    pub fn link_with_state<N, M>(
+    /// Adds a new `StatefulNode` to the chain, linking it to the previous
+    /// node. A new `StateManager` will also be created that will be passed
+    /// to all stateful nodes in the chain.
+    pub fn link_with_state<N, K, V>(
         self,
         next: N,
-    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
+    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, K, V>, K, V>
     where
-        N: Node<Input = L::Output> + Stateful<M> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateful<K, V> + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
-        M: Clone + Sync + Send + fmt::Debug,
+        K: Eq + Hash + Clone + Send + fmt::Debug,
+        V: Clone + Send + fmt::Debug,
     {
-        let state = StateManager::new();
+        let state = StateManager::default();
         StatefulLinkedChainBuilder {
             link: StatefulLink::new(self.link, next, state.clone()),
             state,
@@ -176,20 +182,26 @@ where
     }
 }
 
-pub struct StatefulLinkedChainBuilder<I, L, M> {
+/// A builder for constructing a `Chain` of nodes using `Link` and `StatefulLink`.
+///
+/// `StatefulLinkedChainBuilder` takes an initial node and allows for incremental
+/// construction of a stateful processing chain, adding nodes one at a time. New nodes
+/// are linked to the previous nodes using nested `Link` or `StatefulLink` instances.
+pub struct StatefulLinkedChainBuilder<I, L, K, V> {
     link: L,
-    state: StateManager<M>,
+    state: StateManager<K, V>,
     _input: PhantomData<I>,
 }
 
-impl<I, L, M> StatefulLinkedChainBuilder<I, L, M>
+impl<I, L, K, V> StatefulLinkedChainBuilder<I, L, K, V>
 where
     L: Node<Input = I> + Send + Sync + fmt::Debug,
     I: Send,
-    M: Clone + Send + Sync + fmt::Debug,
+    K: Clone + Send + fmt::Debug,
+    V: Clone + Send + fmt::Debug,
 {
     /// Adds a new node to the chain, linking it to the previous node.
-    pub fn link<N>(self, next: N) -> StatefulLinkedChainBuilder<I, Link<L, N>, M>
+    pub fn link<N>(self, next: N) -> StatefulLinkedChainBuilder<I, Link<L, N>, K, V>
     where
         N: Node<Input = L::Output> + Stateless + Send + Sync + fmt::Debug,
         L::Output: Send,
@@ -202,14 +214,16 @@ where
         }
     }
 
+    /// Adds a new `StatefulNode` to the chain, linking it to the previous
+    /// node. Each stateful node will be passed an instance of the `StateManager`.
     pub fn link_with_state<N>(
         self,
         next: N,
-    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
+    ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, K, V>, K, V>
     where
-        N: Node<Input = L::Output> + Stateful<M> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateful<K, V> + Send + Sync + fmt::Debug,
         L::Output: Send,
-        StatefulLink<L, N, String>: Node<Input = I>,
+        StatefulLink<L, N, K, V>: Node<Input = I>,
     {
         StatefulLinkedChainBuilder {
             link: StatefulLink::new(self.link, next, self.state.clone()),
