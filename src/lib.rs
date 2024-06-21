@@ -109,8 +109,9 @@ pub mod nodes;
 pub mod parallel_node;
 pub mod vector;
 
-pub use error::AnchorChainError;
+pub use agents::tool_registry::ToolRegistry;
 pub use chain::ChainBuilder;
+pub use error::AnchorChainError;
 pub use link::Link;
 pub use node::NoOpNode;
 pub use node::Node;
@@ -118,7 +119,6 @@ pub use nodes::logger::Logger;
 pub use nodes::prompt::Prompt;
 pub use parallel_node::to_boxed_future;
 pub use parallel_node::ParallelNode;
-pub use agents::tool_registry::ToolRegistry;
 
 #[cfg(feature = "bedrock")]
 pub use models::claude_3::Claude3Bedrock;
