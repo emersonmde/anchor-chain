@@ -54,8 +54,8 @@ impl Node for AsteriskGenerator {
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         println!("Process called on AsteriskGenerator");
-        let foo = self.state.get(0).await.expect("State value should exist");
-        println!("Found {:?}", foo);
+        let value = self.state.get(0).await.expect("State value should exist");
+        println!("Found {:?}", value);
         Ok("*".repeat(input))
     }
 }
