@@ -4,6 +4,7 @@
 //! Ollama API. Ollama is a tool for managing and running local LLMs. For more
 //! information on how to install and run Ollama, see [https://ollama.com](https://ollama.com/).
 use crate::{AnchorChainError, Node};
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use reqwest;
 use serde::{Deserialize, Serialize};
@@ -11,7 +12,7 @@ use std::fmt::Debug;
 use std::io::{BufRead, BufReader};
 
 /// Struct for interfacing with Ollama models via the Ollama API.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Stateless)]
 pub struct Ollama {
     /// The model tag of the installed Ollama model to use.
     model: String,

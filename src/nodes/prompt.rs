@@ -9,6 +9,7 @@
 
 use std::collections::HashMap;
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use tera::{Context, Tera};
 #[cfg(feature = "tracing")]
@@ -21,7 +22,7 @@ use crate::node::Node;
 ///
 /// The `Prompt` struct is a processor for handling text prompts within a
 /// processing chain using Tera templating.
-#[derive(Debug)]
+#[derive(Debug, Stateless)]
 pub struct Prompt<'a> {
     /// The Tera template used to process the prompt text.
     tera: Tera,

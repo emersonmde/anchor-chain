@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anchor_chain::node::NodeState;
+use anchor_chain::node::Stateful;
 use anchor_chain::{AnchorChainError, StateManager};
 use anchor_chain::{ChainBuilder, NoOpNode, Node, Prompt};
 use async_trait::async_trait;
@@ -30,7 +30,7 @@ impl Node for LineCounter {
 }
 
 #[async_trait]
-impl NodeState<String> for LineCounter {
+impl Stateful<String> for LineCounter {
     async fn set_state(&mut self, state: StateManager<String>) {
         println!("Process_with_state called on LineCounter");
         self.state = Some(state);
@@ -63,7 +63,7 @@ impl Node for AsteriskGenerator {
 }
 
 #[async_trait]
-impl NodeState<String> for AsteriskGenerator {
+impl Stateful<String> for AsteriskGenerator {
     async fn set_state(&mut self, state: StateManager<String>) {
         self.state = Some(state);
         println!("Process_with_state called on AsteriskGenerator");

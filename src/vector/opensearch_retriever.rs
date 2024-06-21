@@ -8,6 +8,7 @@
 
 use std::fmt;
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use aws_config::meta::region::RegionProviderChain;
 use opensearch::http::transport::{SingleNodeConnectionPool, TransportBuilder};
@@ -23,8 +24,8 @@ use crate::node::Node;
 use crate::vector::document::Document;
 
 /// A Node that retrieves documents from OpenSearch based on input text.
-#[derive(Debug)]
-pub struct OpenSearchRetriever<'a, M: EmbeddingModel> {
+#[derive(Debug, Stateless)]
+pub struct OpenSearchRetriever<'a, M: EmbeddingModel + fmt::Debug + Send + Sync> {
     client: OpenSearch,
     embedding_model: M,
     indexes: Vec<String>,
@@ -33,7 +34,7 @@ pub struct OpenSearchRetriever<'a, M: EmbeddingModel> {
     _marker: std::marker::PhantomData<&'a ()>,
 }
 
-impl<'a, M: EmbeddingModel + fmt::Debug> OpenSearchRetriever<'a, M> {
+impl<'a, M: EmbeddingModel + fmt::Debug + Send + Sync> OpenSearchRetriever<'a, M> {
     /// Creates a new OpenSearchRetrieverBuilder using default AWS credentials from the environment.
     pub async fn new(
         client: OpenSearch,
@@ -125,7 +126,7 @@ struct OpenSearchRetrieverBuilder<M: EmbeddingModel> {
     top_k: usize,
 }
 
-impl<M: EmbeddingModel> OpenSearchRetrieverBuilder<M> {
+impl<M: EmbeddingModel + fmt::Debug + Send + Sync> OpenSearchRetrieverBuilder<M> {
     /// Creates a new OpenSearchRetrieverBuilder.
     pub fn new() -> Self {
         Self {

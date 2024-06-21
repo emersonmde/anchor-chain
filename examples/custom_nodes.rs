@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anchor_chain::AnchorChainError;
+use anchor_chain::{AnchorChainError, Stateless};
 use anchor_chain::{ChainBuilder, NoOpNode, Node, OpenAIModel, Prompt};
 use async_trait::async_trait;
 
@@ -12,6 +12,8 @@ impl LineCounter {
         LineCounter
     }
 }
+
+impl Stateless for LineCounter {}
 
 #[async_trait]
 impl Node for LineCounter {
@@ -31,6 +33,8 @@ impl AsteriskGenerator {
         AsteriskGenerator
     }
 }
+
+impl Stateless for AsteriskGenerator {}
 
 #[async_trait]
 impl Node for AsteriskGenerator {

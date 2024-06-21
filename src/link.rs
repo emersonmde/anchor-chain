@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::error::AnchorChainError;
-use crate::node::{Node, NodeState};
+use crate::node::{Node, Stateful};
 use crate::state_manager::StateManager;
 
 /// A link in a processing chain that connects one `Node` to another.
@@ -99,7 +99,7 @@ where
     C: Node + Send + Sync + std::fmt::Debug,
     C::Output: Send + 'static,
     C::Input: Send,
-    N: NodeState<M, Input = C::Output> + Send + Sync + std::fmt::Debug,
+    N: Node<Input = C::Output> + Stateful<M> + Send + Sync + std::fmt::Debug,
     N::Output: Send,
     M: Send + Sync + std::fmt::Debug + Clone,
 {

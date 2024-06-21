@@ -4,11 +4,13 @@ use std::env;
 use anchor_chain::{
     to_boxed_future, AnchorChainError, ChainBuilder, Document, Logger, NoOpNode, Node,
     OpenAIEmbeddingModel, OpenAIModel, OpenSearchClientBuilder, OpenSearchRetriever, ParallelNode,
-    Prompt,
+    Prompt, Stateless,
 };
 
 #[derive(Debug)]
 struct DocumentFormatter {}
+
+impl Stateless for DocumentFormatter {}
 
 #[async_trait::async_trait]
 impl Node for DocumentFormatter {

@@ -4,6 +4,7 @@
 //! with the default settings. Otherwise, the documents are indexed into the existing index.
 use std::fmt;
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use opensearch::http::request::JsonBody;
 use opensearch::indices::{IndicesCreateParts, IndicesExistsParts};
@@ -18,15 +19,15 @@ use crate::node::Node;
 use crate::vector::document::Document;
 
 /// A node for indexing documents into OpenSearch.
-#[derive(Debug, Clone)]
-pub struct OpenSearchIndexer<M: EmbeddingModel> {
+#[derive(Debug, Clone, Stateless)]
+pub struct OpenSearchIndexer<M: EmbeddingModel + fmt::Debug + Send + Sync> {
     client: OpenSearch,
     embedding_model: M,
     index: String,
     vector_field: String,
 }
 
-impl<M: EmbeddingModel + fmt::Debug> OpenSearchIndexer<M> {
+impl<M: EmbeddingModel + fmt::Debug + Send + Sync> OpenSearchIndexer<M> {
     /// Creates a new `OpenSearchIndexer` with the specified OpenSearch client, embedding model,
     #[allow(dead_code)]
     pub fn new(client: OpenSearch, embedding_model: M, index: &str, vector_field: &str) -> Self {

@@ -7,6 +7,7 @@
 
 use std::fmt;
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::{primitives::Blob, Client};
 use serde::{Deserialize, Serialize};
@@ -96,6 +97,7 @@ struct ClaudeMessagesResponse {
 /// `Claude3Bedrock` allows for sending requests to Claude 3 models, handling both text and image inputs.
 /// It encapsulates the necessary details for AWS Bedrock interaction and provides an asynchronous
 /// interface for processing content through Claude 3.
+#[derive(Stateless)]
 pub struct Claude3Bedrock {
     /// The system prompt or context to use for all requests.
     system_prompt: String,

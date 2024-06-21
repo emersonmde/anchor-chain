@@ -1,7 +1,11 @@
 use proc_macro::TokenStream;
+use proc_macro_crate::{crate_name, FoundCrate};
 use quote::{format_ident, quote};
 use serde_json::{json, Value};
-use syn::{parse_macro_input, Error, Expr, ItemFn, Lit, Meta, PathArguments, Result, Type};
+use syn::{
+    parse_macro_input, DeriveInput, Error, Expr, Generics, ItemFn, Lit, Meta, PathArguments,
+    Result, Type,
+};
 
 #[proc_macro_attribute]
 pub fn tool(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -153,4 +157,44 @@ fn extract_type(ty: &Type) -> Result<Value> {
     } else {
         Err(Error::new_spanned(ty, "Unsupported argument type"))
     }
+}
+
+#[proc_macro_derive(Stateless)]
+pub fn stateless_node_derive(input: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(input as DeriveInput);
+    impl_stateless_node(&ast)
+}
+
+fn impl_stateless_node(ast: &DeriveInput) -> TokenStream {
+    let name = &ast.ident;
+    let generics = get_generics(&ast.generics);
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let crate_path = if let Ok(crate_name) = crate_name("anchor-chain") {
+        match crate_name {
+            FoundCrate::Itself => quote!(crate),
+            FoundCrate::Name(ref name) => {
+                let ident = syn::Ident::new(name, proc_macro2::Span::call_site());
+                quote!(#ident)
+            }
+        }
+    } else {
+        quote!(anchor_chain)
+    };
+
+    let gen = quote! {
+        impl #impl_generics #crate_path::node::Stateless for #name #ty_generics #where_clause {}
+    };
+    gen.into()
+}
+
+fn get_generics(generics: &Generics) -> Generics {
+    let mut generics = generics.clone();
+    for param in &mut generics.params {
+        if let syn::GenericParam::Type(type_param) = param {
+            type_param.bounds.push(syn::parse_quote!(Send));
+            type_param.bounds.push(syn::parse_quote!(Sync));
+        }
+    }
+    generics
 }

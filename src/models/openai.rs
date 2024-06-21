@@ -5,6 +5,7 @@
 
 use std::fmt;
 
+use anchor_chain_macros::Stateless;
 use async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
@@ -19,10 +20,11 @@ use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
 
 /// OpenAI model types supported by the `OpenAI` node
-#[derive(Debug)]
+#[derive(Debug, Stateless)]
 pub enum OpenAIModel<T>
 where
-    T: Into<Prompt>,
+    T: Send + Sync + fmt::Debug,
+    T: Into<Prompt> + Into<ChatCompletionRequestUserMessageContent>,
 {
     /// GPT-3.5 Turbo model
     GPT3_5Turbo(OpenAIChatModel<T>),
@@ -34,7 +36,8 @@ where
 
 impl<T> OpenAIModel<T>
 where
-    T: Into<Prompt>,
+    T: Send + Sync + fmt::Debug,
+    T: Into<Prompt> + Into<ChatCompletionRequestUserMessageContent>,
 {
     /// Constructs a GPT4 Turbo model with the specified system prompt.
     ///

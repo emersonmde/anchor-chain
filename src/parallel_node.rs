@@ -46,6 +46,7 @@
 //! }
 //! ```
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 use futures::future::try_join_all;
 use futures::{future::BoxFuture, FutureExt};
@@ -69,11 +70,12 @@ type CombinationFunction<I, O> =
 /// The `ParallelNode` struct represents a node that processes input through
 /// multiple nodes in parallel. The output of each node is then combined using
 /// a provided function to produce the final output.
+#[derive(Stateless)]
 pub struct ParallelNode<I, O, C>
 where
-    I: Clone + Send + Sync,
-    O: Send + Sync,
-    C: Send + Sync,
+    I: Clone + Send + Sync + fmt::Debug,
+    O: Send + Sync + fmt::Debug,
+    C: Send + Sync + fmt::Debug,
 {
     /// The nodes that will process the input in parallel.
     pub nodes: Vec<Box<dyn Node<Input = I, Output = O> + Send + Sync>>,
@@ -83,9 +85,9 @@ where
 
 impl<I, O, C> ParallelNode<I, O, C>
 where
-    I: Clone + Send + Sync,
-    O: Send + Sync,
-    C: Send + Sync,
+    I: Clone + Send + Sync + fmt::Debug,
+    O: Send + Sync + fmt::Debug,
+    C: Send + Sync + fmt::Debug,
 {
     /// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.

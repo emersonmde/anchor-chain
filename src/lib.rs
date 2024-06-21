@@ -115,6 +115,7 @@ pub use error::AnchorChainError;
 pub use link::Link;
 pub use node::NoOpNode;
 pub use node::Node;
+pub use node::Stateless;
 pub use nodes::logger::Logger;
 pub use nodes::prompt::Prompt;
 pub use parallel_node::to_boxed_future;

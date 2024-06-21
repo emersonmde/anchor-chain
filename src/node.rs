@@ -3,8 +3,10 @@
 //! This module defines a `Node` trait for asynchronous operations and
 //! constructs (`Link` and `End`) to create chains of these operations.
 
+use std::fmt;
 use std::marker::PhantomData;
 
+use anchor_chain_macros::Stateless;
 use async_trait::async_trait;
 #[cfg(feature = "tracing")]
 use tracing::instrument;
@@ -30,18 +32,20 @@ pub trait Node: std::fmt::Debug {
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError>;
 }
 
+pub trait Stateless: Node {}
+
 #[async_trait]
-pub trait NodeState<M>: Node {
+pub trait Stateful<M>: Node {
     async fn set_state(&mut self, state: StateManager<M>);
 }
 
 /// A no-op node that passes input through unchanged.
-#[derive(Debug)]
-pub struct NoOpNode<T> {
+#[derive(Debug, Stateless)]
+pub struct NoOpNode<T: fmt::Debug> {
     _marker: PhantomData<T>,
 }
 
-impl<T> NoOpNode<T> {
+impl<T: fmt::Debug> NoOpNode<T> {
     /// Creates a new `NoOpNode`.
     pub fn new() -> Self {
         Self {
@@ -50,7 +54,7 @@ impl<T> NoOpNode<T> {
     }
 }
 
-impl<T> Default for NoOpNode<T> {
+impl<T: fmt::Debug> Default for NoOpNode<T> {
     fn default() -> Self {
         Self::new()
     }
@@ -59,7 +63,7 @@ impl<T> Default for NoOpNode<T> {
 #[async_trait]
 impl<T> Node for NoOpNode<T>
 where
-    T: Send + Sync + std::fmt::Debug,
+    T: Send + Sync + fmt::Debug,
 {
     /// The input type for the NoOpNode.
     type Input = T;

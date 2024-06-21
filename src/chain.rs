@@ -10,7 +10,7 @@ use std::marker::PhantomData;
 
 use crate::error::AnchorChainError;
 use crate::link::StatefulLink;
-use crate::node::NodeState;
+use crate::node::{Stateful, Stateless};
 use crate::state_manager::StateManager;
 use crate::{link::Link, node::Node};
 
@@ -87,7 +87,7 @@ impl ChainBuilder {
     /// Adds the first node to the chain.
     pub fn link<I, N>(self, node: N) -> LinkedChainBuilder<I, N>
     where
-        N: Node<Input = I> + Send + Sync + fmt::Debug,
+        N: Node<Input = I> + Stateless + Send + Sync + fmt::Debug,
         I: Send,
     {
         LinkedChainBuilder {
@@ -98,7 +98,7 @@ impl ChainBuilder {
 
     pub fn link_with_state<I, N, M>(self, node: N) -> StatefulLinkedChainBuilder<I, N, M>
     where
-        N: Node<Input = I> + Send + Sync + fmt::Debug,
+        N: Node<Input = I> + Stateful<M> + Send + Sync + fmt::Debug,
         I: Send,
         M: Clone,
     {
@@ -134,7 +134,7 @@ where
     /// Adds a new node to the chain, linking it to the previous node.
     pub fn link<N>(self, next: N) -> LinkedChainBuilder<I, Link<L, N>>
     where
-        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateless + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
     {
@@ -149,7 +149,7 @@ where
         next: N,
     ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
     where
-        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateful<M> + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
         M: Clone + Sync + Send + fmt::Debug,
@@ -191,7 +191,7 @@ where
     /// Adds a new node to the chain, linking it to the previous node.
     pub fn link<N>(self, next: N) -> StatefulLinkedChainBuilder<I, Link<L, N>, M>
     where
-        N: Node<Input = L::Output> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateless + Send + Sync + fmt::Debug,
         L::Output: Send,
         Link<L, N>: Node<Input = I>,
     {
@@ -207,7 +207,7 @@ where
         next: N,
     ) -> StatefulLinkedChainBuilder<I, StatefulLink<L, N, M>, M>
     where
-        N: NodeState<M, Input = L::Output> + Send + Sync + fmt::Debug,
+        N: Node<Input = L::Output> + Stateful<M> + Send + Sync + fmt::Debug,
         L::Output: Send,
         StatefulLink<L, N, String>: Node<Input = I>,
     {

@@ -3,17 +3,24 @@
 //! This node logs the input to the console and passes it through unchanged.
 use crate::error::AnchorChainError;
 use crate::node::Node;
+use anchor_chain_macros::Stateless;
 #[cfg(feature = "tracing")]
 use tracing::instrument;
 
 /// A simple input logging node
-#[derive(Debug)]
-pub struct Logger<T> {
+#[derive(Debug, Stateless)]
+pub struct Logger<T>
+where
+    T: std::fmt::Debug + Send + Sync,
+{
     prefix: String,
     _marker: std::marker::PhantomData<T>,
 }
 
-impl<T> Logger<T> {
+impl<T> Logger<T>
+where
+    T: std::fmt::Debug + Send + Sync,
+{
     /// Create a new Logger node with the given prefix.
     ///
     /// The prefix is prepended to the input in the format `prefix: input`.
@@ -41,7 +48,10 @@ where
     }
 }
 
-impl<T> Default for Logger<T> {
+impl<T> Default for Logger<T>
+where
+    T: std::fmt::Debug + Send + Sync,
+{
     fn default() -> Self {
         Self {
             prefix: "Input".to_string(),
