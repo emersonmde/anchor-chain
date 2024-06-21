@@ -7,7 +7,7 @@ use async_trait::async_trait;
 
 #[derive(Debug, Default)]
 pub struct LineCounter {
-    state: StateManager<String>,
+    state: Option<StateManager<String>>,
 }
 
 impl LineCounter {
@@ -23,7 +23,8 @@ impl Node for LineCounter {
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         println!("Process called on LineCounter");
-        self.state.push("Foo".to_string()).await;
+        let state = self.state.as_ref().expect("Node state set");
+        state.push("Foo".to_string()).await;
         Ok(input.lines().count())
     }
 }
@@ -32,13 +33,13 @@ impl Node for LineCounter {
 impl NodeState<String> for LineCounter {
     async fn set_state(&mut self, state: StateManager<String>) {
         println!("Process_with_state called on LineCounter");
-        self.state = state;
+        self.state = Some(state);
     }
 }
 
 #[derive(Debug, Default)]
 pub struct AsteriskGenerator {
-    state: StateManager<String>,
+    state: Option<StateManager<String>>,
 }
 
 impl AsteriskGenerator {
@@ -54,7 +55,8 @@ impl Node for AsteriskGenerator {
 
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         println!("Process called on AsteriskGenerator");
-        let value = self.state.get(0).await.expect("State value should exist");
+        let state = self.state.as_ref().expect("Node state set");
+        let value = state.get(0).await.expect("State value should exist");
         println!("Found {:?}", value);
         Ok("*".repeat(input))
     }
@@ -63,7 +65,7 @@ impl Node for AsteriskGenerator {
 #[async_trait]
 impl NodeState<String> for AsteriskGenerator {
     async fn set_state(&mut self, state: StateManager<String>) {
-        self.state = state;
+        self.state = Some(state);
         println!("Process_with_state called on AsteriskGenerator");
     }
 }
