@@ -64,16 +64,67 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A link in a processing chain that connects one `Node` to another.
 //!
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
 </span><span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>tokio::sync::Mutex;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
-<span class="kw">use </span><span class="kw">crate</span>::memory_manager::MemoryManager;
-<span class="kw">use </span><span class="kw">crate</span>::node::Node;
+<span class="kw">use </span><span class="kw">crate</span>::node::{Node, NodeState};
+<span class="kw">use </span><span class="kw">crate</span>::state_manager::StateManager;
 
 <span class="doccomment">/// A link in a processing chain that connects one `Node` to another.
 ///
@@ -89,7 +140,6 @@
     </span><span class="kw">pub </span>node: C,
     <span class="doccomment">/// The next node or link in the chain.
     </span><span class="kw">pub </span>next: N,
-    <span class="kw">pub </span>memory: <span class="prelude-ty">Option</span>&lt;MemoryManager&lt;String&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;C, N&gt; Link&lt;C, N&gt;
@@ -102,8 +152,8 @@
     /// The `node` is linked with the `next` node in the chain. Output from the
     /// `node` is passed as input to the `next` node. Either node can also be
     /// a `Link` forming a nested linked list of nodes.
-    </span><span class="kw">pub fn </span>new(node: C, next: N, memory: <span class="prelude-ty">Option</span>&lt;MemoryManager&lt;String&gt;&gt;) -&gt; <span class="self">Self </span>{
-        Link { node, next, memory }
+    </span><span class="kw">pub fn </span>new(node: C, next: N) -&gt; <span class="self">Self </span>{
+        Link { node, next }
     }
 }
 
@@ -128,6 +178,54 @@
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
         <span class="kw">let </span>output = <span class="self">self</span>.node.process(input).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.next.process(output).<span class="kw">await
+    </span>}
+}
+
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>StatefulLink&lt;C, N, M&gt;
+<span class="kw">where
+    </span>C: std::fmt::Debug,
+    N: std::fmt::Debug,
+    M: std::fmt::Debug + Send,
+{
+    <span class="kw">pub </span>node: C,
+    <span class="kw">pub </span>next: Arc&lt;Mutex&lt;N&gt;&gt;,
+    <span class="kw">pub </span>state: StateManager&lt;M&gt;,
+}
+
+<span class="kw">impl</span>&lt;C, N, M&gt; StatefulLink&lt;C, N, M&gt;
+<span class="kw">where
+    </span>C: std::fmt::Debug,
+    N: std::fmt::Debug,
+    M: std::fmt::Debug + Send,
+{
+    <span class="kw">pub fn </span>new(node: C, next: N, memory: StateManager&lt;M&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            node,
+            next: Arc::new(Mutex::new(next)),
+            state: memory,
+        }
+    }
+}
+
+<span class="attr">#[async_trait]
+</span><span class="kw">impl</span>&lt;C, N, M&gt; Node <span class="kw">for </span>StatefulLink&lt;C, N, M&gt;
+<span class="kw">where
+    </span>C: Node + Send + Sync + std::fmt::Debug,
+    C::Output: Send + <span class="lifetime">'static</span>,
+    C::Input: Send,
+    N: NodeState&lt;M, Input = C::Output&gt; + Send + Sync + std::fmt::Debug,
+    N::Output: Send,
+    M: Send + Sync + std::fmt::Debug + Clone,
+{
+    <span class="kw">type </span>Input = C::Input;
+    <span class="kw">type </span>Output = &lt;N <span class="kw">as </span>Node&gt;::Output;
+
+    <span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt; {
+        <span class="kw">let </span>output = <span class="self">self</span>.node.process(input).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>next_node = <span class="self">self</span>.next.lock().<span class="kw">await</span>;
+        next_node.set_state(<span class="self">self</span>.state.clone()).<span class="kw">await</span>;
+        next_node.process(output).<span class="kw">await
     </span>}
 }
 </code></pre></div></section></main></body></html>

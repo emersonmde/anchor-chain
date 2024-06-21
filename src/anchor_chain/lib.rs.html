@@ -143,6 +143,7 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Anchor Chain
 //!
 //! Anchor Chain is a Rust framework designed to simplify the orchestration of workflows involving
@@ -244,7 +245,7 @@
 <span class="kw">pub mod </span>chain;
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>link;
-<span class="kw">mod </span>memory_manager;
+<span class="kw">mod </span>state_manager;
 <span class="comment">// TODO: Add impls for Ollama
 </span><span class="attr">#[cfg(any(feature = <span class="string">"bedrock"</span>, feature = <span class="string">"bedrock"</span>))]
 </span><span class="kw">pub mod </span>message;
@@ -264,6 +265,7 @@
 <span class="kw">pub use </span>nodes::prompt::Prompt;
 <span class="kw">pub use </span>parallel_node::to_boxed_future;
 <span class="kw">pub use </span>parallel_node::ParallelNode;
+<span class="kw">pub use </span>state_manager::StateManager;
 
 <span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
 </span><span class="kw">pub use </span>models::claude_3::Claude3Bedrock;

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Chain","ChainBuilder","LinkedChainBuilder"]};
+window.SIDEBAR_ITEMS = {"struct":["Chain","ChainBuilder","LinkedChainBuilder","StatefulLinkedChainBuilder"]};

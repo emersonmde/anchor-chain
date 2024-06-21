@@ -66,6 +66,12 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module providing foundational structures for building chains.
 //!
 //! This module defines a `Node` trait for asynchronous operations and
@@ -78,6 +84,7 @@
 </span><span class="kw">use </span>tracing::instrument;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
+<span class="kw">use </span><span class="kw">crate</span>::state_manager::StateManager;
 
 <span class="doccomment">/// Represents a node that can process an input to produce an output.
 ///
@@ -95,6 +102,11 @@
     /// chained together the output type of one node must match the input of
     /// the next node in the chain.
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt;;
+}
+
+<span class="attr">#[async_trait]
+</span><span class="kw">pub trait </span>NodeState&lt;M&gt;: Node {
+    <span class="kw">async fn </span>set_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: StateManager&lt;M&gt;);
 }
 
 <span class="doccomment">/// A no-op node that passes input through unchanged.
