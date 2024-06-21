@@ -5,7 +5,7 @@ set -e
 
 # Run Cargo clippy
 echo "Running cargo clippy..."
-cargo clippy -- -D warnings
+cargo clippy --all-targets --all-features -- -D warnings
 
 # Check formatting
 echo "Checking cargo fmt..."
