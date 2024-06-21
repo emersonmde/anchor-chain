@@ -14,6 +14,7 @@ cargo fmt -- --check
 # Run tests
 echo "Running cargo test..."
 cargo test
+cargo test --all-targets --all-features
 
 # Check for security vulnerabilities and yanked crates
 echo "Running cargo audit..."
