@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["NoOpNode"],"trait":["Node","NodeState"]};
+window.SIDEBAR_ITEMS = {"struct":["NoOpNode"],"trait":["Node","Stateful","Stateless"]};

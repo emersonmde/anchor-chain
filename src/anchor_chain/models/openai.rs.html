@@ -397,6 +397,9 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating OpenAI models.
 //!
 //! Facilitates the construction and execution of requests to OpenAI models,
@@ -404,6 +407,7 @@
 
 </span><span class="kw">use </span>std::fmt;
 
+<span class="kw">use </span>anchor_chain_macros::Stateless;
 <span class="kw">use </span>async_openai::types::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs,
@@ -418,10 +422,11 @@
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 
 <span class="doccomment">/// OpenAI model types supported by the `OpenAI` node
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Stateless)]
 </span><span class="kw">pub enum </span>OpenAIModel&lt;T&gt;
 <span class="kw">where
-    </span>T: Into&lt;Prompt&gt;,
+    </span>T: Send + Sync + fmt::Debug,
+    T: Into&lt;Prompt&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt;,
 {
     <span class="doccomment">/// GPT-3.5 Turbo model
     </span>GPT3_5Turbo(OpenAIChatModel&lt;T&gt;),
@@ -433,7 +438,8 @@
 
 <span class="kw">impl</span>&lt;T&gt; OpenAIModel&lt;T&gt;
 <span class="kw">where
-    </span>T: Into&lt;Prompt&gt;,
+    </span>T: Send + Sync + fmt::Debug,
+    T: Into&lt;Prompt&gt; + Into&lt;ChatCompletionRequestUserMessageContent&gt;,
 {
     <span class="doccomment">/// Constructs a GPT4 Turbo model with the specified system prompt.
     ///

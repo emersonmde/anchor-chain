@@ -113,17 +113,29 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A link in a processing chain that connects one `Node` to another.
 //!
 //! `Link` serves as a container for chaining two `Node` instances together,
 //! where the output of the first node is fed as the input to the next.
 
 </span><span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>tokio::sync::Mutex;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
-<span class="kw">use </span><span class="kw">crate</span>::node::{Node, NodeState};
+<span class="kw">use </span><span class="kw">crate</span>::node::{Node, Stateful};
 <span class="kw">use </span><span class="kw">crate</span>::state_manager::StateManager;
 
 <span class="doccomment">/// A link in a processing chain that connects one `Node` to another.
@@ -133,8 +145,8 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Link&lt;C, N&gt;
 <span class="kw">where
-    </span>C: std::fmt::Debug,
-    N: std::fmt::Debug,
+    </span>C: Debug,
+    N: Debug,
 {
     <span class="doccomment">/// The first node in the chain.
     </span><span class="kw">pub </span>node: C,
@@ -144,8 +156,8 @@
 
 <span class="kw">impl</span>&lt;C, N&gt; Link&lt;C, N&gt;
 <span class="kw">where
-    </span>C: std::fmt::Debug,
-    N: std::fmt::Debug,
+    </span>C: Debug,
+    N: Debug,
 {
     <span class="doccomment">/// Creates a new `Link` connecting the specified nodes.
     ///
@@ -160,10 +172,10 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;C, N&gt; Node <span class="kw">for </span>Link&lt;C, N&gt;
 <span class="kw">where
-    </span>C: Node + Send + Sync + std::fmt::Debug,
+    </span>C: Node + Send + Sync + Debug,
     C::Output: Send + <span class="lifetime">'static</span>,
     C::Input: Send,
-    N: Node&lt;Input = C::Output&gt; + Send + Sync + std::fmt::Debug,
+    N: Node&lt;Input = C::Output&gt; + Send + Sync + Debug,
     N::Output: Send,
 {
     <span class="doccomment">/// The input type for the current node
@@ -181,25 +193,32 @@
     </span>}
 }
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>StatefulLink&lt;C, N, M&gt;
+<span class="doccomment">/// A stateful link in a processing chain that connects one `Node` to another.
+///
+/// `StatefulLink` serves as a container for chaining two `Node` instances together,
+/// where the output of the first node is fed as the input to the next. The chain's
+/// `StateManager` is passed to each stateful node before processing.
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>StatefulLink&lt;C, N, K, V&gt;
 <span class="kw">where
-    </span>C: std::fmt::Debug,
-    N: std::fmt::Debug,
-    M: std::fmt::Debug + Send,
+    </span>C: Debug,
+    N: Debug,
+    K: Debug + Send,
+    V: Debug + Send,
 {
     <span class="kw">pub </span>node: C,
     <span class="kw">pub </span>next: Arc&lt;Mutex&lt;N&gt;&gt;,
-    <span class="kw">pub </span>state: StateManager&lt;M&gt;,
+    <span class="kw">pub </span>state: StateManager&lt;K, V&gt;,
 }
 
-<span class="kw">impl</span>&lt;C, N, M&gt; StatefulLink&lt;C, N, M&gt;
+<span class="kw">impl</span>&lt;C, N, K, V&gt; StatefulLink&lt;C, N, K, V&gt;
 <span class="kw">where
-    </span>C: std::fmt::Debug,
-    N: std::fmt::Debug,
-    M: std::fmt::Debug + Send,
+    </span>C: Debug,
+    N: Debug,
+    K: Debug + Send,
+    V: Debug + Send,
 {
-    <span class="kw">pub fn </span>new(node: C, next: N, memory: StateManager&lt;M&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(node: C, next: N, memory: StateManager&lt;K, V&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             node,
             next: Arc::new(Mutex::new(next)),
@@ -209,14 +228,15 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;C, N, M&gt; Node <span class="kw">for </span>StatefulLink&lt;C, N, M&gt;
+</span><span class="kw">impl</span>&lt;C, N, K, V&gt; Node <span class="kw">for </span>StatefulLink&lt;C, N, K, V&gt;
 <span class="kw">where
-    </span>C: Node + Send + Sync + std::fmt::Debug,
+    </span>C: Node + Send + Sync + Debug,
     C::Output: Send + <span class="lifetime">'static</span>,
     C::Input: Send,
-    N: NodeState&lt;M, Input = C::Output&gt; + Send + Sync + std::fmt::Debug,
+    N: Node&lt;Input = C::Output&gt; + Stateful&lt;K, V&gt; + Send + Sync + Debug,
     N::Output: Send,
-    M: Send + Sync + std::fmt::Debug + Clone,
+    K: Eq + Hash + Clone + Send + Sync + Debug,
+    V: Clone + Send + Sync + Debug,
 {
     <span class="kw">type </span>Input = C::Input;
     <span class="kw">type </span>Output = &lt;N <span class="kw">as </span>Node&gt;::Output;

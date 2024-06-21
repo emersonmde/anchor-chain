@@ -72,13 +72,19 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module providing foundational structures for building chains.
 //!
 //! This module defines a `Node` trait for asynchronous operations and
 //! constructs (`Link` and `End`) to create chains of these operations.
 
-</span><span class="kw">use </span>std::marker::PhantomData;
+</span><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::marker::PhantomData;
 
+<span class="kw">use </span>anchor_chain_macros::Stateless;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
 </span><span class="kw">use </span>tracing::instrument;
@@ -104,18 +110,20 @@
     </span><span class="kw">async fn </span>process(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, AnchorChainError&gt;;
 }
 
+<span class="kw">pub trait </span>Stateless: Node {}
+
 <span class="attr">#[async_trait]
-</span><span class="kw">pub trait </span>NodeState&lt;M&gt;: Node {
-    <span class="kw">async fn </span>set_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: StateManager&lt;M&gt;);
+</span><span class="kw">pub trait </span>Stateful&lt;K, V&gt;: Node {
+    <span class="kw">async fn </span>set_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: StateManager&lt;K, V&gt;);
 }
 
 <span class="doccomment">/// A no-op node that passes input through unchanged.
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>NoOpNode&lt;T&gt; {
+</span><span class="attr">#[derive(Debug, Stateless)]
+</span><span class="kw">pub struct </span>NoOpNode&lt;T: fmt::Debug&gt; {
     _marker: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;T&gt; NoOpNode&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: fmt::Debug&gt; NoOpNode&lt;T&gt; {
     <span class="doccomment">/// Creates a new `NoOpNode`.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -124,7 +132,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>NoOpNode&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: fmt::Debug&gt; Default <span class="kw">for </span>NoOpNode&lt;T&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
@@ -133,7 +141,7 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;T&gt; Node <span class="kw">for </span>NoOpNode&lt;T&gt;
 <span class="kw">where
-    </span>T: Send + Sync + std::fmt::Debug,
+    </span>T: Send + Sync + fmt::Debug,
 {
     <span class="doccomment">/// The input type for the NoOpNode.
     </span><span class="kw">type </span>Input = T;

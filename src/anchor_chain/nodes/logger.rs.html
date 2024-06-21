@@ -49,22 +49,39 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A simple input logging node.
 //!
 //! This node logs the input to the console and passes it through unchanged.
 </span><span class="kw">use </span><span class="kw">crate</span>::error::AnchorChainError;
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
+<span class="kw">use </span>anchor_chain_macros::Stateless;
 <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
 </span><span class="kw">use </span>tracing::instrument;
 
 <span class="doccomment">/// A simple input logging node
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Logger&lt;T&gt; {
+</span><span class="attr">#[derive(Debug, Stateless)]
+</span><span class="kw">pub struct </span>Logger&lt;T&gt;
+<span class="kw">where
+    </span>T: std::fmt::Debug + Send + Sync,
+{
     prefix: String,
     _marker: std::marker::PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;T&gt; Logger&lt;T&gt; {
+<span class="kw">impl</span>&lt;T&gt; Logger&lt;T&gt;
+<span class="kw">where
+    </span>T: std::fmt::Debug + Send + Sync,
+{
     <span class="doccomment">/// Create a new Logger node with the given prefix.
     ///
     /// The prefix is prepended to the input in the format `prefix: input`.
@@ -92,7 +109,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>Logger&lt;T&gt; {
+<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>Logger&lt;T&gt;
+<span class="kw">where
+    </span>T: std::fmt::Debug + Send + Sync,
+{
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             prefix: <span class="string">"Input"</span>.to_string(),

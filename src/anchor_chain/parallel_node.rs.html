@@ -192,6 +192,8 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides a structure for processing input through multiple nodes in parallel.
 //!
 //! The `ParallelNode` struct represents a node that processes input through
@@ -240,7 +242,8 @@
 //! }
 //! ```
 
-</span><span class="kw">use </span>async_trait::async_trait;
+</span><span class="kw">use </span>anchor_chain_macros::Stateless;
+<span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures::future::try_join_all;
 <span class="kw">use </span>futures::{future::BoxFuture, FutureExt};
 <span class="kw">use </span>std::fmt;
@@ -263,11 +266,12 @@
 /// The `ParallelNode` struct represents a node that processes input through
 /// multiple nodes in parallel. The output of each node is then combined using
 /// a provided function to produce the final output.
+</span><span class="attr">#[derive(Stateless)]
 </span><span class="kw">pub struct </span>ParallelNode&lt;I, O, C&gt;
 <span class="kw">where
-    </span>I: Clone + Send + Sync,
-    O: Send + Sync,
-    C: Send + Sync,
+    </span>I: Clone + Send + Sync + fmt::Debug,
+    O: Send + Sync + fmt::Debug,
+    C: Send + Sync + fmt::Debug,
 {
     <span class="doccomment">/// The nodes that will process the input in parallel.
     </span><span class="kw">pub </span>nodes: Vec&lt;Box&lt;<span class="kw">dyn </span>Node&lt;Input = I, Output = O&gt; + Send + Sync&gt;&gt;,
@@ -277,9 +281,9 @@
 
 <span class="kw">impl</span>&lt;I, O, C&gt; ParallelNode&lt;I, O, C&gt;
 <span class="kw">where
-    </span>I: Clone + Send + Sync,
-    O: Send + Sync,
-    C: Send + Sync,
+    </span>I: Clone + Send + Sync + fmt::Debug,
+    O: Send + Sync + fmt::Debug,
+    C: Send + Sync + fmt::Debug,
 {
     <span class="doccomment">/// Creates a new `ParallelNode` with the provided nodes and combination
     /// function.

@@ -67,6 +67,7 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for handling dynamic prompts in processing chains.
 //!
 //! This module provides the `Prompt` struct, a processor for handling
@@ -78,6 +79,7 @@
 
 </span><span class="kw">use </span>std::collections::HashMap;
 
+<span class="kw">use </span>anchor_chain_macros::Stateless;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>tera::{Context, Tera};
 <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
@@ -90,7 +92,7 @@
 ///
 /// The `Prompt` struct is a processor for handling text prompts within a
 /// processing chain using Tera templating.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Stateless)]
 </span><span class="kw">pub struct </span>Prompt&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The Tera template used to process the prompt text.
     </span>tera: Tera,
