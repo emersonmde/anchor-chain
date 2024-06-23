@@ -1,13 +1,9 @@
-use std::collections::HashMap;
-
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::types::{ContentBlock, Message as BedrockMessage};
-use aws_smithy_types::Document;
+use serde_json::Value;
 use tokio::sync::RwLock;
 
-use crate::agents::tool_registry::{
-    convert_document_to_value, convert_value_to_document, ToolHandler,
-};
+use crate::agents::tool_registry::{convert_document_to_value, ToolHandler};
 use crate::models::bedrock_converse::BedrockModel;
 use crate::node::Stateful;
 use crate::{AnchorChainError, BedrockConverse, Node, StateManager, ToolRegistry};
@@ -51,58 +47,60 @@ impl<'a> AgentExecutor<'a> {
             input
         )
         .to_string();
+        println!("Executing agent with input: {input}");
+        println!("===========\n");
 
         let mut response = llm.process(input.clone()).await?.content;
-        println!("Response: {response:?}");
 
         // TODO: Move to custom Node
         for _ in 0..self.max_iterations {
-            println!("Content: {response:?}\n");
-            let mut tool_used = false;
+            let mut tool_responses = Vec::new();
             for content in response.clone() {
                 match content {
-                    ContentBlock::Text(text) => output.push(text),
+                    ContentBlock::Text(text) => {
+                        println!("{text}\n");
+                        output.push(text)
+                    }
                     ContentBlock::ToolUse(tool_request) => {
-                        tool_used = true;
-                        // TODO: handle error
-                        let tool_result = self
-                            .tool_registry
-                            .read()
-                            .await
-                            .execute_tool(
-                                tool_request.name(),
-                                convert_document_to_value(&tool_request.input),
-                            )
-                            .unwrap();
-                        println!("Result from tool function: {:?}\n", tool_result);
-                        let tool_response = llm
-                            .invoke_with_tool_response(
-                                tool_request.tool_use_id,
-                                Document::Object(HashMap::from([(
-                                    "return".to_string(),
-                                    convert_value_to_document(&tool_result),
-                                )])),
-                                None,
-                            )
-                            .await;
                         println!(
-                            "Response after sending back tool result: {:?}\n",
-                            tool_response
+                            "Calling {} for request_id {}",
+                            tool_request.name, tool_request.tool_use_id
                         );
-                        if let Ok(content) = tool_response {
-                            response = content.content
-                        }
+                        // TODO: handle error
+                        let tool_result = self.tool_registry.read().await.execute_tool(
+                            tool_request.name(),
+                            convert_document_to_value(&tool_request.input),
+                        );
+                        match tool_result {
+                            Ok(return_value) => {
+                                tool_responses.push(BedrockConverse::generate_tool_result_block(
+                                    tool_request.tool_use_id,
+                                    return_value,
+                                    true,
+                                ));
+                            }
+                            Err(error) => {
+                                println!("Error executing tool: {error}");
+                                tool_responses.push(BedrockConverse::generate_tool_result_block(
+                                    tool_request.tool_use_id,
+                                    Value::String(error),
+                                    false,
+                                ));
+                            }
+                        };
                     }
                     ContentBlock::Image(_) => unimplemented!("Received unexpected Image response"),
                     ContentBlock::ToolResult(_) => unreachable!("Received ToolResult from model"),
                     _ => unimplemented!("Unknown response received from model"),
                 }
             }
-            if !tool_used {
+            if tool_responses.is_empty() {
                 break;
+            } else {
+                let tool_response = llm.invoke_with_tool_responses(&tool_responses).await;
+                response = tool_response?.content;
             }
         }
-        println!("Final output: {:?}", output);
         println!("\n============\n\n");
         Ok(output.join("\n\n"))
     }

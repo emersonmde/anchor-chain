@@ -5,6 +5,7 @@
 //! processing chains. This module is designed to handle text and image inputs, offering a
 //! flexible interface for various types of content.
 
+use std::collections::HashMap;
 use std::fmt;
 use std::marker::PhantomData;
 use std::string::ToString;
@@ -18,11 +19,12 @@ use aws_sdk_bedrockruntime::types::{
 };
 use aws_sdk_bedrockruntime::Client;
 use aws_smithy_types::Document;
+use serde_json::Value;
 use tokio::sync::RwLock;
 #[cfg(feature = "tracing")]
 use tracing::instrument;
 
-use crate::agents::tool_registry::ToolHandler;
+use crate::agents::tool_registry::{convert_value_to_document, ToolHandler};
 use crate::error::AnchorChainError;
 use crate::node::{Node, Stateful};
 use crate::{StateManager, Stateless, ToolRegistry};
@@ -151,12 +153,12 @@ impl BedrockConverse<Message> {
             .build()
             .expect("Error building message");
         self.history.push(HISTORY_KEY.to_string(), message).await;
-        println!("\nHistory: {:?}\n\n", self.history);
         self.history
             .get(&HISTORY_KEY.to_string())
             .await
             .expect("Messages should not be empty")
     }
+
     async fn create_request(&self, input: impl Into<String>) -> ConverseFluentBuilder {
         let mut request = self
             .client
@@ -170,26 +172,21 @@ impl BedrockConverse<Message> {
         request
     }
 
-    pub async fn invoke_with_tool_response(
+    pub async fn invoke_with_tool_responses(
         &self,
-        tool_use_id: impl Into<String>,
-        tool_response: Document,
-        status: Option<ToolResultStatus>,
+        results: &[ToolResultBlock],
     ) -> Result<Message, AnchorChainError> {
         let message = Message::builder()
             .role(ConversationRole::User)
-            .content(ContentBlock::ToolResult(
-                ToolResultBlock::builder()
-                    .tool_use_id(tool_use_id)
-                    .content(ToolResultContentBlock::Json(tool_response))
-                    .set_status(status)
-                    .build()
-                    .unwrap(),
+            .set_content(Some(
+                results
+                    .iter()
+                    .map(|result| ContentBlock::ToolResult(result.clone()))
+                    .collect(),
             ))
             .build()
             .expect("Error building message");
 
-        println!("Tool response message: {:?}\n", message);
         self.history.push(HISTORY_KEY.to_string(), message).await;
 
         let mut request = self
@@ -225,6 +222,30 @@ impl BedrockConverse<Message> {
                 "No output returned".to_string(),
             ))
         }
+    }
+
+    pub fn generate_tool_result_block(
+        tool_use_id: impl Into<String>,
+        tool_result: Value,
+        success: bool,
+    ) -> ToolResultBlock {
+        let status = if success {
+            ToolResultStatus::Success
+        } else {
+            ToolResultStatus::Error
+        };
+
+        ToolResultBlock::builder()
+            .tool_use_id(tool_use_id)
+            .content(ToolResultContentBlock::Json(Document::Object(
+                HashMap::from([(
+                    "return".to_string(),
+                    convert_value_to_document(&tool_result),
+                )]),
+            )))
+            .set_status(Some(status))
+            .build()
+            .unwrap()
     }
 }
 
