@@ -58,12 +58,20 @@
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines error types for Anchor Chain.
 
 </span><span class="attr">#[cfg(feature = <span class="string">"openai"</span>)]
 </span><span class="kw">use </span>async_openai::error::OpenAIError;
 <span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
 </span><span class="kw">use </span>aws_sdk_bedrockruntime::error::SdkError;
+<span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
+</span><span class="kw">use </span>aws_sdk_bedrockruntime::operation::converse::ConverseError;
 <span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
 </span><span class="kw">use </span>aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 
@@ -80,6 +88,10 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
     #[error(<span class="string">"Bedrock error: {0}"</span>)]
     </span>BedrockError(<span class="attr">#[from] </span>SdkError&lt;InvokeModelError&gt;),
+
+    <span class="attr">#[cfg(feature = <span class="string">"bedrock"</span>)]
+    #[error(<span class="string">"Bedrock Converse Error: {0}"</span>)]
+    </span>BedrockConverse(<span class="attr">#[from] </span>SdkError&lt;ConverseError&gt;),
 
     <span class="doccomment">/// Error constructing or rendering Tera templates.
     </span><span class="attr">#[error(<span class="string">"error constructing or rendering Tera template: {0}"</span>)]

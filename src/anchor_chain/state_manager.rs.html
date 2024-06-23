@@ -65,6 +65,15 @@
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::sync::Arc;
@@ -125,6 +134,15 @@
     <span class="kw">pub async fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RwLockWriteGuard&lt;HashMap&lt;K, V&gt;&gt; {
         <span class="self">self</span>.inner.write().<span class="kw">await
     </span>}
+}
+
+<span class="kw">impl</span>&lt;K: Eq + Hash + Clone, V: Clone&gt; StateManager&lt;K, Vec&lt;V&gt;&gt; {
+    <span class="kw">pub async fn </span>push(<span class="kw-2">&amp;</span><span class="self">self</span>, key: K, value: V) {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = <span class="self">self</span>.inner.write().<span class="kw">await</span>;
+        map.entry(key)
+            .and_modify(|vec| vec.push(value.clone()))
+            .or_insert(<span class="macro">vec!</span>[value]);
+    }
 }
 
 <span class="kw">impl</span>&lt;K: Eq + Hash + Clone, V: Clone&gt; Default <span class="kw">for </span>StateManager&lt;K, V&gt; {

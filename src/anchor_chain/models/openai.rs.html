@@ -400,6 +400,9 @@
 <a href="#400" id="400">400</a>
 <a href="#401" id="401">401</a>
 <a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module for integrating OpenAI models.
 //!
 //! Facilitates the construction and execution of requests to OpenAI models,
@@ -422,7 +425,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::node::Node;
 
 <span class="doccomment">/// OpenAI model types supported by the `OpenAI` node
-</span><span class="attr">#[derive(Debug, Stateless)]
+</span><span class="attr">#[derive(Debug, Stateless, Clone)]
 </span><span class="kw">pub enum </span>OpenAIModel&lt;T&gt;
 <span class="kw">where
     </span>T: Send + Sync + fmt::Debug,
@@ -497,6 +500,7 @@
 /// `OpenAIChatModel` encapsulates the functionality required to interact with
 /// the OpenAI Chat API, handling both the construction of requests and the
 /// parsing of responses.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>OpenAIChatModel&lt;T&gt; {
     system_prompt: String,
     model: String,
@@ -620,6 +624,7 @@
 }
 
 <span class="doccomment">/// Node for making requests to OpenAI Instruct models.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>OpenAIInstructModel&lt;T&gt;
 <span class="kw">where
     </span>T: Into&lt;Prompt&gt;,
@@ -712,6 +717,7 @@
 }
 
 <span class="doccomment">/// Node for making requests to OpenAI embedding models.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>OpenAIEmbeddingModel {
     <span class="doccomment">/// The name of the instruct model.
     </span>model: String,
