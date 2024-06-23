@@ -24,7 +24,7 @@ use tokio::sync::RwLock;
 #[cfg(feature = "tracing")]
 use tracing::instrument;
 
-use crate::agents::tool_registry::{convert_value_to_document, ToolHandler};
+use crate::agents::tool_registry::{convert_document_to_value, convert_value_to_document};
 use crate::error::AnchorChainError;
 use crate::node::{Node, Stateful};
 use crate::{StateManager, Stateless, ToolRegistry};
@@ -63,18 +63,19 @@ impl From<&BedrockModel> for String {
 /// `BedrockConverse` allows for sending requests to Claude 3 models using Bedrock's
 /// Converse API.
 #[derive(Clone)]
-pub struct BedrockConverse<O: Clone> {
+pub struct BedrockConverse<'a, O: Clone> {
     model: BedrockModel,
     /// The system prompt or context to use for all requests.
     system_prompt: String,
     /// The AWS Bedrock client for sending requests.
     client: Client,
-    tool_configuration: Option<ToolConfiguration>,
+    // tool_configuration: Option<ToolConfiguration>,
+    tool_registry: Option<&'a RwLock<ToolRegistry<'a>>>,
     history: StateManager<String, Vec<O>>,
     _output: PhantomData<O>,
 }
 
-impl<O: Clone> BedrockConverse<O> {
+impl<'a, O: Clone> BedrockConverse<'a, O> {
     pub async fn new(model: BedrockModel) -> Self {
         Self::new_with_system_prompt(model, "You are a helpful assistant").await
     }
@@ -91,7 +92,7 @@ impl<O: Clone> BedrockConverse<O> {
         BedrockConverse {
             model,
             client,
-            tool_configuration: None,
+            tool_registry: None,
             system_prompt: system_prompt.into(),
             history: StateManager::new(),
             _output: PhantomData,
@@ -100,7 +101,7 @@ impl<O: Clone> BedrockConverse<O> {
 }
 
 #[async_trait]
-impl Node for BedrockConverse<String> {
+impl<'a> Node for BedrockConverse<'a, String> {
     type Input = String;
     type Output = String;
 
@@ -136,16 +137,16 @@ impl Node for BedrockConverse<String> {
     }
 }
 
-impl Stateless for BedrockConverse<String> {}
+impl<'a> Stateless for BedrockConverse<'a, String> {}
 
 #[async_trait]
-impl Stateful<String, Vec<String>> for BedrockConverse<String> {
+impl<'a> Stateful<String, Vec<String>> for BedrockConverse<'a, String> {
     async fn set_state(&mut self, state: StateManager<String, Vec<String>>) {
         self.history = state;
     }
 }
 
-impl BedrockConverse<Message> {
+impl<'a> BedrockConverse<'a, Message> {
     async fn generate_message_with_history(&self, user_message: impl Into<String>) -> Vec<Message> {
         let message = Message::builder()
             .role(ConversationRole::User)
@@ -159,22 +160,29 @@ impl BedrockConverse<Message> {
             .expect("Messages should not be empty")
     }
 
-    async fn create_request(&self, input: impl Into<String>) -> ConverseFluentBuilder {
+    async fn create_request<'b>(
+        &self,
+        input: impl Into<String>,
+        tool_registry: Option<&'b RwLock<ToolRegistry<'b>>>,
+    ) -> ConverseFluentBuilder {
         let mut request = self
             .client
             .converse()
             .model_id(self.model)
             .set_messages(Some(self.generate_message_with_history(input).await))
             .system(SystemContentBlock::Text(self.system_prompt.clone()));
-        if let Some(tool_config) = &self.tool_configuration {
-            request = request.tool_config(tool_config.clone());
+
+        if let Some(tools) = tool_registry {
+            let tool_config = self.generate_tool_configuration(tools).await;
+            request = request.tool_config(tool_config);
         }
+
         request
     }
-
     pub async fn invoke_with_tool_responses(
         &self,
         results: &[ToolResultBlock],
+        tool_registry: &RwLock<ToolRegistry<'_>>,
     ) -> Result<Message, AnchorChainError> {
         let message = Message::builder()
             .role(ConversationRole::User)
@@ -200,9 +208,10 @@ impl BedrockConverse<Message> {
                     .expect("History should exist"),
             ))
             .system(SystemContentBlock::Text(self.system_prompt.clone()));
-        if let Some(tool_config) = &self.tool_configuration {
-            request = request.tool_config(tool_config.clone());
-        }
+
+        let tool_config = self.generate_tool_configuration(tool_registry).await;
+        request = request.tool_config(tool_config);
+
         let output = request.send().await?;
         self.process_model_response(output).await
     }
@@ -222,6 +231,82 @@ impl BedrockConverse<Message> {
                 "No output returned".to_string(),
             ))
         }
+    }
+
+    pub async fn run_agent<'b>(
+        &self,
+        input: String,
+        max_iterations: usize,
+        tool_registry: &'b RwLock<ToolRegistry<'b>>,
+    ) -> Result<String, AnchorChainError> {
+        let mut output = Vec::new();
+        let input = format!(
+            "Given the tools available, answer the user's question: {}",
+            input
+        )
+        .to_string();
+        println!("Executing agent with input: {input}");
+        println!("===========\n");
+
+        // let mut response = self.process(input.clone()).await?.content;
+        let response = self
+            .create_request(input, Some(tool_registry))
+            .await
+            .send()
+            .await?;
+        let mut response = self.process_model_response(response).await?.content;
+
+        for _ in 0..max_iterations {
+            let mut tool_responses = Vec::new();
+            for content in response.clone() {
+                match content {
+                    ContentBlock::Text(text) => {
+                        println!("{text}\n");
+                        output.push(text)
+                    }
+                    ContentBlock::ToolUse(tool_request) => {
+                        println!(
+                            "Calling {} for request_id {}",
+                            tool_request.name, tool_request.tool_use_id
+                        );
+                        let tool_result = tool_registry.read().await.execute_tool(
+                            tool_request.name(),
+                            convert_document_to_value(&tool_request.input),
+                        );
+                        match tool_result {
+                            Ok(return_value) => {
+                                tool_responses.push(Self::generate_tool_result_block(
+                                    tool_request.tool_use_id,
+                                    return_value,
+                                    true,
+                                ));
+                            }
+                            Err(error) => {
+                                println!("Error executing tool: {error}");
+                                tool_responses.push(Self::generate_tool_result_block(
+                                    tool_request.tool_use_id,
+                                    Value::String(error),
+                                    false,
+                                ));
+                            }
+                        };
+                    }
+                    ContentBlock::Image(_) => unimplemented!("Received unexpected Image response"),
+                    ContentBlock::ToolResult(_) => unreachable!("Received ToolResult from model"),
+                    _ => unimplemented!("Unknown response received from model"),
+                }
+            }
+            if tool_responses.is_empty() {
+                break;
+            } else {
+                let tool_response = self
+                    .invoke_with_tool_responses(&tool_responses, tool_registry)
+                    .await;
+                response = tool_response?.content;
+            }
+        }
+        println!("\n============\n\n");
+        Ok(output.join("\n\n"))
     }
 
     pub fn generate_tool_result_block(
@@ -247,10 +332,18 @@ impl BedrockConverse<Message> {
             .build()
             .unwrap()
     }
+
+    async fn generate_tool_configuration(
+        &self,
+        tool_registry: &RwLock<ToolRegistry<'_>>,
+    ) -> ToolConfiguration {
+        let registry = tool_registry.read().await;
+        (*registry).clone().into()
+    }
 }
 
 #[async_trait]
-impl Node for BedrockConverse<Message> {
+impl<'a> Node for BedrockConverse<'a, Message> {
     type Input = String;
     type Output = Message;
 
@@ -260,23 +353,27 @@ impl Node for BedrockConverse<Message> {
     /// AWS Bedrock, and extracts the text content from the response.
     #[cfg_attr(feature = "tracing", instrument(fields(system_prompt = self.system_prompt.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
-        let response = self.create_request(input).await.send().await?;
+        let response = self
+            .create_request(input, self.tool_registry)
+            .await
+            .send()
+            .await?;
 
         self.process_model_response(response).await
     }
 }
 
-impl Stateless for BedrockConverse<Message> {}
+impl<'a> Stateless for BedrockConverse<'a, Message> {}
 
 #[async_trait]
-impl Stateful<String, Vec<Message>> for BedrockConverse<Message> {
+impl<'a> Stateful<String, Vec<Message>> for BedrockConverse<'a, Message> {
     async fn set_state(&mut self, state: StateManager<String, Vec<Message>>) {
         self.history = state;
     }
 }
 
 #[async_trait]
-impl Node for &BedrockConverse<Message> {
+impl<'a> Node for &BedrockConverse<'a, Message> {
     type Input = String;
     type Output = Message;
 
@@ -285,28 +382,16 @@ impl Node for &BedrockConverse<Message> {
     }
 }
 
-impl Stateless for &BedrockConverse<Message> {}
+impl<'a> Stateless for &BedrockConverse<'a, Message> {}
 
 #[async_trait]
-impl Stateful<String, Vec<Message>> for &BedrockConverse<Message> {
+impl<'a> Stateful<String, Vec<Message>> for &BedrockConverse<'a, Message> {
     async fn set_state(&mut self, state: StateManager<String, Vec<Message>>) {
         self.set_state(state).await;
     }
 }
 
-#[async_trait]
-impl<T> ToolHandler for BedrockConverse<T>
-where
-    T: Send + Sync + Clone,
-{
-    async fn set_tool_registry(&mut self, tool_registry: &RwLock<ToolRegistry>) {
-        let registry = tool_registry.read().await;
-        let config: ToolConfiguration = (*registry).clone().into();
-        self.tool_configuration = Some(config);
-    }
-}
-
-impl<T: Clone> fmt::Debug for BedrockConverse<T> {
+impl<'a, T: Clone> fmt::Debug for BedrockConverse<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("BedrockConverse")
             .field("system_prompt", &self.system_prompt)
@@ -315,11 +400,11 @@ impl<T: Clone> fmt::Debug for BedrockConverse<T> {
 }
 
 #[derive(Debug)]
-pub struct Claude3Bedrock {
-    llm: BedrockConverse<String>,
+pub struct Claude3Bedrock<'a> {
+    llm: BedrockConverse<'a, String>,
 }
 
-impl Claude3Bedrock {
+impl<'a> Claude3Bedrock<'a> {
     pub async fn new() -> Self {
         Claude3Bedrock {
             llm: BedrockConverse::new(BedrockModel::Claude3).await,
@@ -335,10 +420,11 @@ impl Claude3Bedrock {
 }
 
 #[async_trait]
-impl Node for Claude3Bedrock {
+impl<'a> Node for Claude3Bedrock<'a> {
     type Input = String;
     type Output = String;
 
+    #[cfg_attr(feature = "tracing", instrument(fields(system_prompt = self.llm.system_prompt.as_str())))]
     async fn process(&self, input: Self::Input) -> Result<Self::Output, AnchorChainError> {
         self.llm.process(input).await
     }
