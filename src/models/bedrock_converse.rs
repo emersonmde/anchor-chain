@@ -69,7 +69,6 @@ pub struct BedrockConverse<'a, O: Clone> {
     system_prompt: String,
     /// The AWS Bedrock client for sending requests.
     client: Client,
-    // tool_configuration: Option<ToolConfiguration>,
     tool_registry: Option<&'a RwLock<ToolRegistry<'a>>>,
     history: StateManager<String, Vec<O>>,
     _output: PhantomData<O>,
@@ -124,15 +123,14 @@ impl<'a> Node for BedrockConverse<'a, String> {
             .system(SystemContentBlock::Text(self.system_prompt.clone()));
         let response = request.send().await?;
 
-        if let Some(output) = response.output() {
-            return Ok(output.as_message().unwrap().content[0]
+        match response.output() {
+            Some(output) => Ok(output.as_message().unwrap().content[0]
                 .as_text()
                 .unwrap()
-                .clone());
-        } else {
-            return Err(AnchorChainError::ModelError(
+                .clone()),
+            None => Err(AnchorChainError::ModelError(
                 "No output returned".to_string(),
-            ));
+            )),
         }
     }
 }
@@ -220,16 +218,17 @@ impl<'a> BedrockConverse<'a, Message> {
         &self,
         response: ConverseOutput,
     ) -> Result<Message, AnchorChainError> {
-        if let Some(output) = response.output() {
-            let message = output.as_message().unwrap();
-            self.history
-                .push(HISTORY_KEY.to_string(), message.clone())
-                .await;
-            Ok(message.clone())
-        } else {
-            Err(AnchorChainError::ModelError(
+        match response.output() {
+            Some(output) => {
+                let message = output.as_message().unwrap();
+                self.history
+                    .push(HISTORY_KEY.to_string(), message.clone())
+                    .await;
+                Ok(message.clone())
+            }
+            None => Err(AnchorChainError::ModelError(
                 "No output returned".to_string(),
-            ))
+            )),
         }
     }
 
