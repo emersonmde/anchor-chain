@@ -1,14 +1,13 @@
 use futures::future::BoxFuture;
 use std::collections::HashMap;
 
-use anchor_chain::{
-    nodes::prompt::Prompt, parallel_node::ParallelNode, ChainBuilder, Claude3Bedrock, OpenAIModel,
-};
+use anchor_chain::models::bedrock_converse::Claude3Bedrock;
+use anchor_chain::{nodes::prompt::Prompt, parallel_node::ParallelNode, ChainBuilder, OpenAIModel};
 
 #[tokio::main]
 async fn main() {
     let gpt3 = Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant").await);
-    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant").await);
+    let claude3 = Box::new(Claude3Bedrock::new().await);
 
     let select_output_fn = Box::new(|outputs: Vec<String>| -> BoxFuture<Result<String, _>> {
         Box::pin(async move {

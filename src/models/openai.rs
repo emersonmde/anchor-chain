@@ -20,7 +20,7 @@ use crate::models::embedding_model::EmbeddingModel;
 use crate::node::Node;
 
 /// OpenAI model types supported by the `OpenAI` node
-#[derive(Debug, Stateless)]
+#[derive(Debug, Stateless, Clone)]
 pub enum OpenAIModel<T>
 where
     T: Send + Sync + fmt::Debug,
@@ -95,6 +95,7 @@ where
 /// `OpenAIChatModel` encapsulates the functionality required to interact with
 /// the OpenAI Chat API, handling both the construction of requests and the
 /// parsing of responses.
+#[derive(Clone)]
 pub struct OpenAIChatModel<T> {
     system_prompt: String,
     model: String,
@@ -218,6 +219,7 @@ impl<T> fmt::Debug for OpenAIChatModel<T> {
 }
 
 /// Node for making requests to OpenAI Instruct models.
+#[derive(Clone)]
 pub struct OpenAIInstructModel<T>
 where
     T: Into<Prompt>,
@@ -310,6 +312,7 @@ where
 }
 
 /// Node for making requests to OpenAI embedding models.
+#[derive(Clone)]
 pub struct OpenAIEmbeddingModel {
     /// The name of the instruct model.
     model: String,

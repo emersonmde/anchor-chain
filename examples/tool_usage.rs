@@ -1,63 +1,68 @@
-use anchor_chain::{ChainBuilder, Claude3Bedrock, Prompt, ToolRegistry};
-use anchor_chain_macros::tool;
+use std::ops::Deref;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use once_cell::sync::Lazy;
 use serde_json::Value;
-use std::collections::HashMap;
 use tokio::sync::RwLock;
+
+use anchor_chain::{AgentExecutor, ChainBuilder, ToolRegistry};
+use anchor_chain_macros::tool;
 
 static TOOL_REGISTRY: Lazy<RwLock<ToolRegistry>> = Lazy::new(|| RwLock::new(ToolRegistry::new()));
 
-/// This is a foo function
+/// Generates the current weather in Celsius
 ///
-/// This is another line
+/// # Parameters
+/// - None
+///
+/// # Returns
+/// - A float representing the current temperature in Celsius.
 #[tool(TOOL_REGISTRY)]
-fn foo(one: String, two: String) {
-    println!("Foobar {one} {two}")
+fn get_weather() -> f64 {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let seed = now.as_secs();
+
+    (seed % 40) as f64
 }
 
-/// This is a bar function
+/// Converts a temperature from Celsius to Fahrenheit
+///
+/// # Parameters
+/// - `celsius`: A float representing the temperature in Celsius.
+///
+/// # Returns
+/// - A float representing the temperature in Fahrenheit.
 #[tool(TOOL_REGISTRY)]
-fn bar(x: i32, y: i32) -> i32 {
-    x + y
+fn celsius_to_fahrenheit(celsius: f64) -> f64 {
+    celsius * 1.8 + 32.0
+}
+
+/// Provides a common sentiment based on the temperature
+///
+/// # Parameters
+/// - `temp`: A float representing the temperature in Fahrenheit.
+///
+/// # Returns
+/// - A `String` with a sentiment on the temperature.
+#[tool(TOOL_REGISTRY)]
+fn weather_sentiment(temp: f64) -> String {
+    if temp > 85.0 {
+        format!("{temp} is hot").to_string()
+    } else if temp < 60.0 {
+        format!("{temp} is cold").to_string()
+    } else {
+        format!("{temp} is moderate").to_string()
+    }
 }
 
 #[tokio::main]
 async fn main() {
-    let params = serde_json::json!({"one": "baz", "two": "bam"});
-    TOOL_REGISTRY
-        .read()
-        .await
-        .execute_tool("foo", params)
-        .unwrap();
-    println!(
-        "Foo schema: {:?}",
-        TOOL_REGISTRY.read().await.get_schema("foo").unwrap()
-    );
-
-    let params = serde_json::json!({"x": 1, "y": 2});
-    let result = TOOL_REGISTRY
-        .read()
-        .await
-        .execute_tool("bar", params)
-        .unwrap();
-    println!("Bar result: {}", result);
-    println!(
-        "Bar schema: {:?}",
-        TOOL_REGISTRY.read().await.get_schema("bar").unwrap()
-    );
-
-    let claude3 = Claude3Bedrock::new("You are a helpful assistant").await;
-
     let chain = ChainBuilder::new()
-        .link(Prompt::new("{{ input }}"))
-        .link(claude3)
+        .link(AgentExecutor::new_claude_agent(TOOL_REGISTRY.deref()).await)
         .build();
 
     let output = chain
-        .process(HashMap::from([(
-            "input",
-            "Write a hello world program in Rust",
-        )]))
+        .process("Is it hot outside?".to_string())
         .await
         .expect("Error processing chain");
     println!("{}", output);

@@ -6,7 +6,7 @@
 //! having to worry about the specific details of each model's API.
 
 #[cfg(feature = "bedrock")]
-pub mod claude_3;
+pub mod bedrock_converse;
 pub mod embedding_model;
 #[cfg(feature = "ollama")]
 pub mod ollama;

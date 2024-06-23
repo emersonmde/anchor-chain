@@ -27,9 +27,9 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
                     if let Expr::Lit(expr) = &meta.value {
                         if let Lit::Str(lit_str) = &expr.lit {
                             let value = lit_str.value();
-                            let trimed_value = value.trim();
-                            if !trimed_value.is_empty() {
-                                return Some(trimed_value.to_string());
+                            let trimmed_value = value.trim();
+                            if !trimmed_value.is_empty() {
+                                return Some(trimmed_value.to_string());
                             }
                         }
                     }
@@ -77,12 +77,16 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
         .collect::<Vec<_>>();
 
     let schema = json!({
-        "name": name,
-        "description": docs,
-        "input_schema": {
-            "type": "object",
-            "properties": properties,
-            "required": required
+        "toolSpec": {
+            "name": name,
+            "description": docs,
+            "inputSchema": {
+                "json": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required
+                }
+            }
         }
     });
 
@@ -92,7 +96,7 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
     let struct_name = format_ident!("{}__AnchorChainTool", fn_name);
     let register_fn_name = format_ident!("register_{}__anchor_chain_tool", fn_name);
 
-    // TODO: Move execute method to a stand alone function
+    // TODO: Move execute method to a stand-alone function
     let expanded = quote! {
         #input
 
@@ -115,7 +119,14 @@ fn try_tool(registry_name: syn::Ident, input: ItemFn) -> Result<TokenStream> {
         #[doc(hidden)]
         fn #register_fn_name() {
             let schema_value: Value = serde_json::from_str(#schema_string).unwrap();
-            #registry_name.blocking_write().register_tool(stringify!(#fn_name), #struct_name::execute, schema_value);
+            #registry_name.blocking_write().register_tool(
+                anchor_chain::agents::tool_registry::ToolEntry::new(
+                    stringify!(#fn_name),
+                    #docs,
+                    #struct_name::execute,
+                    schema_value
+                )
+            );
         }
     };
 
@@ -131,8 +142,6 @@ fn extract_type(ty: &Type) -> Result<Value> {
             "i32" | "i64" | "f32" | "f64" => Ok(json!({ "type": "number" })),
             "bool" => Ok(json!({ "type": "boolean" })),
             _ => {
-                // Check if it is a reference to &str
-                // TODO: Fix lifetime issue when deserializing &str
                 if type_name == "str" {
                     if let PathArguments::AngleBracketed(args) = &type_segment.arguments {
                         if args.args.is_empty() {

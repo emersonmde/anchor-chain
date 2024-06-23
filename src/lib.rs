@@ -95,20 +95,20 @@
 #[doc = include_str!("../README.md")]
 struct _README;
 
-mod agents;
+pub mod agents;
 pub mod chain;
 mod error;
 mod link;
 mod state_manager;
 // TODO: Add impls for Ollama
-#[cfg(any(feature = "bedrock", feature = "bedrock"))]
-pub mod message;
 pub mod models;
 pub mod node;
 pub mod nodes;
 pub mod parallel_node;
 pub mod vector;
 
+#[cfg(feature = "bedrock")]
+pub use agents::agent_executor::AgentExecutor;
 pub use agents::tool_registry::ToolRegistry;
 pub use chain::ChainBuilder;
 pub use error::AnchorChainError;
@@ -123,7 +123,7 @@ pub use parallel_node::ParallelNode;
 pub use state_manager::StateManager;
 
 #[cfg(feature = "bedrock")]
-pub use models::claude_3::Claude3Bedrock;
+pub use models::bedrock_converse::BedrockConverse;
 #[cfg(feature = "ollama")]
 pub use models::ollama::Ollama;
 #[cfg(feature = "openai")]
@@ -143,5 +143,4 @@ pub use vector::opensearch_indexer::OpenSearchIndexer;
 #[cfg(feature = "opensearch")]
 pub use vector::opensearch_retriever::OpenSearchRetriever;
 
-#[cfg(feature = "macros")]
 pub use ctor;

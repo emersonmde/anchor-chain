@@ -60,6 +60,15 @@ impl<K: Eq + Hash + Clone, V: Clone> StateManager<K, V> {
     }
 }
 
+impl<K: Eq + Hash + Clone, V: Clone> StateManager<K, Vec<V>> {
+    pub async fn push(&self, key: K, value: V) {
+        let mut map = self.inner.write().await;
+        map.entry(key)
+            .and_modify(|vec| vec.push(value.clone()))
+            .or_insert(vec![value]);
+    }
+}
+
 impl<K: Eq + Hash + Clone, V: Clone> Default for StateManager<K, V> {
     fn default() -> Self {
         StateManager::<K, V>::new()

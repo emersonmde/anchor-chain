@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
-use anchor_chain::{
-    to_boxed_future, ChainBuilder, Claude3Bedrock, OpenAIModel, ParallelNode, Prompt,
-};
+use anchor_chain::models::bedrock_converse::Claude3Bedrock;
+use anchor_chain::{to_boxed_future, ChainBuilder, OpenAIModel, ParallelNode, Prompt};
 
 #[tokio::main]
 async fn main() {
     let gpt3 = Box::new(OpenAIModel::new_gpt3_5_turbo("You are a helpful assistant").await);
-    let claude3 = Box::new(Claude3Bedrock::new("You are a helpful assistant").await);
+    let claude3 = Box::new(Claude3Bedrock::new().await);
 
     let concat_fn = to_boxed_future(|outputs: Vec<String>| {
         Ok(outputs

@@ -5,6 +5,8 @@ use async_openai::error::OpenAIError;
 #[cfg(feature = "bedrock")]
 use aws_sdk_bedrockruntime::error::SdkError;
 #[cfg(feature = "bedrock")]
+use aws_sdk_bedrockruntime::operation::converse::ConverseError;
+#[cfg(feature = "bedrock")]
 use aws_sdk_bedrockruntime::operation::invoke_model::InvokeModelError;
 
 /// Defines errors types for Anchor Chain
@@ -20,6 +22,10 @@ pub enum AnchorChainError {
     #[cfg(feature = "bedrock")]
     #[error("Bedrock error: {0}")]
     BedrockError(#[from] SdkError<InvokeModelError>),
+
+    #[cfg(feature = "bedrock")]
+    #[error("Bedrock Converse Error: {0}")]
+    BedrockConverse(#[from] SdkError<ConverseError>),
 
     /// Error constructing or rendering Tera templates.
     #[error("error constructing or rendering Tera template: {0}")]
